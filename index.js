@@ -4,6 +4,10 @@
  * @module thorn
  */
 
+var chakram = require('chakram');
+var MetadataFetcher = require('./metadatafetcher.js');
+var _ = require('lodash');
+
 /**
  * Mimics default version until we have a way to get it from the instance being tested.
  */
@@ -56,222 +60,179 @@ var fixturesMap = new WeakMap();
 
 // FIXTURES TO BE WRITTEN BY RICHARD
 
-class DuplicateRecordException {
-    constructor(model) {
-        this.message = 'Cannot create duplicate record.';
-        this.model = model;
-    }
-}
-
-class DuplicateLinkException {
-    constructor(model) {
-        this.message = 'Cannot create duplicate link.';
-        this.model = model;
-    }
-}
-
-class EmptyModuleException {
-    constructor(model) {
-        this.message = 'Must supply a module through model or options.';
-        this.model = model;
-    }
-}
-
-class MissingLinkException {
-    constructor(link) {
-        this.message = 'Missing link.';
-        this.link = link;
-    }
-}
-
-var MetadataFetcher = {
-    /**
-     * Generates random values field types.
-     *
-     * @param {string} type Type of the field.
-     * @param {string} module Module of the field.
-     * @return {string} Random field value according to type and module.
-     */
-    // TODO implement generator
-    generateFieldValue: (type, module) => {
-        // case switch on `type`
-        return '';
-    },
-
-    /**
-     * Returns the required fields of module.
-     *
-     * @param {string} module Module name.
-     * @return {Object} Object of required fields.
-     */
-     // TODO implement this
-    fetchRequiredFields: (module) => {
-        return {}
-    },
-
-    /**
-     * Returns the link name of the module.
-     *
-     * @param {string} module Module name.
-     * @return {string} Link name of the module in vardefs.
-     */
-    // TODO implement this
-    getLinkName: (module) => {
-        return module;
-    }
-};
-
 var Fixtures = {
+    /**
+     * @property {number} _sessionAttempt Number of attempts made to login as
+     *   admin.
+     *
+     * @private
+     */
+    _sessionAttempt: 0,
+
+    /**
+     * @property {number} _maxSessionAttempts Maximum number login attempts
+     *   allowed.
+     *
+     * @private
+     */
+     _maxSessionAttempts: 0,
+
     /**
      * Using the supplied models, create records and links on the server cache those records locally.
      *
-     * @param {Object[]} An array of objects, containing a list of attributes for each new model.
-     * @param {Object} options
-     * @param {string} options.module The module of all modules (if not specified in the models' object).
+     * @param {Object[]} models An array of objects, containing a list of attributes for each new model.
+     * @param {Object} [options]
+     * @param {string} [options.module] The module of all models (if not specified in the models' object).
      *
      * @return {Promise} The ChakramResponse from the creation of the records and/or links
-     * TODO: We'll need dev docs for how to create a user and log in with him/her
      */
+    create(models, options = {}) {
+        if (_.isUndefined(this._getHeaders().access_token)) {
+            if (++this._sessionAttempt > this._maxSessionAttempts) {
+                throw new Error('Max number of login attempts exceeded!');
+            }
 
+            return this._adminLogin().then(() => {
+                return this.create(models, options);
+            });
+        }
 
-     /**************************************************************************
-      ****************** PROPOSED IMPLEMENTATION PSEUDOCODE ********************
-      *************************************************************************/
-    // Get a unique ID used to identify records created within either a test-run or at least a test-suite
+        // reset #_sessionAttempt
+        this._sessionAttempt = 0;
 
-    // Loop models to handle record creation
-        // Check if cux rrent model has been handled (cached) already
-        // Get module's metadata + list of required fields based of model.module || options.module so that we can pre-fill them automatically based on their type
-    // end loop
-    
-    // Use chakram.post (with Header X-Fixtures: true) to create the record(s), trigger bulk call independentely of the of models.length 
-        // Loop chakram response for each record
-            // Cache record into fixturesMap
-            // Cache record into cachedRecords indexed by supplied module
-            // TODO later: Runs hooks for specific module so that we can solve exceptions like users and store their credentials separately: 
-            //    e.g.: if (typeof Fixtures['hookUsers'] === 'function') { Fixtures.hookUsers(fixtureObject, responseObject); }
-        // end loop
-      
-    // Loop models to handle links
-        // Check if current link has been handled (cached) already
-    // end loop
-    // Use chakram.post (with Header X-Fixtures: true) to create the link(s), trigger bulk call independentely of the amount of links supplied 
-        // Loop chakram response for each record
-            // Cache record into fixturesMap
-            // Cache record into cachedRecords indexed by supplied module
-        // end loop
-      
-    // Return promise with the record(s) that we've just created
-
-
-    create: (models, options = {}) => {
-        let bulkRecordCreateDef = {requests: []};
-        let bulkRecordLinkDef = {requests: []};
-        let url = [ROOT_URL, version, 'bulk'].join('/');
+        let url = [ROOT_URL, VERSION, 'bulk'].join('/');
         let params = {headers: this._getHeaders()};
-        let leftLinkArray = [];
+        let bulkRecordCreateDef = this._processModels(models, options);
+        let bulkRecordLinkDef;
 
+        // return Promise
+        return chakram.post(url, bulkRecordCreateDef, params).then((response) => {
+            if (response.response.statusCode === 401) {
+
+                return this._refresh().then(() => {
+                    params.headers = this._getHeaders();
+
+                    return chakram.post(url, bulkRecordCreateDef, params);
+                }).then((response) => {
+                    bulkRecordLinkDef = this._processRecords(response, models);
+
+                    return chakram.post(url, bulkRecordLinkDef, params);
+                });
+            
+            }
+
+            bulkRecordLinkDef = this._processRecords(response, models);
+
+            return chakram.post(url, bulkRecordLinkDef, params);
+        }).then(() => {
+            return cachedRecords;
+        }).catch((err) => {
+            console.error(err);
+        });
+    },
+
+    /**
+     * Generates the bulk call object for linking based on response from record
+     * creation.
+     *
+     * @param {Object} response Response object from record creation bulk call.
+     * @param {Object[]} models
+     *
+     * @return {Object} Bulk call object for links.
+     *
+     * @private
+     */
+    _processRecords(response, models) {
+        let bulkRecordLinkDef = { requests: [] };
+        let records = response.response.body;
+        let modelIndex = 0;
+
+        // Loop chakram response for each record
+        _.each(records, (record) => {
+            let contents = record.contents;
+            let recordModule = contents._module;
+            // Cache record into fixturesMap
+            // The bulk response is in the same order as the supplied requests.
+            fixturesMap.set(models[modelIndex++], contents);
+            // Cache record into cachedRecords indexed by supplied module
+            if (cachedRecords[recordModule]) {
+                cachedRecords[recordModule].push(contents);
+            } else {
+                cachedRecords[recordModule] = [contents];
+            }
+        });
+
+        // Loop models to handle links
+        _.each(models, (model) => {
+            let leftID = fixturesMap.get(model).id;
+            _.each(model.links, (moduleLinks, linkToModule) => {
+                _.each(moduleLinks, (link) => {
+                    let cachedRecord = fixturesMap.get(link);
+                    if (!cachedRecord) {
+                        console.error('Missing link!');
+                        throw new Error(link.toString());
+                    }
+                    let request = {
+                        url: '/' + VERSION + '/' + model.module + '/' + leftID + '/link',
+                        method: 'POST',
+                        data: {
+                            link_name: linkToModule,
+                            ids: [cachedRecord.id]
+                        }
+                    };
+
+                    bulkRecordLinkDef.requests.push(request);
+                });
+            });
+        });
+
+        return bulkRecordLinkDef;
+    },
+
+    /**
+     * Generates the bulk call object for object creation based on models.
+     *
+     * @param {Object[]} models
+     * @param {Object} [options]
+     *
+     * @return {Object} Bulk call object for record creation.
+     *
+     * @private
+     */
+    _processModels(models, options = {}) {
+        let bulkRecordCreateDef = { requests: [] };
         // Loop models to check if any model has been cached already
         // Fetch module's required fields and pre-fill them
         _.each(models, (model) => {
+            model.module = model.module || options.module;
             let requiredFields;
             let request = {
-                url: '/' + VERSION + '/' + module,
+                url: '/' + VERSION + '/' + model.module,
                 method: 'POST',
-                data: model.attributes
+                data: model.attributes || {}
             };
-            model.module = model.module || options.module;
 
             if (!model.module) {
-                throw new EmptyModuleException(model);
+                console.error('Missing module name!');
+                throw new Error(model.toString());
             }
             if (fixturesMap.has(model)) {
-                // We can `continue` if we dont want to throw
-                throw new DuplicateRecordException(model);
+                console.error('Record already exists!');
+                throw new Error(model.toString());
             }
 
-            // TODO implement function to fetch required fields based on metadata.
             requiredFields = MetadataFetcher.fetchRequiredFields(model.module);
             _.each(requiredFields, (field) => {
-                request.data[field.name] = MetadataFetcher.generateFieldValue(field.type, model.module);
+                if (!request.data[field.name]) {
+                    request.data[field.name] = MetadataFetcher.generateFieldValue(field.type, field.reqs);
+                }
             });
 
             // Use chakram.post (with Header X-Fixtures: true) to bulk create the record(s).
             bulkRecordCreateDef.requests.push(request);
         });
 
-        // return Promise
-        return chakram.post(url, bulkRecordCreateDef, params).then((response) => {
-            let records = response.response.body;
-            let modelIndex = 0;
-
-            // Loop chakram response for each record
-            _.each(records, (record) => {
-                let recordModule = record._module;
-                // Cache record into fixturesMap
-                // We are assuming the bulk response is in the same order as the supplied requests.
-                // TODO verify this assumption
-                fixturesMap.set(models[modelIndex++], record);
-                // Cache record into cachedRecords indexed by supplied module
-                if (cachedRecords[recordModule]) {
-                    cachedRecords[recordModule].push(record);
-                } else {
-                    cachedRecords[recordModule] = [record];
-                }
-            });
-        }).then(() => {
-            // Loop models to handle links
-            _.each(models, (model) => {
-                let leftID = fixturesMap.get(model).id;
-
-                _.each(model.links, (link) => {
-                    let cachedRecord = fixturesMap.get(link);
-                    let request = {
-                        url: '/' + VERSION + '/' + model.module + '/record/link',
-                        method: 'POST',
-                        data: {
-                            link_name: MetadataFetcher.getLinkName(cachedRecord._module),
-                            ids: [
-                                leftID,
-                                {
-                                    id: cachedRecord.id
-                                }
-                            ]
-                        }
-                    };
-
-                    bulkRecordLinkDef.requests.push(request);
-                    leftLinkArray.push(model);
-                });
-            });
-
-            return chakram.post(url, bulkRecordLinkDef, params);
-        }, (error) => {
-            // error handling
-            console.error(error);
-            throw error;
-        }).then((response) => {
-            let records = response.response.body;
-            let leftLinkIndex = 0;
-
-            // Loop chakram response for each record
-            _.each(records, (record) => {
-                let relatedRecords = record.related_records;
-                
-                // Cache record into fixturesMap
-                // This is pretty terrible. But we need to establish a link between the models and the response from
-                //   the bulk link call, in order to cache into #fixturesMap.
-                fixturesMap.get(leftLinkArray[leftLinkIndex++]).related_records = relatedRecords;
-                // Cache record into cachedRecords
-                this.lookup(record.record._module, {id: record.record.id})[0].related_records = relatedRecords;
-            });
-
-            return cachedRecords;
-        }, (error) => {
-            // error handling
-            console.error(error);
-            throw error;
-        });
+        return bulkRecordCreateDef;
     },
 
     /**
@@ -279,19 +240,30 @@ var Fixtures = {
      *
      * @return {Promise} The ChakramResponse for the delete request to the server.
      */
-    cleanup: () => {
+    cleanup() {
+        if (_.isUndefined(this._getHeaders().access_token)) {
+            if (++this._sessionAttempt > this._maxSessionAttempts) {
+                throw new Error('Max number of login attempts exceeded!');
+            }
+
+            return this._adminLogin().then(() => {
+                return this.cleanup();
+            });
+        }
+
+        // reset #_sessionAttempt
+        this._sessionAttempt = 0;
+
         // Create promise for record deletion
         // Clear the cache
         // Return promise
-        let bulkRecordDeleteDef = {requests: []};
-        let url = [ROOT_URL, version, 'bulk'].join('/');
+        let bulkRecordDeleteDef = { requests: [] };
+        let url = [ROOT_URL, VERSION, 'bulk'].join('/');
         let params = {headers: this._getHeaders()};
 
-        _.each(cachedRecords, (moduleRecords) => {
-            let module = moduleRecords[0]._module;
-
+        _.each(cachedRecords, (moduleRecords, module) => {
             _.each(moduleRecords, (record) => {
-                bulkRecordDeleteDef.push({
+                bulkRecordDeleteDef.requests.push({
                     url: '/' + VERSION + '/' + module + '/' + record.id,
                     method: 'DELETE'
                 });
@@ -299,68 +271,68 @@ var Fixtures = {
         });
 
         // Create promise for record deletion
-        return chakram.post(url, bulkRecordDeleteDef, params).then(() => {
+        return chakram.post(url, bulkRecordDeleteDef, params).then((response) => {
+            if (response.response.statusCode === 401) {
+
+                return this._refresh().then(() => {
+                    params.headers = this._getHeaders();
+                    chakram.post(url, bulkRecordDeleteDef, params).then(() => {
+                        // clear cache
+                        cachedRecords = null;
+                    });
+                });
+
+            }
+
             // clear cache
-            delete cachedRecords;
-        }, (error) => {
-            // error handling
-            console.error(error);
-            throw error;
+            cachedRecords = null;
+        }).catch((err) => {
+            console.error(err);
         });
     },
 
     /**
      * Mimics _.findWhere and using the supplied arguments, returns the cached record(s).
      *
-     * @param {string} Module The module of the record(s) to find
-     * @param {Object} Properties The properties to search for
-     * @return {Object[]} Array of records that match properties
+     * @param {string} module The module of the record(s) to find
+     * @param {Object} properties The properties to search for
+     *
+     * @return {Object} The first record in #cachedRecords that match properties
      */
-    lookup: (module, properties) => {
-        // Mimics _.findWhere and looks up through cache
-        let ret = [];
-
-        _.each(cachedRecords, (moduleRecords) => {
-            ret = ret.concat(_.findWhere(moduleRecords, properties));
-        });
+    lookup(module, properties) {
+        return _.findWhere(cachedRecords[module], properties);
     },
 
     /**
-     * @param {Object} left Record retrieved from cache or fixture.
+     * Creates link between `left` and `right` in the database.
+     *
+     * @param {Object} left Record retrieved from cache.
      * @param {string} linkName Relationship link name.
-     * @param {Object} right Record retrieved from cache or fixture.
+     * @param {Object} right Record retrieved from cache.
+     *
+     * @return {Promise} ChakramPromise
      */
-    link: (left, linkName, right) => {
-        let leftLink;
-        let rightLink;
-        let url;
+    link(left, linkName, right) {
+        let url = '/' + VERSION + '/' + left._module + '/' + left.id + '/link';
         let params = {headers: this._getHeaders()};
         let linkDef = {
             link_name: linkName,
-            id: []
+            ids: [right.id]
         };
 
-        // search left and right on fixturesMap
-        // if not found search them on cachedRecords
-        leftLink = fixturesMap.get(left) || this.lookup(left);
-        rightLink = fixturesMap.get(right) || this.lookup(left);
+        return chakram.post(url, linkDef, params).then((response) => {
+            if (response.response.statusCode === 401) {
 
-        if (!leftLink) {
-            throw new MissingLinkException(left);
-        }
-        if (!rightLink) {
-            throw new MissingLinkException(right);
-        }
-    
-        url = '/' + VERSION + '/' + leftLink._module + '/record/link';
-        linkDef.id = [
-            leftLink.id,
-            {
-                id: rightLink.id
+                return this._refresh().then(() => {
+                    params.headers = this._getHeaders();
+
+                    return chakram.post(url, linkDef, params);
+                });
+
             }
-        ];
 
-        return chakram.post(url, linkDef, params);
+            return response;
+        });
     },
 
     /**
@@ -368,12 +340,64 @@ var Fixtures = {
      *
      * @return {Object} Headers including authentification information.
      */
-    _getHeaders: () => {
+    _getHeaders() {
         return {
             'Content-Type': 'application/json',
-            'Oauth-Token': AUTH.body.access_token,
-            'X-Fixtures': true
+            'Oauth-Token': AUTH.body ? AUTH.body.access_token : undefined,
+            'X-Thron': 'Fixtures'
         };
+    },
+
+    /**
+     * Stores the login response.
+     *
+     * @param {Object} auth The login response.
+     */
+    _storeHeaders(auth) {
+        AUTH = auth;
+    },
+
+    /**
+     * Logins as the admin user.
+     *
+     * @return {Promise} ChakramPromise
+     *
+     * @private
+     */
+    _adminLogin() {
+        var credentials = {
+            username: process.env.ADMIN_USERNAME,
+            password: process.env.ADMIN_PASSWORD,
+            grant_type: 'password',
+            client_id: 'sugar',
+            client_secret: ''
+        };
+        var url = [ROOT_URL, VERSION, 'oauth2/token'].join('/');
+
+        return chakram.post(url, credentials).then((response) => {
+            this._storeHeaders(response);
+        });
+    },
+
+    /**
+     * Refreshes the session of the admin user.
+     *
+     * @return {Promise} ChakramPromise
+     *
+     * @private
+     */
+    _refresh() {
+        var credentials = {
+            grant_type: 'refresh_token',
+            refresh_token: AUTH.body.refresh_token,
+            client_id: 'sugar',
+            client_secret: ''
+        };
+        var url = [ROOT_URL, VERSION, 'oauth2/token'].join('/');
+
+        return chakram.post(url, credentials).then((response) => {
+            this._storeHeaders();
+        });
     }
 };
 
@@ -398,11 +422,11 @@ class UserAgent {
         //...
     }
 
-  /**
-   * Clones agent and swaps API version, if supplied version matches the previously supplied version, same agent instance is returned.
-   *
-   * @param {string} version
-   */
+    /**
+     * Clones agent and swaps API version, if supplied version matches the previously supplied version, same agent instance is returned.
+     *
+     * @param {string} version
+     */
     on(version) {
         //...
     }
