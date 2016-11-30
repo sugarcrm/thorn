@@ -1,3 +1,4 @@
+var chakram = require('chakram');
 /**
  * Thorn Node.js module for REST API testing SugarCRM with Chakram.
  *
