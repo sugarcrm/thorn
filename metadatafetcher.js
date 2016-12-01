@@ -64,11 +64,11 @@ var MetadataFetcher = {
      * @return {Object} Object of required fields.
      */
     fetchRequiredFields(module) {
-        if (!metadata[module]) {
-            throw 'Unrecognized module';
-        }
+        //if (!metadata[module]) {
+        //    throw 'Unrecognized module';
+        //}
 
-        return metadata[module].requiredFields;
+        return _.isUndefined(metadata[module]) ? [] : metadata[module].requiredFields;
     }
 };
 
