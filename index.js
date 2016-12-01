@@ -120,8 +120,14 @@ let Fixtures = {
         // reset #_sessionAttempt
         this._sessionAttempt = 0;
 
+<<<<<<< HEAD
         let url = _constructUrl('bulk', VERSION);
         let params = {headers: this._headers};
+=======
+        let url = [ROOT_URL, VERSION, 'bulk'].join('/');
+        console.log('in Fixtures, url is ' + url);
+        let params = {headers: this._getHeaders()};
+>>>>>>> fb238f5... WIP Getting server mock set up for actual testing
         let bulkRecordCreateDef = this._processModels(models, options);
         let bulkRecordLinkDef;
 
