@@ -1,8 +1,11 @@
+var _ = require('lodash');
 var gulp = require('gulp');
+
+var sourceFiles = ['index.js', 'metadatafetcher.js'];
 
 gulp.task('build', () => {
     var babel = require('gulp-babel');
-    gulp.src('index.js')
+    gulp.src(sourceFiles)
         .pipe(babel())
         .pipe(gulp.dest('dist'));
 });
@@ -35,13 +38,13 @@ gulp.task('doc', (cb) => {
     var jsdoc = require('gulp-jsdoc3');
     var jsdocConfig = require('./jsdoc.json');
 
-    gulp.src(['README.md', 'index.js'], { read: false })
+    gulp.src(_.union(['README.md'], sourceFiles), { read: false })
         .pipe(jsdoc(jsdocConfig, cb));
 });
 
 gulp.task('watch', () => {
     var watch = require('gulp-watch');
-    watch('index.js', () => {
+    watch(sourceFiles, () => {
         gulp.start('default');
     });
 });
