@@ -36,6 +36,8 @@ describe('Fixtures', () => {
             })
             .reply(200, function(uri, requestBody) {
                 expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                expect(requestBody.requests[0].url).to.contain('TestModule');
+                expect(requestBody.requests[0].method).to.equal('POST');
                 expect(requestBody.requests[0].data.name).to.equal('FakeRecord');
                 expect(requestBody.requests[0].data.field1).to.equal('field1data');
                 expect(requestBody.requests[0].data.field2).to.equal('field2data');
@@ -58,18 +60,48 @@ describe('Fixtures', () => {
         return createPromise;
     });
 
-    it.skip('should create a fixture using options.module', () => {
+    it('should create a fixture using options.module', () => {
+        let myFixture = [{
+            attributes: {
+                name: 'FakeRecord',
+                field1: 'field1data',
+                field2: 'field2data'
+            }
+        }];
         let server = nock(serverUrl)
-            .post('/bulk')
-            .reply(200, (uri, requestBody) => {
-                // TODO Put an expect in here with what we expect to receive
-                // TODO Put a response in here that matches what Sugar would send
+            .post((uri) => {
+                return uri.indexOf('oauth2/token') >= 0;
+            })
+            .reply(200, {
+                access_token: 'Test-Access-Token',
+                refresh_token: 'Test-Refresh-Token'
+            })
+            .post((uri) => {
+                return uri.indexOf('bulk') >= 0;
+            })
+            .reply(200, function(uri, requestBody) {
+                expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                expect(requestBody.requests[0].url).to.contain('TestModule');
+                expect(requestBody.requests[0].method).to.equal('POST');
+                expect(requestBody.requests[0].data.name).to.equal('FakeRecord');
+                expect(requestBody.requests[0].data.field1).to.equal('field1data');
+                expect(requestBody.requests[0].data.field2).to.equal('field2data');
+                return [{
+                    contents: {
+                        id: 'Fake-Record-Id',
+                        name: 'FakeRecord',
+                        field1: 'field1data',
+                        field2: 'field2data'
+                    }
+                }]
             });
-        // TODO Add fixture
-        let myFixture = {};
-        let createPromise = Fixtures.create(myFixture, {module: 'MyModule'});
 
-        expect(createPromise instanceof Promise).to.be.true;
+        let createPromise = Fixtures.create(myFixture, {module: 'TestModule'});
+
+        // expect the result to be a promise
+        // The only standard for a promise is that is has a `then`
+        // http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
+        expect(createPromise.then).to.be.a('function');
         return createPromise;
     });
 
