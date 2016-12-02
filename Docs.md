@@ -7,7 +7,8 @@ Thorn is a BDD-style testing framework built on [chakram](http://dareid.github.i
 `Thorn::Fixtures` is an object that handles the setup and cleanup process for test sets. It provides methods for creating records, record-relationships, and deleting records in the database.
 
 ### Methods
-**`Fixtures::create(models, options)` => `{Promise}`**  
+
+#### **`Fixtures::create(models, options)` => `{Promise}`**  
 Method to create and link records in the database.  
 
 | Name      | Type       | Description |
@@ -23,7 +24,7 @@ Method to create and link records in the database.
       
 <br/>
 
-**`Fixtures::link(left, linkName, right)` => `{Promise}`**  
+#### **`Fixtures::link(left, linkName, right)` => `{Promise}`**  
 Method to link records with a custom link name in the database.  
 
 | Name       | Type       | Description |
@@ -40,7 +41,7 @@ Method to link records with a custom link name in the database.
 
 <br/>
 
-**`Fixtures::cleanup()` => `{Promise}`**  
+#### **`Fixtures::cleanup()` => `{Promise}`**  
 Method to delete all records specified in `models`(in `Fixtures::create`) in the database.  
 
 **Returns:**  
