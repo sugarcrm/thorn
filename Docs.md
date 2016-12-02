@@ -63,7 +63,7 @@ Models is an object array that specifies the records and record-relationships th
 | `links`      | {Object} | Records related to this model, indexed by `link_name` |
 
 **Example without Links:**
-```js
+```javascript
 let AccountsContacts = [
     {
         module: 'Accounts',
@@ -98,7 +98,7 @@ return Fixtures.create(AccountsContacts)
 ```
 
 **Examples with Links:**
-```js
+```javascript
 let Account = {
     module: 'Accounts',
     attributes: {
