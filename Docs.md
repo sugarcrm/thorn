@@ -22,7 +22,8 @@ Method to create and link records in the database.
 | {Promise} | A `Promise` which resolves to an object of created records, indexed by module name|     
       
 <br/>
-`Fixtures::link(left, linkName, right)` => `{Promise}`  
+
+**`Fixtures::link(left, linkName, right)` => `{Promise}`**  
 Method to link records with a custom link name in the database.  
 
 | Name       | Type       | Description |
@@ -39,7 +40,7 @@ Method to link records with a custom link name in the database.
 
 <br/>
 
-`Fixtures::cleanup()` => `{Promise}`  
+**`Fixtures::cleanup()` => `{Promise}`**  
 Method to delete all records specified in `models`(in `Fixtures::create`) in the database.  
 
 **Returns:**  
