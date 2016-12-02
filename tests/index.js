@@ -5,8 +5,6 @@ process.env.API_URL = 'http://thisisnotarealserver.localdev';
 var chakram = require('chakram');
 var expect = require('chai').expect;
 var nock = require('nock');
-var thorn = require('../dist/index.js');
-var Fixtures = thorn.Fixtures;
 var requests = [];
 
 
@@ -14,145 +12,151 @@ var requests = [];
 var serverUrl = process.env.API_URL;
 
 describe('Fixtures', () => {
-    it('should create a fixture', () => {
-        let myFixture = [{
-            module: 'TestModule',
-            attributes: {
-                name: 'FakeRecord',
-                field1: 'field1data',
-                field2: 'field2data'
-            }
-        }];
-        let server = nock(serverUrl)
-            .post((uri) => {
-                return uri.indexOf('oauth2/token') >= 0;
-            })
-            .reply(200, {
-                access_token: 'Test-Access-Token',
-                refresh_token: 'Test-Refresh-Token'
-            })
-            .post((uri) => {
-                return uri.indexOf('bulk') >= 0;
-            })
-            .reply(200, function(uri, requestBody) {
-                expect(this.req.headers['x-thorn']).to.equal('Fixtures');
-                expect(requestBody.requests[0].url).to.contain('TestModule');
-                expect(requestBody.requests[0].method).to.equal('POST');
-                expect(requestBody.requests[0].data.name).to.equal('FakeRecord');
-                expect(requestBody.requests[0].data.field1).to.equal('field1data');
-                expect(requestBody.requests[0].data.field2).to.equal('field2data');
-                return [{
-                    contents: {
-                        _module: 'TestModule',
-                        id: 'Fake-Record-Id',
-                        name: 'FakeRecord',
-                        field1: 'field1data',
-                        field2: 'field2data'
-                    }
-                }]
-            });
+    let myFixture;
+    let thorn;
+    let Fixtures;
+    let thornFile = '../dist/index.js';
 
-        let createPromise = Fixtures.create(myFixture);
-
-        // expect the result to be a promise
-        // The only standard for a promise is that is has a `then`
-        // http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
-        expect(createPromise.then).to.be.a('function');
-        return createPromise;
+    // The only way to reset the state of thorn & thorn.fixtures is to do the below.
+    // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
+    beforeEach(() => {
+        thorn = require(thornFile);
+        Fixtures = thorn.Fixtures;
     });
 
-    it('should create a fixture using options.module', () => {
-        let myFixture = [{
-            attributes: {
-                name: 'FakeRecord',
-                field1: 'field1data',
-                field2: 'field2data'
-            }
-        }];
-        let server = nock(serverUrl)
-            .post((uri) => {
-                return uri.indexOf('oauth2/token') >= 0;
-            })
-            .reply(200, {
-                access_token: 'Test-Access-Token',
-                refresh_token: 'Test-Refresh-Token'
-            })
-            .post((uri) => {
-                return uri.indexOf('bulk') >= 0;
-            })
-            .reply(200, function(uri, requestBody) {
-                expect(this.req.headers['x-thorn']).to.equal('Fixtures');
-                expect(requestBody.requests[0].url).to.contain('TestModule');
-                expect(requestBody.requests[0].method).to.equal('POST');
-                expect(requestBody.requests[0].data.name).to.equal('FakeRecord');
-                expect(requestBody.requests[0].data.field1).to.equal('field1data');
-                expect(requestBody.requests[0].data.field2).to.equal('field2data');
-                return [{
-                    contents: {
-                        _module: 'TestModule',
-                        id: 'Fake-Record-Id',
-                        name: 'FakeRecord',
-                        field1: 'field1data',
-                        field2: 'field2data'
-                    }
-                }]
-            });
-
-        let createPromise = Fixtures.create(myFixture, {module: 'TestModule'});
-
-        // expect the result to be a promise
-        // The only standard for a promise is that is has a `then`
-        // http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
-        expect(createPromise.then).to.be.a('function');
-        return createPromise;
+    afterEach(() => {
+        delete require.cache[require.resolve(thornFile)];
     });
 
-    it('should create a fixture and find it', (done) => {
-        let myFixture = [{
-            module: 'TestModule',
-            attributes: {
-                name: 'FakeRecord',
-                field1: 'field1data',
-                field2: 'field2data'
-            }
-        }];
-        let server = nock(serverUrl)
-            .post((uri) => {
-                return uri.indexOf('oauth2/token') >= 0;
-            })
-            .reply(200, {
-                access_token: 'Test-Access-Token',
-                refresh_token: 'Test-Refresh-Token'
-            })
-            .post((uri) => {
-                return uri.indexOf('bulk') >= 0;
-            })
-            .reply(200, function(uri, requestBody) {
-                return [{
-                    contents: {
-                        _module: 'TestModule',
-                        id: 'Fake-Record-Id',
-                        name: 'FakeRecord',
-                        field1: 'field1data',
-                        field2: 'field2data'
-                    }
-                }]
-            });
-
-        let createPromise = Fixtures.create(myFixture);
-        createPromise.then(() => {
-            let lookup1 = Fixtures.lookup('TestModule', {name: 'FakeRecord'});
-            expect(lookup1.name).to.equal('FakeRecord');
-            expect(lookup1.field1).to.equal('field1data');
-            expect(lookup1.field2).to.equal('field2data');
-
-            let lookup2 = Fixtures.lookup('TestModule', {field1: 'field1data'});
-            let lookup3 = Fixtures.lookup('TestModule', {field2: 'field2data'});
-            expect(lookup1 == lookup2).to.be.true;
-            expect(lookup1 == lookup3).to.be.true;
-            done();
+    describe('creating one record', () => {
+        beforeEach(() => {
+            myFixture = [{
+                module: 'TestModule',
+                attributes: {
+                    name: 'FakeRecord',
+                    field1: 'field1data',
+                    field2: 'field2data'
+                }
+            }];
         });
 
+        it('should create a fixture', () => {
+            let thisServer = nock(serverUrl)
+                .post((uri) => {
+                    return uri.indexOf('oauth2/token') >= 0;
+                })
+                .reply(200, {
+                    access_token: 'Test-Access-Token',
+                    refresh_token: 'Test-Refresh-Token'
+                })
+                .post((uri) => {
+                    return uri.indexOf('bulk') >= 0;
+                })
+                .reply(200, function(uri, requestBody) {
+                    expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                    expect(requestBody.requests[0].url).to.contain('TestModule');
+                    expect(requestBody.requests[0].method).to.equal('POST');
+                    expect(requestBody.requests[0].data.name).to.equal('FakeRecord');
+                    expect(requestBody.requests[0].data.field1).to.equal('field1data');
+                    expect(requestBody.requests[0].data.field2).to.equal('field2data');
+                    return [{
+                        contents: {
+                            _module: 'TestModule',
+                            id: 'Fake-Record-Id',
+                            name: 'FakeRecord',
+                            field1: 'field1data',
+                            field2: 'field2data'
+                        }
+                    }]
+                });
+
+            let createPromise = Fixtures.create(myFixture);
+
+            // expect the result to be a promise
+            // The only standard for a promise is that is has a `then`
+            // http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
+            expect(createPromise.then).to.be.a('function');
+            return createPromise;
+        });
+
+        it('should create a fixture using options.module', () => {
+            let server = nock(serverUrl)
+                .post((uri) => {
+                    return uri.indexOf('oauth2/token') >= 0;
+                })
+                .reply(200, {
+                    access_token: 'Test-Access-Token',
+                    refresh_token: 'Test-Refresh-Token'
+                })
+                .post((uri) => {
+                    return uri.indexOf('bulk') >= 0;
+                })
+                .reply(200, function(uri, requestBody) {
+                    expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                    expect(requestBody.requests[0].url).to.contain('TestModule');
+                    expect(requestBody.requests[0].method).to.equal('POST');
+                    expect(requestBody.requests[0].data.name).to.equal('FakeRecord');
+                    expect(requestBody.requests[0].data.field1).to.equal('field1data');
+                    expect(requestBody.requests[0].data.field2).to.equal('field2data');
+                    return [{
+                        contents: {
+                            _module: 'TestModule',
+                            id: 'Fake-Record-Id',
+                            name: 'FakeRecord',
+                            field1: 'field1data',
+                            field2: 'field2data'
+                        }
+                    }]
+                });
+
+            let createPromise = Fixtures.create(myFixture, {module: 'TestModule'});
+
+            // expect the result to be a promise
+            // The only standard for a promise is that is has a `then`
+            // http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
+            expect(createPromise.then).to.be.a('function');
+            return createPromise;
+        });
+
+        it('should create a fixture and find it', (done) => {
+            let server = nock(serverUrl)
+                .post((uri) => {
+                    return uri.indexOf('oauth2/token') >= 0;
+                })
+                .reply(200, {
+                    access_token: 'Test-Access-Token',
+                    refresh_token: 'Test-Refresh-Token'
+                })
+                .post((uri) => {
+                    return uri.indexOf('bulk') >= 0;
+                })
+                .reply(200, function(uri, requestBody) {
+                    return [{
+                        contents: {
+                            _module: 'TestModule',
+                            id: 'Fake-Record-Id',
+                            name: 'FakeRecord',
+                            field1: 'field1data',
+                            field2: 'field2data'
+                        }
+                    }]
+                });
+
+            let createPromise = Fixtures.create(myFixture);
+            createPromise.then(() => {
+                let lookup1 = Fixtures.lookup('TestModule', {name: 'FakeRecord'});
+                expect(lookup1.name).to.equal('FakeRecord');
+                expect(lookup1.field1).to.equal('field1data');
+                expect(lookup1.field2).to.equal('field2data');
+
+                let lookup2 = Fixtures.lookup('TestModule', {field1: 'field1data'});
+                let lookup3 = Fixtures.lookup('TestModule', {field2: 'field2data'});
+                expect(lookup1 == lookup2).to.be.true;
+                expect(lookup1 == lookup3).to.be.true;
+                done();
+            });
+
+        });
     });
 
     it.skip('should create multiple fixtures', () => {
