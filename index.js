@@ -1,4 +1,3 @@
-var chakram = require('chakram');
 /**
  * Thorn Node.js module for REST API testing SugarCRM with Chakram.
  *
@@ -129,7 +128,6 @@ let Fixtures = {
             if (++this._sessionAttempt > this._maxSessionAttempts) {
                 throw new Error('Max number of login attempts exceeded!');
             }
-
             return this._adminLogin().then(() => {
                 return this.create(models, options);
             });
@@ -142,14 +140,8 @@ let Fixtures = {
         // reset #_sessionAttempt
         this._sessionAttempt = 0;
 
-<<<<<<< HEAD
         let url = _constructUrl('bulk', VERSION);
         let params = {headers: this._headers};
-=======
-        let url = [ROOT_URL, VERSION, 'bulk'].join('/');
-        console.log('in Fixtures, url is ' + url);
-        let params = {headers: this._getHeaders()};
->>>>>>> fb238f5... WIP Getting server mock set up for actual testing
         let bulkRecordCreateDef = this._processModels(models, options);
         let bulkRecordLinkDef;
 
@@ -244,7 +236,7 @@ let Fixtures = {
             model.module = model.module || options.module;
             let requiredFields;
             let request = {
-                url: '/' + VERSION + '/' + model.module,
+                url: '/rest/' + VERSION + '/' + model.module,
                 method: 'POST',
                 data: model.attributes || {}
             };
@@ -257,7 +249,6 @@ let Fixtures = {
                 console.error('Record already exists!');
                 throw new Error(model.toString());
             }
-
             requiredFields = MetadataFetcher.fetchRequiredFields(model.module);
             _.each(requiredFields, (field) => {
                 if (!request.data[field.name]) {
