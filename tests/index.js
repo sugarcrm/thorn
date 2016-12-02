@@ -2,10 +2,11 @@ process.env.ADMIN_USERNAME = 'admin';
 process.env.ADMIN_PASSWORD = 'asdf';
 process.env.API_URL = 'http://thisisnotarealserver.localdev';
 
-var chakram = require('chakram');
-var expect = require('chai').expect;
-var nock = require('nock');
-var requests = [];
+let chakram = require('chakram');
+let expect = require('chai').expect;
+let nock = require('nock');
+let requests = [];
+let http = require('http');
 
 
 // TODO Put in correct server
@@ -17,6 +18,14 @@ describe('Fixtures', () => {
     let Fixtures;
     let thornFile = '../dist/index.js';
 
+    before(() => {
+        nock.disableNetConnect();
+        nock.emitter.on('no match', function(req, fullReq) {
+            //console.log(req);
+            //console.log(fullReq);
+            throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+        });
+    });
     // The only way to reset the state of thorn & thorn.fixtures is to do the below.
     // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
     beforeEach(() => {
@@ -26,6 +35,7 @@ describe('Fixtures', () => {
 
     afterEach(() => {
         delete require.cache[require.resolve(thornFile)];
+        nock.cleanAll();
     });
 
     describe('creating one record', () => {
