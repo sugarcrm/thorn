@@ -21,7 +21,7 @@ Method to create and link records in the database.
 | --------- |:------------|
 | {Promise} | A `Promise` which resolves to an object of created records, indexed by module name|     
       
-
+<br/>
 `Fixtures::link(left, linkName, right)` => `{Promise}`  
 Method to link records with a custom link name in the database.  
 
@@ -37,6 +37,8 @@ Method to link records with a custom link name in the database.
 | --------- |:------------|
 | {Promise} | A `Promise` which resolves to the [Chakram-wrapped](http://dareid.github.io/chakram/jsdoc/global.html#ChakramResponse) response from server. |
 
+<br/>
+
 `Fixtures::cleanup()` => `{Promise}`  
 Method to delete all records specified in `models`(in `Fixtures::create`) in the database.  
 
@@ -49,7 +51,7 @@ Method to delete all records specified in `models`(in `Fixtures::create`) in the
 
 ### Model Structure
 Models is an object array that specifies the records and record-relationships the tester intends to create. 
-**Properties of each model object:**
+**Properties of each model object:**  
 
 |Name | Type | Description |
 |-----|:-----|:------------|
