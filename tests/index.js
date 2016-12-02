@@ -43,6 +43,7 @@ describe('Fixtures', () => {
                 expect(requestBody.requests[0].data.field2).to.equal('field2data');
                 return [{
                     contents: {
+                        _module: 'TestModule',
                         id: 'Fake-Record-Id',
                         name: 'FakeRecord',
                         field1: 'field1data',
@@ -88,6 +89,7 @@ describe('Fixtures', () => {
                 expect(requestBody.requests[0].data.field2).to.equal('field2data');
                 return [{
                     contents: {
+                        _module: 'TestModule',
                         id: 'Fake-Record-Id',
                         name: 'FakeRecord',
                         field1: 'field1data',
@@ -105,22 +107,52 @@ describe('Fixtures', () => {
         return createPromise;
     });
 
-    it.skip('should create a fixture and find it', (done) => {
+    it('should create a fixture and find it', (done) => {
+        let myFixture = [{
+            module: 'TestModule',
+            attributes: {
+                name: 'FakeRecord',
+                field1: 'field1data',
+                field2: 'field2data'
+            }
+        }];
         let server = nock(serverUrl)
-            .post('/bulk')
-            .reply(200, 'hello world');
-
-        // TODO Add fixture
-        let myFixture = {};
-        Fixtures.create(myFixture)
-            .then(() => {
-                // TODO Put in lookup info
-                let myLookup = {};
-                let lookedUpModel = Fixtures.lookup(myFixture);
-                // TODO Put in lookup expectations
-                expect(lookedUpModel)
-                done();
+            .post((uri) => {
+                return uri.indexOf('oauth2/token') >= 0;
+            })
+            .reply(200, {
+                access_token: 'Test-Access-Token',
+                refresh_token: 'Test-Refresh-Token'
+            })
+            .post((uri) => {
+                return uri.indexOf('bulk') >= 0;
+            })
+            .reply(200, function(uri, requestBody) {
+                return [{
+                    contents: {
+                        _module: 'TestModule',
+                        id: 'Fake-Record-Id',
+                        name: 'FakeRecord',
+                        field1: 'field1data',
+                        field2: 'field2data'
+                    }
+                }]
             });
+
+        let createPromise = Fixtures.create(myFixture);
+        createPromise.then(() => {
+            let lookup1 = Fixtures.lookup('TestModule', {name: 'FakeRecord'});
+            expect(lookup1.name).to.equal('FakeRecord');
+            expect(lookup1.field1).to.equal('field1data');
+            expect(lookup1.field2).to.equal('field2data');
+
+            let lookup2 = Fixtures.lookup('TestModule', {field1: 'field1data'});
+            let lookup3 = Fixtures.lookup('TestModule', {field2: 'field2data'});
+            expect(lookup1 == lookup2).to.be.true;
+            expect(lookup1 == lookup3).to.be.true;
+            done();
+        });
+
     });
 
     it.skip('should create multiple fixtures', () => {
