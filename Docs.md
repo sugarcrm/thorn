@@ -7,35 +7,41 @@ Thorn is a BDD-style testing framework built on [chakram](http://dareid.github.i
 `Thorn::Fixtures` is an object that handles the setup and cleanup process for test sets. It provides methods for creating records, record-relationships, and deleting records in the database.
 
 ### Methods
-`Fixtures::create(models, options)` => `{Promise}`
-Method to create and link records in the database.
+`Fixtures::create(models, options)` => `{Promise}`  
+Method to create and link records in the database.  
+
 | Name      | Type       | Description |
 | --------- |:-----------|:------------|
 | `models`  | {Object[]} | Object array that specifies the records to be created. See [Model Strucutre](#model_structure) for details)|
 | `options` | {Object}   | Optional, `options.module` specifies the `module` property of all `models`|    
-**Returns:**
+
+**Returns:**  
+
 | Type      | Description |
 | --------- |:------------|
 | {Promise} | A `Promise` which resolves to an object of created records, indexed by module name|     
       
 
-`Fixtures::link(left, linkName, right)` => `{Promise}`
-Method to link records with a custom link name in the database.
+`Fixtures::link(left, linkName, right)` => `{Promise}`  
+Method to link records with a custom link name in the database.  
+
 | Name       | Type       | Description |
 | ---------- |:-----------|:------------|
 | `left`     | {Object}   | A record from the resolution of `Fixtures.create` |
 | `linkName` | {string}   | Name of the relationship |
 | `right`    | {Object}   | A reord from the resolution of `Fixtures.create` |
 
-**Returns:**
+**Returns:**  
+
 | Type      | Description |
 | --------- |:------------|
 | {Promise} | A `Promise` which resolves to the [Chakram-wrapped](http://dareid.github.io/chakram/jsdoc/global.html#ChakramResponse) response from server. |
 
-`Fixtures::cleanup()` => `{Promise}`
-Method to delete all records specified in `models`(in `Fixtures::create`) in the database.
+`Fixtures::cleanup()` => `{Promise}`  
+Method to delete all records specified in `models`(in `Fixtures::create`) in the database.  
 
-**Returns:**
+**Returns:**  
+
 | Type      | Description |
 | --------- |:------------|
 | {Promise} | A `Promise` which resolves to `Undefined` |
@@ -44,6 +50,7 @@ Method to delete all records specified in `models`(in `Fixtures::create`) in the
 ### Model Structure
 Models is an object array that specifies the records and record-relationships the tester intends to create. 
 **Properties of each model object:**
+
 |Name | Type | Description |
 |-----|:-----|:------------|
 | `module`| {string} | Optional, module name of the record |
