@@ -126,7 +126,7 @@ let Fixtures = {
 
         // return Promise
         return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
-            .then((reponse) => {
+            .then((response) => {
                 bulkRecordLinkDef = this._processRecords(response, models);
                 return chakram.post(url, bulkRecordLinkDef, params);
             })
