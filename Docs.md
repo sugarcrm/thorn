@@ -12,7 +12,7 @@ Method to create and link records in the database.
 
 | Name      | Type       | Description |
 | --------- |:-----------|:------------|
-| `models`  | {Object[]} | Object array that specifies the records to be created. See [Model Strucutre](#model_structure) for details)|
+| `models`  | {Object|Object[]} | Object or object array that specifies the records to be created. See [Model Strucutre](#model-structure) for details)|
 | `options` | {Object}   | Optional, `options.module` specifies the `module` property of all `models`|    
 
 **Returns:**  
@@ -49,6 +49,7 @@ Method to delete all records specified in `models`(in `Fixtures::create`) in the
 | --------- |:------------|
 | {Promise} | A `Promise` which resolves to `Undefined` |
 
+<br/>
 
 ### Model Structure
 Models is an object array that specifies the records and record-relationships the tester intends to create. 
@@ -97,37 +98,71 @@ return Fixtures.create(AccountsContacts)
 
 **Examples with Links:**
 ```js
-let Accounts = [
-    {
-        module: 'Accounts',
-        attributes: {
-            name: 'LinkedAccount'
-        }
+let Account = {
+    module: 'Accounts',
+    attributes: {
+        name: 'LinkedAccount'
     }
-];
+};
 
-let Contacts = [
-    {
-        module: 'Contacts',
-        attributes: {
-            last_name: 'LinkedContact'
-        },
-        links: {
-            contact_account: [
-                Accounts[0]
-            ]
-        }
+let Contact = {
+    module: 'Contacts',
+    attributes: {
+        last_name: 'LinkedContact'
+    },
+    links: {
+        contact_account: [
+            Accounts
+        ]
     }
-];
+};
 
-return Fixtures.create(Accounts)
+// option 1
+return Fixtures.create(Account)
     .then((response) => {
         // must be created after Accounts since the link depends on Account's existence
-        return Fixtures.create(Contacts);
+        return Fixtures.create(Contact);
     })
     .then((response) => {
-        console.log(response); // Object containing one account and contact. Relationship is established in database.
+        // Object containing one account and one contact. Relationship is established in database.
+        console.log(response);
+        return response;
+    });
+
+
+// OR
+
+// option 2
+return Fixtures.create([Account, Contact])
+    .then((response) => {
+        // Object containing one account and one contact. Relationship is established in database.
+        console.log(reponse);
+        return response;
+    });
+
+
+// OR
+
+// option 3
+let NoLinkContact = {
+    module: 'Contact',
+    attributes: {
+        last_name: 'LinkedContact'
+    }
+};
+
+return Fixtures.create([Account, NoLinkContact])
+    .then((cachedRecords) {
+        return Fixtures.link(cachedRecords.Contacts[0], 'contact_account', cachedRecords.Accounts[0]);
+    })
+    .then((response) {
+        // Server response containing the Contacts record with a `related_records` property,
+        // which contains the Accounts record.
+        console.log(response);
         return response;
     });
 ```
+
+<br/>
+
 ### Best Practices
