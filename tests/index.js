@@ -16,7 +16,7 @@ var serverUrl = process.env.API_URL;
 describe('Fixtures', () => {
     it('should create a fixture', () => {
         let myFixture = [{
-            module: 'FakeModule',
+            module: 'TestModule',
             attributes: {
                 name: 'FakeRecord',
                 field1: 'field1data',
