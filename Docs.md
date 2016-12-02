@@ -13,7 +13,7 @@ Method to create and link records in the database.
 
 | Name      | Type       | Description |
 | --------- |:-----------|:------------|
-| `models`  | {Object|Object[]} | Object or object array that specifies the records to be created. See [Model Strucutre](#model-structure) for details)|
+| `models`  | {Object&#124;Object[]} | Object or object array that specifies the records to be created. See [Model Strucutre](#model-structure) for details)|
 | `options` | {Object}   | Optional, `options.module` specifies the `module` property of all `models`|    
 
 **Returns:**  
@@ -56,11 +56,11 @@ Method to delete all records specified in `models`(in `Fixtures::create`) in the
 Models is an object array that specifies the records and record-relationships the tester intends to create. 
 **Properties of each model object:**  
 
-|Name | Type | Description |
-|-----|:-----|:------------|
-| `module`| {string} | Optional, module name of the record |
+|Name          | Type     | Description |
+|--------------|:---------|:------------|
+| `module`     | {string} | Optional, module name of the record |
 | `attributes` | {Object} | Specific fields the record should have, unspecified required fields are auto-generated |
-| `links` | {Object} | Records related to this model, indexed by `link_name` |
+| `links`      | {Object} | Records related to this model, indexed by `link_name` |
 
 **Example without Links:**
 ```js
@@ -166,4 +166,12 @@ return Fixtures.create([Account, NoLinkContact])
 
 <br/>
 
-### Best Practices
+### Best Practices & Tips
+
+
+
+
+
+
+
+
