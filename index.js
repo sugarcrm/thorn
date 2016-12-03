@@ -106,6 +106,7 @@ let Fixtures = {
             if (++this._sessionAttempt > this._maxSessionAttempts) {
                 throw new Error('Max number of login attempts exceeded!');
             }
+
             return this._adminLogin().then(() => {
                 return this.create(models, options);
             });
@@ -227,6 +228,7 @@ let Fixtures = {
                 console.error('Record already exists!');
                 throw new Error(model.toString());
             }
+
             requiredFields = MetadataFetcher.fetchRequiredFields(model.module);
             _.each(requiredFields, (field) => {
                 if (!request.data[field.name]) {
