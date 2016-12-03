@@ -179,11 +179,9 @@ make use of the request methods of `UserAgent`.
 ways of storing records. To reuse the same model to create multiple records, all but the first model must be cloned (
 i.e. using `_.clone`).
 
-
-
-
-
-
+* Linking records require that the records have already been created in the database. To avoid exceptions, structure the
+record creations such that dependencies are met before `Fixtures` tries to make links. Alternatively, pass all models to
+`Fixtures::create` in one aggregated array, and `Fixtures::create` would automatically handle the dependencies.
 
 
 
