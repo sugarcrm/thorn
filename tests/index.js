@@ -20,7 +20,7 @@ describe('Fixtures', () => {
 
     before(() => {
         nock.disableNetConnect();
-        nock.emitter.on('no match', function(req, fullReq) {
+        nock.emitter.on('no match', function(req, fullReq, reqData) {
             //console.log(req);
             //console.log(fullReq);
             throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
