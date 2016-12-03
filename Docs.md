@@ -168,6 +168,18 @@ return Fixtures.create([Account, NoLinkContact])
 
 ### Best Practices & Tips
 
+* In the `before` and `after` functions, as well as in `Promise` chains, every `Promise` created must be `returned` in
+order for server requests to effectuate. Not returning `Promises` could lead to test failures and false positives.
+
+* `Fixtures` designed to be a tool that facilitates the setup and cleanup of test cases. Its methods are *not* meant to
+be provide means of testing the correctness of SugarCRM's record creation, linking, and deletion APIs. Such tests should
+make use of the request methods of `UserAgent`.
+
+* The same model object cannot be used to create multiple records; this will lead to collisions in `Fixtures` internal
+ways of storing records. To reuse the same model to create multiple records, all but the first model must be cloned (
+i.e. using `_.clone`).
+
+
 
 
 
