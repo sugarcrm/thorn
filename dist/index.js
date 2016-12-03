@@ -93,6 +93,8 @@ var Fixtures = {
 
     /**
      * @property {object} _headers Default HTTP headers.
+     *
+     * @private
      */
     _headers: {
         'Content-Type': 'application/json',
@@ -137,13 +139,15 @@ var Fixtures = {
         var bulkRecordLinkDef = void 0;
 
         // return Promise
-        return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this)).then(function (reponse) {
+        return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this)).then(function (response) {
             bulkRecordLinkDef = _this._processRecords(response, models);
-            return chakram.post(url, bulkRecordLinkDef, params);
+            if (bulkRecordLinkDef.requests.length) {
+                return chakram.post(url, bulkRecordLinkDef, params);
+            }
+
+            return response;
         }).then(function () {
             return cachedRecords;
-        }).catch(function (err) {
-            console.error(err);
         });
     },
 
@@ -227,7 +231,7 @@ var Fixtures = {
             model.module = model.module || options.module;
             var requiredFields = void 0;
             var request = {
-                url: '/' + VERSION + '/' + model.module,
+                url: '/rest/' + VERSION + '/' + model.module,
                 method: 'POST',
                 data: model.attributes || {}
             };
@@ -296,17 +300,15 @@ var Fixtures = {
         // Create promise for record deletion
         return _wrap401(chakram.post, [url, bulkRecordDeleteDef, params], this._refreshToken, _.bind(this._afterRefresh, this)).then(function () {
             cachedRecords = null;
-        }).catch(function (err) {
-            console.error(err);
         });
     },
 
 
     /**
-     * Mimics _.find and using the supplied arguments, returns the cached record(s).
+     * Mimics _.find and using the supplied arguments, returns the cached record.
      *
-     * @param {string} module The module of the record(s) to find
-     * @param {Object} properties The properties to search for
+     * @param {string} module The module of the record to find.
+     * @param {Object} properties The properties to search for.
      *
      * @return {Object} The first record in #cachedRecords that match properties
      */
@@ -337,9 +339,7 @@ var Fixtures = {
             ids: [right.id]
         };
 
-        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this)).catch(function (err) {
-            console.error(err);
-        });
+        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this));
     },
 
 

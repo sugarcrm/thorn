@@ -94,6 +94,9 @@ var metadata = {
             type: 'varchar',
             reqs: {}
         }]
+    },
+    TestModule: {
+        requiredFields: []
     }
 };
 
