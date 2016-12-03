@@ -128,13 +128,14 @@ let Fixtures = {
         return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
             .then((response) => {
                 bulkRecordLinkDef = this._processRecords(response, models);
-                return chakram.post(url, bulkRecordLinkDef, params);
+                if (bulkRecordLinkDef.requests.length) {
+                    return chakram.post(url, bulkRecordLinkDef, params);
+                }
+
+                return response;
             })
             .then(() => {
                 return cachedRecords;
-            })
-            .catch((err) => {
-                console.error(err);
             });
     },
 
@@ -281,9 +282,6 @@ let Fixtures = {
         return _wrap401(chakram.post, [url, bulkRecordDeleteDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
             .then(() => {
                 cachedRecords = null;
-            })
-            .catch((err) => {
-                console.error(err);
             });
     },
 
@@ -321,10 +319,7 @@ let Fixtures = {
             ids: [right.id]
         };
 
-        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
-            .catch((err) => {
-                console.error(err);
-            });
+        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this));
     },
 
     /**
