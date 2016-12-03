@@ -5,15 +5,11 @@ process.env.API_URL = 'http://thisisnotarealserver.localdev';
 let chakram = require('chakram');
 let expect = require('chai').expect;
 let nock = require('nock');
-let requests = [];
-let http = require('http');
-
 
 // TODO Put in correct server
 var serverUrl = process.env.API_URL;
 
 describe('Fixtures', () => {
-    let myFixture;
     let thorn;
     let Fixtures;
     let thornFile = '../dist/index.js';
@@ -26,6 +22,7 @@ describe('Fixtures', () => {
             throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
         });
     });
+
     // The only way to reset the state of thorn & thorn.fixtures is to do the below.
     // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
     beforeEach(() => {
@@ -39,6 +36,7 @@ describe('Fixtures', () => {
     });
 
     describe('creating one record', () => {
+        let myFixture;
         beforeEach(() => {
             myFixture = [{
                 module: 'TestModule',
