@@ -422,7 +422,11 @@ class Agent {
         if (cachedAgent) {
             return cachedAgent;
         }
-        let agent = new UserAgent(username, credentials[username], VERSION);
+        let password = credentials[username];
+        if (!password) {
+            throw new Error('No credentials available for user agent ' + username);
+        }
+        let agent = new UserAgent(username, password, VERSION);
         agent._login();
         return agent;
     }
