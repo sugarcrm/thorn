@@ -5,18 +5,18 @@ var MetadataFetcher = {
      * Generates random values field types.
      *
      * @param {string} type Type of the field.
-     * @param {Object} [reqs] Requirements of the field.
+     * @param {Object} [fieldDefs] Requirements of the field.
      *
      * @return {string} Random field value according to type and module.
      */
     generateFieldValue: function generateFieldValue(type) {
-        var reqs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+        var fieldDefs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
         var val = void 0;
 
         switch (type) {
             case 'varchar':
-                val = this._generateVarChar(reqs.length);
+                val = this._generateVarChar(fieldDefs.length);
                 break;
             /**
             TODO
@@ -84,15 +84,28 @@ var metadata = {
     Accounts: {
         requiredFields: [{
             name: 'name',
-            type: 'varchar',
-            reqs: {}
+            type: 'varchar'
         }]
     },
     Contacts: {
         requiredFields: [{
             name: 'last_name',
-            type: 'varchar',
-            reqs: {}
+            type: 'varchar'
+        }]
+    },
+    Dashboards: {
+        requiredFields: []
+    },
+    Users: {
+        requiredFields: [{
+            name: 'user_name',
+            type: 'varchar'
+        }, {
+            name: 'user_hash', // Not actually required. But to handle logins, we will generate user hashes.
+            type: 'varchar'
+        }, {
+            name: 'last_name',
+            type: 'varchar'
         }]
     }
 };
