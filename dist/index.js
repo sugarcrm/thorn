@@ -249,7 +249,7 @@ var Fixtures = {
             model.module = model.module || options.module;
             var requiredFields = void 0;
             var request = {
-                url: '/' + VERSION + '/' + model.module,
+                url: '/rest/' + VERSION + '/' + model.module,
                 method: 'POST',
                 data: model.attributes || {}
             };

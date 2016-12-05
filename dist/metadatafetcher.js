@@ -107,6 +107,9 @@ var metadata = {
             name: 'last_name',
             type: 'varchar'
         }]
+    },
+    TestModule: {
+        requiredFields: []
     }
 };
 

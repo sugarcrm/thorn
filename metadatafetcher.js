@@ -107,6 +107,9 @@ var metadata = {
                 type: 'varchar'
             }
         ]
+    },
+    TestModule: {
+        requiredFields: []
     }
 };
 
