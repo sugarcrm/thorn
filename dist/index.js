@@ -8,6 +8,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /**
  * Thorn Node.js module for REST API testing SugarCRM with Chakram.
  *
@@ -64,7 +66,23 @@ var cachedRecords = {};
  * @type {Object}
  * @private
  */
-var credentials = {};
+var credentials = _defineProperty({}, process.env.ADMIN_USERNAME, process.env.ADMIN_PASSWORD);
+
+/**
+ * Inserts username and userhash into #credentials.
+ *
+ * @param {string} username Username of the user.
+ * @param {string} userhash Password of the user.
+ *
+ * @private
+ */
+function _insertCredentials(username, userhash) {
+    if (credentials[username]) {
+        throw new Error('Duplicate username: ' + username);
+    }
+
+    credentials[username] = userhash;
+}
 
 /**
  * Record map indexed by fixture.
@@ -93,6 +111,8 @@ var Fixtures = {
 
     /**
      * @property {object} _headers Default HTTP headers.
+     *
+     * @private
      */
     _headers: {
         'Content-Type': 'application/json',
@@ -137,13 +157,15 @@ var Fixtures = {
         var bulkRecordLinkDef = void 0;
 
         // return Promise
-        return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this)).then(function (reponse) {
+        return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this)).then(function (response) {
             bulkRecordLinkDef = _this._processRecords(response, models);
-            return chakram.post(url, bulkRecordLinkDef, params);
+            if (bulkRecordLinkDef.requests.length) {
+                return chakram.post(url, bulkRecordLinkDef, params);
+            }
+
+            return response;
         }).then(function () {
             return cachedRecords;
-        }).catch(function (err) {
-            console.error(err);
         });
     },
 
@@ -248,6 +270,11 @@ var Fixtures = {
                 }
             });
 
+            // Populate the `credentials` object.
+            if (model.module === 'Users') {
+                _insertCredentials(request.data.user_name, request.data.user_hash);
+            }
+
             // Use chakram.post (with Header X-Fixtures: true) to bulk create the record(s).
             bulkRecordCreateDef.requests.push(request);
         });
@@ -296,17 +323,15 @@ var Fixtures = {
         // Create promise for record deletion
         return _wrap401(chakram.post, [url, bulkRecordDeleteDef, params], this._refreshToken, _.bind(this._afterRefresh, this)).then(function () {
             cachedRecords = null;
-        }).catch(function (err) {
-            console.error(err);
         });
     },
 
 
     /**
-     * Mimics _.find and using the supplied arguments, returns the cached record(s).
+     * Mimics _.find and using the supplied arguments, returns the cached record.
      *
-     * @param {string} module The module of the record(s) to find
-     * @param {Object} properties The properties to search for
+     * @param {string} module The module of the record to find.
+     * @param {Object} properties The properties to search for.
      *
      * @return {Object} The first record in #cachedRecords that match properties
      */
@@ -337,9 +362,7 @@ var Fixtures = {
             ids: [right.id]
         };
 
-        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this)).catch(function (err) {
-            console.error(err);
-        });
+        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this));
     },
 
 

@@ -54,7 +54,25 @@ let cachedRecords = {};
  * @type {Object}
  * @private
  */
-let credentials = {};
+let credentials = {
+    [process.env.ADMIN_USERNAME]: process.env.ADMIN_PASSWORD // admin credentials
+};
+
+/**
+ * Inserts username and userhash into #credentials.
+ *
+ * @param {string} username Username of the user.
+ * @param {string} userhash Password of the user.
+ *
+ * @private
+ */
+function _insertCredentials(username, userhash) {
+    if (credentials[username]) {
+        throw new Error('Duplicate username: ' + username);
+    }
+
+    credentials[username] = userhash;
+}
 
 /**
  * Record map indexed by fixture.
@@ -239,6 +257,11 @@ let Fixtures = {
                     request.data[field.name] = MetadataFetcher.generateFieldValue(field.type, field.reqs);
                 }
             });
+
+            // Populate the `credentials` object.
+            if (model.module === 'Users') {
+                _insertCredentials(request.data.user_name, request.data.user_hash);
+            }
 
             // Use chakram.post (with Header X-Fixtures: true) to bulk create the record(s).
             bulkRecordCreateDef.requests.push(request);
