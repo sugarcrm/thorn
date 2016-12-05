@@ -11,11 +11,13 @@ var serverUrl = process.env.API_URL;
 
 let thorn;
 let Fixtures;
+let Agents;
 let thornFile = '../dist/index.js';
 // The only way to reset the state of thorn & thorn.fixtures is to do the below.
 // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
 beforeEach(() => {
     thorn = require(thornFile);
+    Agents = thorn.Agents;
     Fixtures = thorn.Fixtures;
 });
 
@@ -183,3 +185,17 @@ describe('Fixtures', () => {
     });
 });
 
+
+describe('Agents', () => {
+    before(() => {
+
+    });
+
+    after(() => {
+
+    });
+
+    it('should', () => {
+
+    });
+});
