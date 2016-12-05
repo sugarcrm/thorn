@@ -254,7 +254,7 @@ let Fixtures = {
             requiredFields = MetadataFetcher.fetchRequiredFields(model.module);
             _.each(requiredFields, (field) => {
                 if (!request.data[field.name]) {
-                    request.data[field.name] = MetadataFetcher.generateFieldValue(field.type, field.reqs);
+                    request.data[field.name] = MetadataFetcher.generateFieldValue(field);
                 }
             });
 
