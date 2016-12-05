@@ -64,6 +64,10 @@ let credentials = {};
  */
 let fixturesMap = new WeakMap();
 
+/**
+ * Fixtures for pre-creating records.
+ * @namespace
+ */
 let Fixtures = {
     /**
      * @property {number} _sessionAttempt Number of attempts made to login as
