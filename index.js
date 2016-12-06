@@ -241,7 +241,7 @@ let Fixtures = {
             model.module = model.module || options.module;
             let requiredFields;
             let request = {
-                url: '/rest/' + VERSION + '/' + model.module,
+                url: '/' + VERSION + '/' + model.module,
                 method: 'POST',
                 data: model.attributes || {}
             };
