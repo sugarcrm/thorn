@@ -1,3 +1,5 @@
+'use strict';
+
 process.env.ADMIN_USERNAME = 'admin';
 process.env.ADMIN_PASSWORD = 'asdf';
 process.env.API_URL = 'http://thisisnotarealserver.localdev';
@@ -11,13 +13,13 @@ var serverUrl = process.env.API_URL;
 
 let thorn;
 let Fixtures;
-let Agents;
+let Agent;
 let thornFile = '../dist/index.js';
 // The only way to reset the state of thorn & thorn.fixtures is to do the below.
 // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
 beforeEach(() => {
     thorn = require(thornFile);
-    Agents = thorn.Agents;
+    Agent = thorn.Agent;
     Fixtures = thorn.Fixtures;
 });
 
@@ -186,16 +188,152 @@ describe('Fixtures', () => {
 });
 
 
-describe('Agents', () => {
+describe('Agent', () => {
     before(() => {
-
+        nock.disableNetConnect();
+        nock.emitter.on('no match', function(req, fullReq, reqData) {
+            throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+        });
     });
 
-    after(() => {
-
+    beforeEach(() => {
+        nock(serverUrl)
+            .post((uri) => {
+                return uri.indexOf('oauth2/token') >= 0;
+            })
+            .reply(200, {
+                access_token: 'Test-Access-Token',
+                refresh_token: 'Test-Refresh-Token'
+            });
     });
 
-    it('should', () => {
+    describe('as', () => {
+        it('should return an Agent with cached username and password', () => {
+            let myAgent = Agent.as(process.env.ADMIN_USERNAME);
 
+            // FIXME used computed values
+            expect(myAgent.username).to.equal(process.env.ADMIN_USERNAME);
+            expect(myAgent.password).to.equal(process.env.ADMIN_PASSWORD);
+            return myAgent._loginPromise;
+        });
+    });
+
+    describe('on', () => {
+        let myAgent;
+
+        beforeEach(() => {
+            myAgent = Agent.as(process.env.ADMIN_USERNAME);
+
+            return myAgent._loginPromise;
+        });
+
+        it('should return the original agent if version is unchanged', () => {
+            let myAgentV10 = myAgent.on('v10');
+
+            expect(myAgentV10).to.equal(myAgent);
+        });
+
+        it('should return a clone of the original agent with updated version', () => {
+            let myAgentV11 = myAgent.on('v11');
+
+            expect(myAgentV11.version).to.equal('v11');
+            expect(myAgentV11).to.not.equal(myAgent);
+        });
+    });
+
+    describe('request methods', () => {
+        let myAgent;
+
+        before(() => {
+            
+            myAgent = Agent.as(process.env.ADMIN_USERNAME);
+
+            // BAD!
+            return myAgent._loginPromise;
+        });
+
+        it('should send GET request', () => {
+            let endpoint = 'not/real/endpoint';
+            let server = nock(serverUrl)
+                .get((uri) => {
+                    return uri.indexOf('not/real/endpoint') >= 0;
+                })
+                .reply(200, function(uri, requestBody) {
+                    expect(this.req.headers['x-thorn']).to.equal('Agent');
+
+                    return [];
+                });
+            let getRequest = myAgent.get(endpoint, {});
+
+            expect(getRequest.then).to.be.a('function');
+
+            return getRequest;
+        });
+
+        it('should send POST request', () => {
+            let endpoint = 'not/real/endpoint';
+            let data = {
+                myField: 'myValue'
+            };
+            let server = nock(serverUrl)
+                .post((uri) => {
+                    return uri.indexOf('not/real/endpoint') >= 0;
+                })
+                .reply(200, function(uri, requestBody) {
+                    expect(this.req.headers['x-thorn']).to.equal('Agent');
+                    expect(requestBody).to.eql(data);
+
+                    return [];
+                });
+            let postRequest = myAgent.post(endpoint, data, {});
+
+            expect(postRequest.then).to.be.a('function');
+
+            return postRequest;
+        });
+
+        it('should send PUT request', () => {
+            let endpoint = 'not/real/endpoint';
+            let data = {
+                myField: 'myUpdatedValue'
+            };
+            let server = nock(serverUrl)
+                .put((uri) => {
+                    return uri.indexOf('not/real/endpoint') >= 0;
+                })
+                .reply(200, function(uri, requestBody) {
+                    expect(this.req.headers['x-thorn']).to.equal('Agent');
+                    expect(requestBody).to.eql(data);
+
+                    return [];
+                });
+            let putRequest = myAgent.put(endpoint, data, {});
+
+            expect(putRequest.then).to.be.a('function');
+
+            return putRequest;
+        });
+
+        it('should send DELETE request', () => {
+            let endpoint = 'not/real/endpoint';
+            let data = {
+                myField: 'myValue'
+            };
+            let server = nock(serverUrl)
+                .delete((uri) => {
+                    return uri.indexOf('not/real/endpoint') >= 0;
+                })
+                .reply(200, function(uri, requestBody) {
+                    expect(this.req.headers['x-thorn']).to.equal('Agent');
+                    expect(requestBody).to.eql(data);
+
+                    return [];
+                });
+            let deleteRequest = myAgent.delete(endpoint, data, {});
+
+            expect(deleteRequest.then).to.be.a('function');
+
+            return deleteRequest;
+        });
     });
 });

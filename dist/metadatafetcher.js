@@ -4,19 +4,16 @@ var MetadataFetcher = {
     /**
      * Generates random values field types.
      *
-     * @param {string} type Type of the field.
-     * @param {Object} [fieldDefs] Requirements of the field.
+     * @param {Object} field Field definitions.
      *
      * @return {string} Random field value according to type and module.
      */
-    generateFieldValue: function generateFieldValue(type) {
-        var fieldDefs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
+    generateFieldValue: function generateFieldValue(field) {
         var val = void 0;
 
-        switch (type) {
+        switch (field.type) {
             case 'varchar':
-                val = this._generateVarChar(fieldDefs.length);
+                val = this._generateVarChar(field.length);
                 break;
             /**
             TODO
