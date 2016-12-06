@@ -9,6 +9,9 @@ let nock = require('nock');
 // TODO Put in correct server
 var serverUrl = process.env.API_URL;
 
+// expect the result to be a promise
+// The only standard for a promise is that is has a `then`
+// http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
 function isPromise(input) {
     if (input.then) {
         return input.then instanceof Function;
@@ -89,12 +92,8 @@ describe('Fixtures', () => {
                         }
                     }]
                 });
-
             let createPromise = Fixtures.create(myFixture);
 
-            // expect the result to be a promise
-            // The only standard for a promise is that is has a `then`
-            // http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
             expect(isPromise(createPromise)).to.be.true;
 
             return createPromise;
@@ -129,13 +128,10 @@ describe('Fixtures', () => {
                         }
                     }]
                 });
-
             let createPromise = Fixtures.create(myFixture, {module: 'TestModule'});
 
-            // expect the result to be a promise
-            // The only standard for a promise is that is has a `then`
-            // http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
             expect(isPromise(createPromise)).to.be.true;
+
             return createPromise;
         });
 
