@@ -107,7 +107,10 @@ var metadata = {
             }
         ]
     },
-    TestModule: {
+    TestModule1: {
+        requiredFields: []
+    },
+    TestModule2: {
         requiredFields: []
     }
 };
