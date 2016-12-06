@@ -1,5 +1,3 @@
-'use strict';
-
 process.env.ADMIN_USERNAME = 'admin';
 process.env.ADMIN_PASSWORD = 'asdf';
 process.env.API_URL = 'http://thisisnotarealserver.localdev';
@@ -10,6 +8,14 @@ let nock = require('nock');
 
 // TODO Put in correct server
 var serverUrl = process.env.API_URL;
+
+function isPromise(input) {
+    if (input.then) {
+        return input.then instanceof Function;
+    }
+
+    return false;
+}
 
 let thorn;
 let Fixtures;
@@ -33,9 +39,11 @@ describe('Fixtures', () => {
     before(() => {
         nock.disableNetConnect();
         nock.emitter.on('no match', function(req, fullReq, reqData) {
-            //console.log(req);
-            //console.log(fullReq);
-            throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+            if (fullReq) {
+                throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+            }
+
+            throw new Error('No handler remaining.');
         });
     });
 
@@ -87,7 +95,8 @@ describe('Fixtures', () => {
             // expect the result to be a promise
             // The only standard for a promise is that is has a `then`
             // http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
-            expect(createPromise.then).to.be.a('function');
+            expect(isPromise(createPromise)).to.be.true;
+
             return createPromise;
         });
 
@@ -126,7 +135,7 @@ describe('Fixtures', () => {
             // expect the result to be a promise
             // The only standard for a promise is that is has a `then`
             // http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects
-            expect(createPromise.then).to.be.a('function');
+            expect(isPromise(createPromise)).to.be.true;
             return createPromise;
         });
 
@@ -192,7 +201,11 @@ describe('Agent', () => {
     before(() => {
         nock.disableNetConnect();
         nock.emitter.on('no match', function(req, fullReq, reqData) {
-            throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+            if (fullReq) {
+                throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+            }
+
+            throw new Error('No handler remaining.');
         });
     });
 
@@ -211,7 +224,6 @@ describe('Agent', () => {
         it('should return an Agent with cached username and password', () => {
             let myAgent = Agent.as(process.env.ADMIN_USERNAME);
 
-            // FIXME used computed values
             expect(myAgent.username).to.equal(process.env.ADMIN_USERNAME);
             expect(myAgent.password).to.equal(process.env.ADMIN_PASSWORD);
             return myAgent._loginPromise;
@@ -263,9 +275,9 @@ describe('Agent', () => {
 
                     return [];
                 });
-            let getRequest = myAgent.get(endpoint, {});
+            let getRequest = myAgent.get(endpoint);
 
-            expect(getRequest.then).to.be.a('function');
+            expect(isPromise(getRequest)).to.be.true;
 
             return getRequest;
         });
@@ -285,9 +297,9 @@ describe('Agent', () => {
 
                     return [];
                 });
-            let postRequest = myAgent.post(endpoint, data, {});
+            let postRequest = myAgent.post(endpoint, data);
 
-            expect(postRequest.then).to.be.a('function');
+            expect(isPromise(postRequest)).to.be.true;
 
             return postRequest;
         });
@@ -307,9 +319,9 @@ describe('Agent', () => {
 
                     return [];
                 });
-            let putRequest = myAgent.put(endpoint, data, {});
+            let putRequest = myAgent.put(endpoint, data);
 
-            expect(putRequest.then).to.be.a('function');
+            expect(isPromise(putRequest)).to.be.true;
 
             return putRequest;
         });
@@ -329,9 +341,9 @@ describe('Agent', () => {
 
                     return [];
                 });
-            let deleteRequest = myAgent.delete(endpoint, data, {});
+            let deleteRequest = myAgent.delete(endpoint, data);
 
-            expect(deleteRequest.then).to.be.a('function');
+            expect(isPromise(deleteRequest)).to.be.true;
 
             return deleteRequest;
         });
