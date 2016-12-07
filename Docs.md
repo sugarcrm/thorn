@@ -53,10 +53,58 @@ let DashboardsOnly = [
 return Fixtures.create(AccountsContacts)
     .then((response) => {
         console.log(response); // Object containing one account, and one contact
+        /**
+        {
+            Accounts: [
+                {
+                    id: '12257c7c-bb40-11e6-afb2-a0937b020fc9',
+                    name: 'MyAccount',
+                    ...
+                    _module: 'Accounts'
+                }
+            ],
+            Contacts: [
+                {
+                    id: '11232c7c-bb40-11e6-bfb2-a0937b020sc9',
+                    first_name: 'FirstName'
+                    ...
+                    _module: 'Contacts'
+                }
+            ]
+        }
+        */
         return Fixtures.create(DashboardsOnly, {module: 'Dashboard'});
     })
     .then((response) => {
         console.log(response); // Object containing one account, one contact, and one dashboard
+        /**
+        {
+            Accounts: [
+                {
+                    id: '12257c7c-bb40-11e6-afb2-a0937b020fc9',
+                    name: 'MyAccount',
+                    ...
+                    _module: 'Accounts'
+                }
+            ],
+            Contacts: [
+                {
+                    id: '11232c7c-bb40-11e6-bfb2-a0937b020sc9',
+                    first_name: 'FirstName',
+                    ...
+                    _module: 'Contacts'
+                }
+            ],
+            Dashboards: [
+                {
+                    id: '11232c7c-bb40-11e6-bfb2-a0937b020sc9',
+                    name: 'MyDashboard',
+                    ...
+                    _module: 'Dashboards'
+                }
+            ]
+        }
+        */
     });
 ```
 
@@ -75,7 +123,7 @@ Method to link records in the database.
 
 | Type      | Description |
 | --------- |:------------|
-| {Promise} | A `Promise` which resolves to the [Chakram-wrapped](http://dareid.github.io/chakram/jsdoc/global.html#ChakramResponse) response from server. |
+| {Promise} | A `Promise` which resolves to the body of the server response. |
 
 <br/>
 
@@ -104,6 +152,24 @@ return Fixtures.create([Account, Contact])
         // Server response containing the Contacts record with a `related_records` property,
         // which contains the Accounts record.
         console.log(response);
+        /**
+        {
+            record: {
+                id: '12257c7c-bb40-11e6-afb2-a0937b020fc9',
+                name: 'LinkedContact',
+                ...
+                _module: 'Accounts'
+            },
+            related_records: [
+                {
+                    id: '12257c7c-bb40-11e6-afb2-a0937b020fc9',
+                    last_name: 'LinkedContact',
+                    ...
+                    _module: 'Contacts'
+                }
+            ]
+        }
+        */
         return response;
     });
 ```
