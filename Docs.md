@@ -1,6 +1,6 @@
 # Thorn
 
-Thorn is composed by a set of helper abstractions built to ease the process of
+Thorn is composed of a set of helper abstractions built to ease the process of
 setting up a SugarCRM's REST API testing environment and interacting with it.
 
 ## Thorn::Fixtures
@@ -134,7 +134,7 @@ matching module and the key-value pairs in properties.
 
 | Type     | Description |
 | -------- |:------------|
-| {Object} | A singular record object |  
+| {Object} | A singular record object. |  
 
 <br/>
 
