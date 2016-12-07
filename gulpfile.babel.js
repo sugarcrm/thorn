@@ -10,7 +10,7 @@ gulp.task('build', () => {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('test', () => {
+gulp.task('test', ['build'], () => {
     var commander = require('commander');
     var os = require('os');
     var mocha = require('gulp-spawn-mocha');
