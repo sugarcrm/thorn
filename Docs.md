@@ -37,7 +37,7 @@ Method to link records with a custom link name in the database.
 
 | Type      | Description |
 | --------- |:------------|
-| {Promise} | A `Promise` which resolves to the [Chakram-wrapped](http://dareid.github.io/chakram/jsdoc/global.html#ChakramResponse) response from server. |
+| {Promise} | A `Promise` which resolves to the [Chakram-wrapped](http://dareid.github.io/chakram/jsdoc/global.html#ChakramResponse) response from server |
 
 <br/>
 
@@ -49,6 +49,23 @@ Method to delete all records previously created through `Fixtures::create`.
 | Type      | Description |
 | --------- |:------------|
 | {Promise} | A `Promise` which resolves to `Undefined` |
+
+<br/>
+
+#### **`Fixtures::lookup(module, properties)` => `{Object}`**
+Method that looks through the created records and retrieves the first record
+matching module and the key-value pairs in properties.
+
+| Name         | Type     | Description |
+| ------------ |:---------|:------------|
+| `module`     | {string} | Module name of the record |
+| `properties` | {Object} | Object containing key-value pairs the record should contain |    
+
+**Returns:**  
+
+| Type     | Description |
+| -------- |:------------|
+| {Object} | A singular record object |  
 
 <br/>
 
