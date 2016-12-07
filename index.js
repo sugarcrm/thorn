@@ -353,6 +353,8 @@ let Fixtures = {
      * Stores the login response.
      *
      * @param {Object} auth The login response.
+     *
+     * @private
      */
     _storeAuth(auth) {
         this._headers['OAuth-Token'] = auth.body.access_token;
