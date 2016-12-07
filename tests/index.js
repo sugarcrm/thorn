@@ -120,7 +120,6 @@ describe('Fixtures', () => {
                     expect(requestBody.requests[0].data.field2).to.equal('field2data');
                     return [{
                         contents: {
-                            _module: 'TestModule',
                             id: 'Fake-Record-Id',
                             name: 'FakeRecord',
                             field1: 'field1data',
@@ -222,8 +221,6 @@ describe('Agent', () => {
 
             expect(myAgent.username).to.equal(process.env.ADMIN_USERNAME);
             expect(myAgent.password).to.equal(process.env.ADMIN_PASSWORD);
-
-            return chakram.wait();
         });
     });
 
@@ -232,8 +229,6 @@ describe('Agent', () => {
 
         beforeEach(() => {
             myAgent = Agent.as(process.env.ADMIN_USERNAME);
-
-            return chakram.wait();
         });
 
         it('should return the original agent if version is unchanged', () => {
@@ -255,8 +250,6 @@ describe('Agent', () => {
 
         before(() => {            
             myAgent = Agent.as(process.env.ADMIN_USERNAME);
-
-            return chakram.wait();
         });
 
         it('should send GET request', () => {
