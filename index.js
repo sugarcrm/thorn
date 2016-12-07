@@ -346,7 +346,10 @@ let Fixtures = {
             ids: [right.id]
         };
 
-        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this));
+        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
+            .then((response) => {
+                return response.response.body;
+            });
     },
 
     /**

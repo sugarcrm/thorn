@@ -366,7 +366,9 @@ var Fixtures = {
             ids: [right.id]
         };
 
-        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this));
+        return _wrap401(chakram.post, [url, linkDef, params], this._refreshToken, _.bind(this._afterRefresh, this)).then(function (response) {
+            return response.response.body;
+        });
     },
 
 
@@ -374,6 +376,8 @@ var Fixtures = {
      * Stores the login response.
      *
      * @param {Object} auth The login response.
+     *
+     * @private
      */
     _storeAuth: function _storeAuth(auth) {
         this._headers['OAuth-Token'] = auth.body.access_token;
