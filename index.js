@@ -241,7 +241,7 @@ let Fixtures = {
             model.module = model.module || options.module;
             let requiredFields;
             let request = {
-                url: '/rest/' + VERSION + '/' + model.module,
+                url: '/' + VERSION + '/' + model.module,
                 method: 'POST',
                 data: model.attributes || {}
             };
@@ -435,6 +435,7 @@ class Agent {
         if (cachedAgent) {
             return cachedAgent;
         }
+
         let password = credentials[username];
         if (!password) {
             throw new Error('No credentials available for user agent ' + username);

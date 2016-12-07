@@ -30,7 +30,7 @@ gulp.task('test', ['build'], () => {
         process.stdout.write('Test reports will be generated to: ' + testResultPath + '\n');
     }
 
-    options.timeout = '5000';
+    options.timeout = '30000';
 
     return gulp.src(['tests/**/*.js'], {read: false})
         .pipe(mocha(options));

@@ -1,6 +1,6 @@
 process.env.ADMIN_USERNAME = 'admin';
 process.env.ADMIN_PASSWORD = 'asdf';
-process.env.API_URL = 'http://thisisnotarealserver.localdev';
+//process.env.API_URL = 'http://thisisnotarealserver.localdev';
 
 let chakram = require('chakram');
 let expect = require('chai').expect;
