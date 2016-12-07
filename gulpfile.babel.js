@@ -37,10 +37,19 @@ gulp.task('test', ['build'], () => {
 });
 
 gulp.task('doc', (cb) => {
+    var commander = require('commander');
     var jsdoc = require('gulp-jsdoc3');
     var jsdocConfig = require('./jsdoc.json');
 
-    gulp.src(_.union(['README.md'], sourceFiles), { read: false })
+    commander
+        .option('-p, --private', 'Include private API documentation')
+        .parse(process.argv);
+
+    if (commander.private) {
+        jsdocConfig.opts.private = true;
+    }
+
+    gulp.src(_.union(['Docs.md'], sourceFiles), { read: false })
         .pipe(jsdoc(jsdocConfig, cb));
 });
 
