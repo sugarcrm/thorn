@@ -465,7 +465,7 @@ class Agent {
 function _wrap401(chakramMethod, args, refreshToken, afterRefresh, retryVersion = VERSION) {
     return chakramMethod.apply(chakram, args).then((response) => {
         if (!response || !response.response) {
-            throw new Error('wrap401 did not receive a valid response!');
+            throw new Error(chakramMethod.name + ' did not receive a valid response!');
         }
 
         if (response.response.statusCode !== 401) {
