@@ -1,6 +1,7 @@
 # Thorn
 
-Thorn is a BDD-style testing framework built on [chakram](http://dareid.github.io/chakram/), designed for performing testing on SugarCRM's REST API.
+Thorn is composed by a set of helper abstractions built to ease the process of
+setting up a SugarCRM's REST API testing environment and interacting with it.
 
 ## Thorn::Fixtures
 
@@ -13,72 +14,18 @@ Method to create records in the database.
 
 | Name      | Type       | Description |
 | --------- |:-----------|:------------|
-| `models`  | {Object&#124;Object[]} | Object or object array that specifies the records to be created. See [Model Structure](#model-structure) for details)|
-| `options` | {Object}   | Optional, `options.module` specifies the `module` property of all `models`|    
+| `models`  | {Object&#124;Object[]} | Object or object array that specifies the records to be created. See [Model Structure](#model-structure) for details. |
+| `options` | {Object}   | Optional, `options.module` specifies the `module` property of all `models` if it is not specified in the models' object. |    
 
 **Returns:**  
 
 | Type      | Description |
 | --------- |:------------|
-| {Promise} | A `Promise` which resolves to an object of created records, indexed by module name|     
+| {Promise} | A `Promise` which resolves to an object of created records, indexed by module name. |     
       
 <br/>
 
-#### **`Fixtures::link(left, linkName, right)` => `{Promise}`**  
-Method to link records with a custom link name in the database.  
-
-| Name       | Type       | Description |
-| ---------- |:-----------|:------------|
-| `left`     | {Object}   | A record from the resolution of `Fixtures.create` |
-| `linkName` | {string}   | Relationship's link name |
-| `right`    | {Object}   | A record from the resolution of `Fixtures.create` |
-
-**Returns:**  
-
-| Type      | Description |
-| --------- |:------------|
-| {Promise} | A `Promise` which resolves to the [Chakram-wrapped](http://dareid.github.io/chakram/jsdoc/global.html#ChakramResponse) response from server |
-
-<br/>
-
-#### **`Fixtures::cleanup()` => `{Promise}`**  
-Method to delete all records previously created through `Fixtures::create`. 
-
-**Returns:**  
-
-| Type      | Description |
-| --------- |:------------|
-| {Promise} | A `Promise` which resolves to `Undefined` |
-
-<br/>
-
-#### **`Fixtures::lookup(module, properties)` => `{Object}`**
-Method that looks through the created records and retrieves the first record
-matching module and the key-value pairs in properties.
-
-| Name         | Type     | Description |
-| ------------ |:---------|:------------|
-| `module`     | {string} | Module name of the record |
-| `properties` | {Object} | Object containing key-value pairs the record should contain |    
-
-**Returns:**  
-
-| Type     | Description |
-| -------- |:------------|
-| {Object} | A singular record object |  
-
-<br/>
-
-### Model Structure
-Models is an object array that specifies the records the tester intends to create. 
-**Properties of each model object:**  
-
-|Name          | Type     | Description |
-|--------------|:---------|:------------|
-| `module`     | {string} | Optional, module name of the record |
-| `attributes` | {Object} | Specific fields the record should have, unspecified required fields are auto-generated |
-
-**Example without Links:**
+**Example:**
 ```javascript
 let AccountsContacts = [
     {
@@ -113,7 +60,26 @@ return Fixtures.create(AccountsContacts)
     });
 ```
 
-**Example with Links:**
+<br/>
+
+#### **`Fixtures::link(left, linkName, right)` => `{Promise}`**  
+Method to link records in the database.  
+
+| Name       | Type       | Description |
+| ---------- |:-----------|:------------|
+| `left`     | {Object}   | A record from the resolution of `Fixtures.create`.  |
+| `linkName` | {string}   | Relationship's link name.  |
+| `right`    | {Object}   | A record from the resolution of `Fixtures.create`. |
+
+**Returns:**  
+
+| Type      | Description |
+| --------- |:------------|
+| {Promise} | A `Promise` which resolves to the [Chakram-wrapped](http://dareid.github.io/chakram/jsdoc/global.html#ChakramResponse) response from server. |
+
+<br/>
+
+**Example:**
 ```javascript
 let Account = {
     module: 'Accounts',
@@ -141,6 +107,46 @@ return Fixtures.create([Account, Contact])
         return response;
     });
 ```
+
+<br/>
+
+#### **`Fixtures::cleanup()` => `{Promise}`**  
+Method to delete all records previously created through `Fixtures::create`. 
+
+**Returns:**  
+
+| Type      | Description |
+| --------- |:------------|
+| {Promise} | A `Promise` which resolves to `Undefined`. |
+
+<br/>
+
+#### **`Fixtures::lookup(module, properties)` => `{Object}`**
+Method that looks through the created records and retrieves the first record
+matching module and the key-value pairs in properties.
+
+| Name         | Type     | Description |
+| ------------ |:---------|:------------|
+| `module`     | {string} | Module name of the record. |
+| `properties` | {Object} | Object containing key-value pairs the record should contain. |    
+
+**Returns:**  
+
+| Type     | Description |
+| -------- |:------------|
+| {Object} | A singular record object |  
+
+<br/>
+
+### Model Structure
+Models is an object array that specifies the records the tester intends to create. 
+**Properties of each model object:**  
+
+|Name          | Type     | Description |
+|--------------|:---------|:------------|
+| `module`     | {string} | Optional, module name of the record. |
+| `attributes` | {Object} | Specific fields the record should have, unspecified required fields are auto-generated. |
+
 
 <br/>
 
