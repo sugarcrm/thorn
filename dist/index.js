@@ -455,7 +455,11 @@ var Agent = function () {
             if (cachedAgent) {
                 return cachedAgent;
             }
-            var agent = new UserAgent(username, credentials[username], VERSION);
+            var password = credentials[username];
+            if (!password) {
+                throw new Error('No credentials available for user agent ' + username);
+            }
+            var agent = new UserAgent(username, password, VERSION);
             agent._login();
             return agent;
         }

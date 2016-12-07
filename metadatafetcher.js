@@ -11,7 +11,7 @@ var MetadataFetcher = {
 
         switch (field.type) {
             case 'varchar':
-                val = this._generateVarChar(field.length);
+                val = this._generateVarChar(field.len);
                 break;
             /**
             TODO

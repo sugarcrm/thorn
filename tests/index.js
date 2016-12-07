@@ -222,7 +222,8 @@ describe('Agent', () => {
 
             expect(myAgent.username).to.equal(process.env.ADMIN_USERNAME);
             expect(myAgent.password).to.equal(process.env.ADMIN_PASSWORD);
-            return myAgent._loginPromise;
+
+            return chakram.wait();
         });
     });
 
@@ -232,7 +233,7 @@ describe('Agent', () => {
         beforeEach(() => {
             myAgent = Agent.as(process.env.ADMIN_USERNAME);
 
-            return myAgent._loginPromise;
+            return chakram.wait();
         });
 
         it('should return the original agent if version is unchanged', () => {
@@ -252,12 +253,10 @@ describe('Agent', () => {
     describe('request methods', () => {
         let myAgent;
 
-        before(() => {
-            
+        before(() => {            
             myAgent = Agent.as(process.env.ADMIN_USERNAME);
 
-            // BAD!
-            return myAgent._loginPromise;
+            return chakram.wait();
         });
 
         it('should send GET request', () => {
