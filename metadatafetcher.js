@@ -64,7 +64,7 @@ var MetadataFetcher = {
      */
     fetchRequiredFields(module) {
         if (!metadata[module]) {
-            throw 'Unrecognized module';
+            throw new Error('Unrecognized module');
         }
 
         return metadata[module].requiredFields;
