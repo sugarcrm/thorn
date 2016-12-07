@@ -237,7 +237,7 @@ let Fixtures = {
             model.module = model.module || options.module;
             let requiredFields;
             let request = {
-                url: '/' + VERSION + '/' + model.module,
+                url: '/rest/' + VERSION + '/' + model.module,
                 method: 'POST',
                 data: model.attributes || {}
             };
@@ -254,7 +254,7 @@ let Fixtures = {
             requiredFields = MetadataFetcher.fetchRequiredFields(model.module);
             _.each(requiredFields, (field) => {
                 if (!request.data[field.name]) {
-                    request.data[field.name] = MetadataFetcher.generateFieldValue(field.type, field.reqs);
+                    request.data[field.name] = MetadataFetcher.generateFieldValue(field);
                 }
             });
 
@@ -462,6 +462,7 @@ function _wrap401(chakramMethod, args, refreshToken, afterRefresh, retryVersion 
             // have to update parameters after a refresh
             let paramIndex = args.length - 1;
             args[paramIndex].headers['OAuth-Token'] = response.body.access_token;
+
             return chakramMethod.apply(chakram, args);
         });
     }, (response) => {
@@ -597,8 +598,10 @@ class UserAgent {
             // must wait for login promise to resolve or else OAuth-Token may not be available
             let paramIndex = args.length - 1;
             // FIXME: eventually will want to support multiple types of headers
-            args[paramIndex] = args[paramIndex] || { headers: {} };
+            args[paramIndex] = args[paramIndex] || {};
+            args[paramIndex].headers = {};
             _.extend(args[paramIndex].headers, this._headers);
+
             return _wrap401(chakramMethod, args, this._refreshToken, _.bind(this._afterRefresh, this), this.version);
         }, () => {
             console.error('Making a ' + chakramMethod.name + ' request failed!');

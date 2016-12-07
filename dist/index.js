@@ -92,6 +92,10 @@ function _insertCredentials(username, userhash) {
  */
 var fixturesMap = new WeakMap();
 
+/**
+ * Fixtures for pre-creating records.
+ * @namespace
+ */
 var Fixtures = {
     /**
      * @property {number} _sessionAttempt Number of attempts made to login as
@@ -249,7 +253,7 @@ var Fixtures = {
             model.module = model.module || options.module;
             var requiredFields = void 0;
             var request = {
-                url: '/' + VERSION + '/' + model.module,
+                url: '/rest/' + VERSION + '/' + model.module,
                 method: 'POST',
                 data: model.attributes || {}
             };
@@ -266,7 +270,7 @@ var Fixtures = {
             requiredFields = MetadataFetcher.fetchRequiredFields(model.module);
             _.each(requiredFields, function (field) {
                 if (!request.data[field.name]) {
-                    request.data[field.name] = MetadataFetcher.generateFieldValue(field.type, field.reqs);
+                    request.data[field.name] = MetadataFetcher.generateFieldValue(field);
                 }
             });
 
@@ -451,7 +455,11 @@ var Agent = function () {
             if (cachedAgent) {
                 return cachedAgent;
             }
-            var agent = new UserAgent(username, credentials[username], VERSION);
+            var password = credentials[username];
+            if (!password) {
+                throw new Error('No credentials available for user agent ' + username);
+            }
+            var agent = new UserAgent(username, password, VERSION);
             agent._login();
             return agent;
         }
@@ -494,6 +502,7 @@ function _wrap401(chakramMethod, args, refreshToken, afterRefresh) {
             // have to update parameters after a refresh
             var paramIndex = args.length - 1;
             args[paramIndex].headers['OAuth-Token'] = response.body.access_token;
+
             return chakramMethod.apply(chakram, args);
         });
     }, function (response) {
@@ -586,8 +595,10 @@ var UserAgent = function () {
                 // must wait for login promise to resolve or else OAuth-Token may not be available
                 var paramIndex = args.length - 1;
                 // FIXME: eventually will want to support multiple types of headers
-                args[paramIndex] = args[paramIndex] || { headers: {} };
+                args[paramIndex] = args[paramIndex] || {};
+                args[paramIndex].headers = {};
                 _.extend(args[paramIndex].headers, _this4._headers);
+
                 return _wrap401(chakramMethod, args, _this4._refreshToken, _.bind(_this4._afterRefresh, _this4), _this4.version);
             }, function () {
                 console.error('Making a ' + chakramMethod.name + ' request failed!');
