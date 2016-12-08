@@ -194,11 +194,11 @@ let Fixtures = {
 
         // Loop models to handle links
         _.each(models, (model) => {
-            let theLeft = fixturesMap.get(model);
-            if (!theLeft) {
+            let leftRecord = fixturesMap.get(model);
+            if (!leftRecord) {
                 throw new Error('Left-hand model cannot be found!');
             }
-            let leftID = theLeft.id;
+            let leftID = leftRecord.id;
             _.each(model.links, (moduleLinks, linkToModule) => {
                 _.each(moduleLinks, (link) => {
                     let cachedRecord = fixturesMap.get(link);
