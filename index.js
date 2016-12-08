@@ -59,7 +59,7 @@ let credentials = {
 };
 
 /**
- * Inserts username and userhash into #credentials.
+ * Inserts username and userhash into `credentials`.
  *
  * @param {string} username Username of the user.
  * @param {string} userhash Password of the user.
@@ -118,7 +118,7 @@ let Fixtures = {
      *
      * @param {Object|Object[]} models An object or array of objects.
      *   Each object contains a list of attributes for each new model.
-     * @param {Object} [options]
+     * @param {Object} [options] Additional information about `models`.
      * @param {string} [options.module] The module of all models (if not specified in the models' object).
      *
      * @return {Promise} The ChakramResponse from the creation of the records and/or links
@@ -138,18 +138,20 @@ let Fixtures = {
             models = [models];
         }
 
-        // reset #_sessionAttempt
+        // reset `_sessionAttempt`
         this._sessionAttempt = 0;
 
         let url = _constructUrl('bulk', VERSION);
         let params = {headers: this._headers};
         let bulkRecordCreateDef = this._processModels(models, options);
         let bulkRecordLinkDef;
+        let createdRecords;
 
         // return Promise
         return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
             .then((response) => {
-                bulkRecordLinkDef = this._processRecords(response, models);
+                createdRecords = this._cacheResponse(response, models);
+                bulkRecordLinkDef = this._processLinks(response, models);
                 if (bulkRecordLinkDef.requests.length) {
                     return chakram.post(url, bulkRecordLinkDef, params);
                 }
@@ -157,23 +159,23 @@ let Fixtures = {
                 return response;
             })
             .then(() => {
-                return cachedRecords;
+                return createdRecords;
             });
     },
 
     /**
-     * Generates the bulk call object for linking based on response from record
-     * creation.
+     * Cache records from given `response`.
      *
      * @param {Object} response Response object from record creation bulk call.
-     * @param {Object[]} models
+     * @param {Object[]} models An array of objects, each containing a list of
+     *   attributes for each new model. 
      *
-     * @return {Object} Bulk call object for links.
+     * @return {Object} Map between module names and created records from the `response`.
      *
      * @private
      */
-    _processRecords(response, models) {
-        let bulkRecordLinkDef = { requests: [] };
+    _cacheResponse(response, models) {
+        let createdRecords = {};
         let records = response.response.body;
         let modelIndex = 0;
 
@@ -182,15 +184,42 @@ let Fixtures = {
             let contents = record.contents;
             let recordModule = contents._module;
             // Cache record into fixturesMap
-            // The bulk response is in the same order as the supplied requests.
+            // The bulk response is in the same order as the supplied requests
             fixturesMap.set(models[modelIndex++], contents);
-            // Cache record into cachedRecords indexed by supplied module
-            if (cachedRecords[recordModule]) {
-                cachedRecords[recordModule].push(contents);
+            // Cache record into createdRecords, indexed by supplied module
+            if (createdRecords[recordModule]) {
+                createdRecords[recordModule].push(contents);
             } else {
-                cachedRecords[recordModule] = [contents];
+                createdRecords[recordModule] = [contents];
             }
         });
+
+        // Extend createdRecords into cachedRecords
+        _.each(createdRecords, (records, moduleName) => {
+            if (cachedRecords[moduleName]) {
+                cachedRecords[moduleName] = cachedRecords[moduleName].concat(records);
+            } else {
+                cachedRecords[moduleName] = records;
+            }
+        });
+
+        return createdRecords;
+    },
+
+    /**
+     * Generates the bulk call object for linking based on response from record
+     * creation.
+     *
+     * @param {Object} response Response object from record creation bulk call.
+     * @param {Object[]} models An array of objects, each containing a list of
+     *   attributes for each new model. 
+     *
+     * @return {Object} Bulk call object for links.
+     *
+     * @private
+     */
+    _processLinks(response, models) {
+        let bulkRecordLinkDef = { requests: [] };
 
         // Loop models to handle links
         _.each(models, (model) => {
@@ -226,8 +255,10 @@ let Fixtures = {
     /**
      * Generates the bulk call object for object creation based on models.
      *
-     * @param {Object[]} models
-     * @param {Object} [options]
+     * @param {Object[]} models An array of objects, each containing a list of
+     *   attributes for each new model. 
+     * @param {Object} [options] Additional information about `models`.
+     * @param {string} [options.module] The module of all models (if not specified in the models' object).
      *
      * @return {Object} Bulk call object for record creation.
      *
@@ -290,7 +321,7 @@ let Fixtures = {
             });
         }
 
-        // reset #_sessionAttempt
+        // reset `_sessionAttempt`
         this._sessionAttempt = 0;
 
         // Create promise for record deletion
@@ -322,7 +353,7 @@ let Fixtures = {
      * @param {string} module The module of the record to find.
      * @param {Object} properties The properties to search for.
      *
-     * @return {Object} The first record in #cachedRecords that match properties
+     * @return {Object} The first record in `cachedRecords` that match properties.
      */
     lookup(module, properties) {
         if (!cachedRecords) {

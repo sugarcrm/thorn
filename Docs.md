@@ -38,7 +38,7 @@ Method to create records in the database.
 
 | Type      | Description |
 | --------- |:------------|
-| {Promise} | A `Promise` which resolves to a map of module names to created records. |
+| {Promise} | A `Promise` which resolves to a map of module names to records created by this method call. |
 
 <br/>
 
@@ -93,25 +93,9 @@ return Fixtures.create(AccountsContacts)
         return Fixtures.create(DashboardsOnly, {module: 'Dashboard'});
     })
     .then((response) => {
-        console.log(response); // Map containing one account, one contact, and one dashboard
+        console.log(response);
         /*
         {
-            Accounts: [
-                {
-                    id: '12257c7c-bb40-11e6-afb2-a0937b020fc9',
-                    name: 'MyAccount',
-                    ...
-                    _module: 'Accounts'
-                }
-            ],
-            Contacts: [
-                {
-                    id: '11232c7c-bb40-11e6-bfb2-a0937b020sc9',
-                    first_name: 'FirstName',
-                    ...
-                    _module: 'Contacts'
-                }
-            ],
             Dashboards: [
                 {
                     id: '11232c7c-bb40-11e6-bfb2-a0937b020sc9',
