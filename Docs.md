@@ -93,7 +93,7 @@ return Fixtures.create(AccountsContacts)
         return Fixtures.create(DashboardsOnly, {module: 'Dashboard'});
     })
     .then((response) => {
-        console.log(response); // Map containing one dashboard
+        console.log(response);
         /*
         {
             Dashboards: [

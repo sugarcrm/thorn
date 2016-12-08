@@ -118,7 +118,7 @@ let Fixtures = {
      *
      * @param {Object|Object[]} models An object or array of objects.
      *   Each object contains a list of attributes for each new model.
-     * @param {Object} [options]
+     * @param {Object} [options] Additional information about `models`.
      * @param {string} [options.module] The module of all models (if not specified in the models' object).
      *
      * @return {Promise} The ChakramResponse from the creation of the records and/or links
@@ -151,7 +151,7 @@ let Fixtures = {
         return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
             .then((response) => {
                 createdRecords = this._cacheResponse(response, models);
-                bulkRecordLinkDef = this._processRecords(response, models);
+                bulkRecordLinkDef = this._processLinks(response, models);
                 if (bulkRecordLinkDef.requests.length) {
                     return chakram.post(url, bulkRecordLinkDef, params);
                 }
@@ -219,9 +219,8 @@ let Fixtures = {
      *
      * @private
      */
-    _processRecords(response, models) {
+    _processLinks(response, models) {
         let bulkRecordLinkDef = { requests: [] };
-        let records = response.response.body;
 
         // Loop models to handle links
         _.each(models, (model) => {
@@ -259,7 +258,7 @@ let Fixtures = {
      *
      * @param {Object[]} models An array of objects, each containing a list of
      *   attributes for each new model. 
-     * @param {Object} [options]
+     * @param {Object} [options] Additional information about `models`.
      * @param {string} [options.module] The module of all models (if not specified in the models' object).
      *
      * @return {Object} Bulk call object for record creation.
