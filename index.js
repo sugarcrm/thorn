@@ -145,10 +145,12 @@ let Fixtures = {
         let params = {headers: this._headers};
         let bulkRecordCreateDef = this._processModels(models, options);
         let bulkRecordLinkDef;
+        let createdRecords;
 
         // return Promise
         return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
             .then((response) => {
+                createdRecords = this._cacheResponse(response, models);
                 bulkRecordLinkDef = this._processRecords(response, models);
                 if (bulkRecordLinkDef.requests.length) {
                     return chakram.post(url, bulkRecordLinkDef, params);
@@ -157,8 +159,51 @@ let Fixtures = {
                 return response;
             })
             .then(() => {
-                return cachedRecords;
+                return createdRecords;
             });
+    },
+
+    /**
+     * Cache records from response into #fixturesMap and #cachedRecords, and
+     * returns a map of module names to created records from response.
+     *
+     * @param {Object} response Response object from record creation bulk call.
+     * @param {Object[]} models
+     *
+     * @return {Object} Map of module names to created records from response.
+     *
+     * @private
+     */
+    _cacheResponse(response, models) {
+        let createdRecords = {};
+        let records = response.response.body;
+        let modelIndex = 0;
+
+        // Loop chakram response for each record
+        _.each(records, (record) => {
+            let contents = record.contents;
+            let recordModule = contents._module;
+            // Cache record into fixturesMap
+            // The bulk response is in the same order as the supplied requests
+            fixturesMap.set(models[modelIndex++], contents);
+            // Cache record into createdRecords, indexed by supplied module
+            if (createdRecords[recordModule]) {
+                createdRecords[recordModule].push(contents);
+            } else {
+                createdRecords[recordModule] = [contents];
+            }
+        });
+
+        // Extend createdRecords into cachedRecords
+        _.each(createdRecords, (records, moduleName) => {
+            if (cachedRecords[moduleName]) {
+                cachedRecords[moduleName] = cachedRecords[moduleName].concat(records);
+            } else {
+                cachedRecords[moduleName] = records;
+            }
+        });
+
+        return createdRecords;
     },
 
     /**
@@ -174,23 +219,7 @@ let Fixtures = {
      */
     _processRecords(response, models) {
         let bulkRecordLinkDef = { requests: [] };
-        let records = response.response.body;
-        let modelIndex = 0;
-
-        // Loop chakram response for each record
-        _.each(records, (record) => {
-            let contents = record.contents;
-            let recordModule = contents._module;
-            // Cache record into fixturesMap
-            // The bulk response is in the same order as the supplied requests.
-            fixturesMap.set(models[modelIndex++], contents);
-            // Cache record into cachedRecords indexed by supplied module
-            if (cachedRecords[recordModule]) {
-                cachedRecords[recordModule].push(contents);
-            } else {
-                cachedRecords[recordModule] = [contents];
-            }
-        });
+        let records = response.response.body;;
 
         // Loop models to handle links
         _.each(models, (model) => {
