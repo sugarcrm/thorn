@@ -38,7 +38,7 @@ Method to create records in the database.
 
 | Type      | Description |
 | --------- |:------------|
-| {Promise} | A `Promise` which resolves to a map of module names to created records. |
+| {Promise} | A `Promise` which resolves to a map of module names to records created by the current `Fixtures.create` call. |
 
 <br/>
 
