@@ -70,7 +70,7 @@ var MetadataFetcher = {
      */
     fetchRequiredFields: function fetchRequiredFields(module) {
         if (!metadata[module]) {
-            throw 'Unrecognized module';
+            throw new Error('Unrecognized module');
         }
 
         return metadata[module].requiredFields;
@@ -105,7 +105,10 @@ var metadata = {
             type: 'varchar'
         }]
     },
-    TestModule: {
+    TestModule1: {
+        requiredFields: []
+    },
+    TestModule2: {
         requiredFields: []
     }
 };
