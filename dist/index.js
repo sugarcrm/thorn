@@ -177,8 +177,7 @@ var Fixtures = {
 
 
     /**
-     * Cache records from the `response` into `fixturesMap` and `cachedRecords`,
-     * and returns a map of module names to created records from the response.
+     * Cache records from given `response`.
      *
      * @param {Object} response Response object from record creation bulk call.
      * @param {Object[]} models An array of objects, each containing a list of
@@ -374,7 +373,7 @@ var Fixtures = {
      * @param {string} module The module of the record to find.
      * @param {Object} properties The properties to search for.
      *
-     * @return {Object} The first record in `cachedRecords` that match properties
+     * @return {Object} The first record in `cachedRecords` that match properties.
      */
     lookup: function lookup(module, properties) {
         if (!cachedRecords) {
