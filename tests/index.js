@@ -171,7 +171,6 @@ describe('Fixtures', () => {
                 expect(lookup1 == lookup3).to.be.true;
                 done();
             });
-
         });
     });
 
