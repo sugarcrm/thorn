@@ -64,7 +64,7 @@ describe.only('Dashboards', () => {
 	describe('Dasboards visibility', () => {
 		let johnsDashboard;
 
-		beforeEach(() => {
+		before(() => {
 			johnsDashboard = Fixtures.lookup('Dashboards', {name: 'JohnsDashboard'});
 		});
 
