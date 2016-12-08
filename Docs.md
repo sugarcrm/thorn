@@ -11,7 +11,8 @@ You should be familiar with [mocha][mocha], [chai][chai], and [JavaScript Promis
 
 ```javascript
 const thorn = require('@sugarcrm/thorn');
-const expect = require('chai').expect;
+const chakram = require('chakram');
+const expect = chakram.expect;
 ```
 
 ## Thorn.Fixtures
