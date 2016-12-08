@@ -207,7 +207,11 @@ var Fixtures = {
 
         // Loop models to handle links
         _.each(models, function (model) {
-            var leftID = fixturesMap.get(model).id;
+            var leftRecord = fixturesMap.get(model);
+            if (!leftRecord) {
+                throw new Error('Left-hand model cannot be found!');
+            }
+            var leftID = leftRecord.id;
             _.each(model.links, function (moduleLinks, linkToModule) {
                 _.each(moduleLinks, function (link) {
                     var cachedRecord = fixturesMap.get(link);
@@ -253,7 +257,7 @@ var Fixtures = {
             model.module = model.module || options.module;
             var requiredFields = void 0;
             var request = {
-                url: '/rest/' + VERSION + '/' + model.module,
+                url: '/' + VERSION + '/' + model.module,
                 method: 'POST',
                 data: model.attributes || {}
             };
@@ -340,6 +344,10 @@ var Fixtures = {
      * @return {Object} The first record in #cachedRecords that match properties
      */
     lookup: function lookup(module, properties) {
+        if (!cachedRecords) {
+            throw new Error('No cached records are currently available!');
+        }
+
         var records = cachedRecords[module];
         if (!records) {
             throw new Error('No cached records found for module: ' + module);
@@ -359,7 +367,7 @@ var Fixtures = {
      * @return {Promise} ChakramPromise
      */
     link: function link(left, linkName, right) {
-        var url = '/' + VERSION + '/' + left._module + '/' + left.id + '/link';
+        var url = process.env.API_URL + '/' + VERSION + '/' + left._module + '/' + left.id + '/link';
         var params = { headers: this._headers };
         var linkDef = {
             link_name: linkName,
@@ -495,6 +503,10 @@ function _wrap401(chakramMethod, args, refreshToken, afterRefresh) {
     var retryVersion = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : VERSION;
 
     return chakramMethod.apply(chakram, args).then(function (response) {
+        if (!response || !response.response) {
+            throw new Error('Invalid response received!');
+        }
+
         if (response.response.statusCode !== 401) {
             return response;
         }
