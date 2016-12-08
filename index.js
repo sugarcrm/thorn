@@ -194,7 +194,11 @@ let Fixtures = {
 
         // Loop models to handle links
         _.each(models, (model) => {
-            let leftID = fixturesMap.get(model).id;
+            let leftRecord = fixturesMap.get(model);
+            if (!leftRecord) {
+                throw new Error('Left-hand model cannot be found!');
+            }
+            let leftID = leftRecord.id;
             _.each(model.links, (moduleLinks, linkToModule) => {
                 _.each(moduleLinks, (link) => {
                     let cachedRecord = fixturesMap.get(link);
@@ -321,6 +325,10 @@ let Fixtures = {
      * @return {Object} The first record in #cachedRecords that match properties
      */
     lookup(module, properties) {
+        if (!cachedRecords) {
+            throw new Error('No cached records are currently available!');
+        }
+
         let records = cachedRecords[module];
         if (!records) {
             throw new Error('No cached records found for module: ' + module);
@@ -339,7 +347,7 @@ let Fixtures = {
      * @return {Promise} ChakramPromise
      */
     link(left, linkName, right) {
-        let url = '/' + VERSION + '/' + left._module + '/' + left.id + '/link';
+        let url = process.env.API_URL + '/' + VERSION + '/' + left._module + '/' + left.id + '/link';
         let params = {headers: this._headers};
         let linkDef = {
             link_name: linkName,
@@ -456,6 +464,10 @@ class Agent {
  */
 function _wrap401(chakramMethod, args, refreshToken, afterRefresh, retryVersion = VERSION) {
     return chakramMethod.apply(chakram, args).then((response) => {
+        if (!response || !response.response) {
+            throw new Error('Invalid response received!');
+        }
+
         if (response.response.statusCode !== 401) {
             return response;
         }
