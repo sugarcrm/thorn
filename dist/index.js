@@ -253,7 +253,7 @@ var Fixtures = {
             model.module = model.module || options.module;
             var requiredFields = void 0;
             var request = {
-                url: '/rest/' + VERSION + '/' + model.module,
+                url: '/' + VERSION + '/' + model.module,
                 method: 'POST',
                 data: model.attributes || {}
             };
@@ -459,6 +459,7 @@ var Agent = function () {
             if (cachedAgent) {
                 return cachedAgent;
             }
+
             var password = credentials[username];
             if (!password) {
                 throw new Error('No credentials available for user agent ' + username);
