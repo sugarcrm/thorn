@@ -59,7 +59,7 @@ let credentials = {
 };
 
 /**
- * Inserts username and userhash into #credentials.
+ * Inserts username and userhash into `credentials`.
  *
  * @param {string} username Username of the user.
  * @param {string} userhash Password of the user.
@@ -138,7 +138,7 @@ let Fixtures = {
             models = [models];
         }
 
-        // reset #_sessionAttempt
+        // reset `_sessionAttempt`
         this._sessionAttempt = 0;
 
         let url = _constructUrl('bulk', VERSION);
@@ -164,13 +164,14 @@ let Fixtures = {
     },
 
     /**
-     * Cache records from response into #fixturesMap and #cachedRecords, and
-     * returns a map of module names to created records from response.
+     * Cache records from the `response` into `fixturesMap` and `cachedRecords`,
+     * and returns a map of module names to created records from the response.
      *
      * @param {Object} response Response object from record creation bulk call.
-     * @param {Object[]} models
+     * @param {Object[]} models An array of objects, each containing a list of
+     *   attributes for each new model. 
      *
-     * @return {Object} Map of module names to created records from response.
+     * @return {Object} Map between module names and created records from the `response`.
      *
      * @private
      */
@@ -211,7 +212,8 @@ let Fixtures = {
      * creation.
      *
      * @param {Object} response Response object from record creation bulk call.
-     * @param {Object[]} models
+     * @param {Object[]} models An array of objects, each containing a list of
+     *   attributes for each new model. 
      *
      * @return {Object} Bulk call object for links.
      *
@@ -219,7 +221,7 @@ let Fixtures = {
      */
     _processRecords(response, models) {
         let bulkRecordLinkDef = { requests: [] };
-        let records = response.response.body;;
+        let records = response.response.body;
 
         // Loop models to handle links
         _.each(models, (model) => {
@@ -255,8 +257,10 @@ let Fixtures = {
     /**
      * Generates the bulk call object for object creation based on models.
      *
-     * @param {Object[]} models
+     * @param {Object[]} models An array of objects, each containing a list of
+     *   attributes for each new model. 
      * @param {Object} [options]
+     * @param {string} [options.module] The module of all models (if not specified in the models' object).
      *
      * @return {Object} Bulk call object for record creation.
      *
@@ -319,7 +323,7 @@ let Fixtures = {
             });
         }
 
-        // reset #_sessionAttempt
+        // reset `_sessionAttempt`
         this._sessionAttempt = 0;
 
         // Create promise for record deletion
@@ -351,7 +355,7 @@ let Fixtures = {
      * @param {string} module The module of the record to find.
      * @param {Object} properties The properties to search for.
      *
-     * @return {Object} The first record in #cachedRecords that match properties
+     * @return {Object} The first record in `cachedRecords` that match properties
      */
     lookup(module, properties) {
         if (!cachedRecords) {
