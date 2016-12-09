@@ -5,7 +5,7 @@ setting up a SugarCRM's REST API testing environment and interacting with it.
 
 ## Prerequisites
 
-You should be familiar with [mocha][mocha], [chai][chai], and [JavaScript Promises][google-js-promises].
+You should be familiar with [mocha][mocha], [expect][expect], and [JavaScript Promises][google-js-promises].
 
 ## Setup
 
@@ -388,10 +388,14 @@ john.get('Notifications').then(response) => {
 });
 ```
 
-[chai]: http://chaijs.com/
+## Thorn.Expect
+
+Thorn.Expect makes [Chakram assertions][expect] easily accessible.
+
 [chakram]: http://dareid.github.io/chakram/
 [chakram API]: https://dareid.github.io/chakram/jsdoc/module-chakram.html
 [chakram response]: https://dareid.github.io/chakram/jsdoc/global.html#ChakramResponse
+[expect]: https://dareid.github.io/chakram/jsdoc/module-chakram-expectation.html
 [requests-parameters]: https://github.com/request/request#requestoptions-callback
 [google-js-promises]: https://developers.google.com/web/fundamentals/getting-started/primers/promises
 [mocha]: https://mochajs.org/
