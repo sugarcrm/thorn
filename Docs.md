@@ -237,7 +237,7 @@ e.g. using `_.clone`).
 * Linking records requires that the records have already been created in the database. To avoid exceptions, structure the
 record creations such that dependencies are met before `Fixtures` tries to make links.
 
-## Thorn::Agent
+## Thorn.Agent
 
 Thorn provides an Agent class that simulates a REST API user agent.
 You should use this class for all of your Thorn tests except those which test the Users API directly (in which case you should use the [chakram API](chakram) directly).
