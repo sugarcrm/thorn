@@ -49,8 +49,16 @@ gulp.task('doc', (cb) => {
         jsdocConfig.opts.private = true;
     }
 
-    gulp.src(_.union(['Docs.md'], sourceFiles), { read: false })
+    return gulp.src(_.union(['Docs.md'], sourceFiles), { read: false })
         .pipe(jsdoc(jsdocConfig, cb));
+});
+
+gulp.task('lint', () => {
+    var eslint = require('gulp-eslint');
+    return gulp.src(_.union(sourceFiles, ['tests/**/*.js', 'gulpfile.babel.js']))
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError());
 });
 
 gulp.task('watch', () => {
