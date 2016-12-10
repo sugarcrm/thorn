@@ -101,7 +101,7 @@ let Fixtures = {
      *
      * @private
      */
-     _maxSessionAttempts: 3,
+    _maxSessionAttempts: 3,
 
     /**
      * @property {object} _headers Default HTTP headers.
@@ -513,8 +513,6 @@ function _wrap401(chakramMethod, args, refreshToken, afterRefresh, retryVersion 
 
             return chakramMethod.apply(chakram, args);
         });
-    }, (response) => {
-        console.err('Failing even after a refresh');
     });
 }
 
@@ -624,8 +622,6 @@ class UserAgent {
             cachedAgents[this.username] = this;
             this._headers['OAuth-Token'] = response.body.access_token;
             this._refreshToken = response.body.refresh_token;
-        }, (response) => {
-            console.error('Logging in user ' + this.username + ' failed!');
         });
     };
 

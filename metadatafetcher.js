@@ -10,32 +10,32 @@ var MetadataFetcher = {
         let val;
 
         switch (field.type) {
-            case 'varchar':
-                val = this._generateVarChar(field.len);
-                break;
-            /**
-            TODO
-            case 'datetime':
-                val = this._generateDateTime();
-                break;
-            case 'url':
-                val = this._generateURL();
-                break;
-            case 'email':
-                val = this._generateEmail();
-                break;
-            case 'phone':
-                val = this._genenrateNumber();
-                break;
-            case 'text':
-                val = this._generateText(reqs.length);
-                break;
-            case 'id':
-                val = this._generateUID();
-                break;
-            */
-            default:
-                val = '';
+        case 'varchar':
+            val = this._generateVarChar(field.len);
+            break;
+        /**
+        TODO
+        case 'datetime':
+            val = this._generateDateTime();
+            break;
+        case 'url':
+            val = this._generateURL();
+            break;
+        case 'email':
+            val = this._generateEmail();
+            break;
+        case 'phone':
+            val = this._genenrateNumber();
+            break;
+        case 'text':
+            val = this._generateText(reqs.length);
+            break;
+        case 'id':
+            val = this._generateUID();
+            break;
+        */
+        default:
+            val = '';
         }
 
         return val;
