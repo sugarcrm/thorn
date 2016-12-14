@@ -343,7 +343,11 @@ let Fixtures = {
         // Create promise for record deletion
         return _wrap401(chakram.post, [url, bulkRecordDeleteDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
             .then(() => {
-                cachedRecords = null;
+                // reset caches
+                cachedRecords = {};
+                credentials = {
+                    [process.env.ADMIN_USERNAME]: process.env.ADMIN_PASSWORD
+                };
             });
     },
 
@@ -496,6 +500,7 @@ class Agent {
 function _wrap401(chakramMethod, args, refreshToken, afterRefresh, retryVersion = VERSION) {
     return chakramMethod.apply(chakram, args).then((response) => {
         if (!response || !response.response) {
+            console.log(response);
             throw new Error('Invalid response received!');
         }
 
