@@ -3,7 +3,6 @@ process.env.ADMIN_PASSWORD = 'bar';
 process.env.API_URL = 'http://thisisnotarealserver.localdev';
 
 let _ = require('lodash');
-let chakram = require('chakram');
 let expect = require('chai').expect;
 let nock = require('nock');
 
@@ -79,7 +78,7 @@ describe('Fixtures', () => {
         });
 
         it('should create a fixture', () => {
-            let thisServer = nock(serverUrl)
+            nock(serverUrl)
                 .post(isTokenReq)
                 .reply(200, ACCESS)
                 .post(isBulk)
@@ -110,7 +109,7 @@ describe('Fixtures', () => {
         it('should create a fixture using options.module', () => {
             let fixtureWithoutModule = _.clone(myFixture);
             delete fixtureWithoutModule[0].module;
-            let server = nock(serverUrl)
+            nock(serverUrl)
                 .post(isTokenReq)
                 .reply(200, ACCESS)
                 .post(isBulk)
@@ -138,7 +137,7 @@ describe('Fixtures', () => {
         });
 
         it('should create a fixture and find it', (done) => {
-            let server = nock(serverUrl)
+            nock(serverUrl)
                 .post(isTokenReq)
                 .reply(200, ACCESS)
                 .post(isBulk)
@@ -194,7 +193,7 @@ describe('Fixtures', () => {
             name: 'TestRecord2',
             testField1: 'TestField1data2'
         };
-        let server = nock(serverUrl)
+        nock(serverUrl)
             .post(isTokenReq)
             .reply(200, ACCESS)
             .post(isBulk)
@@ -272,7 +271,7 @@ describe('Fixtures', () => {
                     ]
                 }
             });
-            let server = nock(serverUrl)
+            nock(serverUrl)
                 .post(isTokenReq)
                 .reply(200, ACCESS)
                 .post(isBulk)
@@ -320,7 +319,7 @@ describe('Fixtures', () => {
                 LEFT_FIXTURE,
                 RIGHT_FIXTURE
             ];
-            let server = nock(serverUrl)
+            nock(serverUrl)
                 .post(isTokenReq)
                 .reply(200, ACCESS)
                 .post(isBulk)
@@ -341,7 +340,7 @@ describe('Fixtures', () => {
                     expect(requestBody.ids.length).to.equal(1);
                     expect(requestBody.ids[0]).to.equal('TestId2');
                     return {
-                       record: LEFT_RESPONSE,
+                        record: LEFT_RESPONSE,
                         relatedRecords: [
                             RIGHT_RESPONSE
                         ]
@@ -378,7 +377,7 @@ describe('Fixtures', () => {
             }
         };
         let bigFixture = [record1, record2, record3];
-        let server = nock(serverUrl)
+        nock(serverUrl)
             .post(isTokenReq)
             .reply(200, ACCESS)
             .post(isBulk)
@@ -515,13 +514,12 @@ describe('Agent', () => {
 
         it('should send GET request', () => {
             let endpoint = 'not/real/endpoint';
-            let server = nock(serverUrl)
+            nock(serverUrl)
                 .get((uri) => {
                     return uri.indexOf('not/real/endpoint') >= 0;
                 })
                 .reply(200, function(uri, requestBody) {
                     expect(this.req.headers['x-thorn']).to.equal('Agent');
-
                     return [];
                 });
             let getRequest = myAgent.get(endpoint);
@@ -536,7 +534,7 @@ describe('Agent', () => {
             let data = {
                 myField: 'myValue'
             };
-            let server = nock(serverUrl)
+            nock(serverUrl)
                 .post((uri) => {
                     return uri.indexOf('not/real/endpoint') >= 0;
                 })
@@ -558,7 +556,7 @@ describe('Agent', () => {
             let data = {
                 myField: 'myUpdatedValue'
             };
-            let server = nock(serverUrl)
+            nock(serverUrl)
                 .put((uri) => {
                     return uri.indexOf('not/real/endpoint') >= 0;
                 })
@@ -580,7 +578,7 @@ describe('Agent', () => {
             let data = {
                 myField: 'myValue'
             };
-            let server = nock(serverUrl)
+            nock(serverUrl)
                 .delete((uri) => {
                     return uri.indexOf('not/real/endpoint') >= 0;
                 })
