@@ -40,7 +40,7 @@ const VERSION = 'v10';
  * @type {Object}
  * @private
  */
-let cachedRecords = {};
+let cachedRecords;
 
 /**
  * Credentials for created records.
@@ -54,9 +54,7 @@ let cachedRecords = {};
  * @type {Object}
  * @private
  */
-let credentials = {
-    [process.env.ADMIN_USERNAME]: process.env.ADMIN_PASSWORD // admin credentials
-};
+let credentials;
 
 /**
  * Inserts username and userhash into `credentials`.
@@ -73,6 +71,21 @@ function _insertCredentials(username, userhash) {
 
     credentials[username] = userhash;
 }
+
+/**
+ * Restores `cachedRecords` and `credetials` to their initial states.
+ *
+ * @private
+ */
+function _restore() {
+    cachedRecords = {};
+    credentials = {
+        [process.env.ADMIN_USERNAME]: process.env.ADMIN_PASSWORD
+    };
+}
+
+// initialize `cachedRecords` and `credentials`.
+_restore();
 
 /**
  * Record map indexed by fixture.
@@ -343,7 +356,7 @@ let Fixtures = {
         // Create promise for record deletion
         return _wrap401(chakram.post, [url, bulkRecordDeleteDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
             .then(() => {
-                cachedRecords = null;
+                _restore();
             });
     },
 
