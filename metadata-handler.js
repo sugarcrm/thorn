@@ -1,4 +1,11 @@
-var MetadataFetcher = {
+var MetadataHandler = {
+    /**
+     * @property {Object} _metadata Metadata structure.
+     *
+     * @private
+     */
+    _metadata: require(process.env.METADATA_FILE || '../metadata.json'),
+
     /**
      * Generates random values field types.
      *
@@ -62,57 +69,13 @@ var MetadataFetcher = {
      *
      * @return {Object} Object of required fields.
      */
-    fetchRequiredFields(module) {
-        if (!metadata[module]) {
+    getRequiredFields(module) {
+        if (!this._metadata[module]) {
             throw new Error('Unrecognized module');
         }
 
-        return metadata[module].requiredFields;
+        return this._metadata[module].fields;
     }
 };
 
-var metadata = {
-    Accounts: {
-        requiredFields: [
-            {
-                name: 'name',
-                type: 'varchar'
-            }
-        ]
-    },
-    Contacts: {
-        requiredFields: [
-            {
-                name: 'last_name',
-                type: 'varchar'
-            }
-        ]
-    },
-    Dashboards: {
-        requiredFields: []
-    },
-    Users: {
-        requiredFields: [
-            {
-                name: 'user_name',
-                type: 'varchar'
-            },
-            {
-                name: 'user_hash', // Not actually required. But to handle logins, we will generate user hashes.
-                type: 'varchar'
-            },
-            {
-                name: 'last_name',
-                type: 'varchar'
-            }
-        ]
-    },
-    TestModule1: {
-        requiredFields: []
-    },
-    TestModule2: {
-        requiredFields: []
-    }
-};
-
-module.exports = MetadataFetcher;
+module.exports = MetadataHandler;
