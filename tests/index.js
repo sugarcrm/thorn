@@ -227,7 +227,7 @@ describe('Fixtures', () => {
             expect(testModuleRecords[0]).to.eql(contents1);
             expect(testModuleRecords[1]).to.eql(contents2);
         });
-        expect(createPromise.then).to.be.a('function');
+        expect(isPromise(createPromise)).to.be.true;
         return createPromise;
     });
 
