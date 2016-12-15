@@ -73,7 +73,7 @@ function _insertCredentials(username, userhash) {
 }
 
 /**
- * Restores `cachedRecords` and `crendetials` to their initial states.
+ * Restores `cachedRecords` and `credentials` to their initial states.
  *
  * @private
  */
