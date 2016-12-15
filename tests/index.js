@@ -3,7 +3,7 @@ process.env.ADMIN_PASSWORD = 'bar';
 process.env.API_URL = 'http://thisisnotarealserver.localdev';
 
 let _ = require('lodash');
-let expect = require('chai').expect;
+let chakram = require('chakram');
 let nock = require('nock');
 
 // TODO Put in correct server
@@ -23,6 +23,7 @@ function isPromise(input) {
 let thorn;
 let Fixtures;
 let Agent;
+let expect;
 let thornFile = '../dist/index.js';
 
 function isTokenReq(url) {
@@ -44,6 +45,7 @@ beforeEach(() => {
     thorn = require(thornFile);
     Agent = thorn.Agent;
     Fixtures = thorn.Fixtures;
+    expect = thorn.Expect;
 });
 
 afterEach(() => {
