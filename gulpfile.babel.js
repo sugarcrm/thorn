@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var gulp = require('gulp');
 
-var sourceFiles = ['index.js', 'metadatafetcher.js'];
+var sourceFiles = ['index.js', 'metadata-handler.js'];
 
 gulp.task('build', () => {
     var babel = require('gulp-babel');

@@ -5,7 +5,7 @@
  */
 
 let chakram = require('chakram');
-let MetadataFetcher = require('./metadatafetcher.js');
+let MetadataHandler = require('./metadata-handler.js');
 let _ = require('lodash');
 
 /**
@@ -299,10 +299,10 @@ let Fixtures = {
                 throw new Error(model.toString());
             }
 
-            requiredFields = MetadataFetcher.fetchRequiredFields(model.module);
+            requiredFields = MetadataHandler.getRequiredFields(model.module);
             _.each(requiredFields, (field) => {
                 if (!request.data[field.name]) {
-                    request.data[field.name] = MetadataFetcher.generateFieldValue(field);
+                    request.data[field.name] = MetadataHandler.generateFieldValue(field);
                 }
             });
 
