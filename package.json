@@ -31,8 +31,7 @@
     "lodash": "^4.17.2"
   },
   "scripts": {
-    "test": "gulp test",
-    "prepublish": "gulp"
+    "test": "gulp test"
   },
   "private": true,
   "engines": {
