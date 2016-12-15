@@ -49,7 +49,7 @@ gulp.task('doc', (cb) => {
         jsdocConfig.opts.private = true;
     }
 
-    return gulp.src(_.union(['Docs.md'], sourceFiles), { read: false })
+    gulp.src(_.union(['Docs.md'], sourceFiles), { read: false })
         .pipe(jsdoc(jsdocConfig, cb));
 });
 
