@@ -392,6 +392,14 @@ john.get('Notifications').then(response) => {
 
 Thorn.Expect makes [Chakram assertions][expect] easily accessible.
 
+## Debugging Tests
+
+While developing or debugging a test, you can set the environment variable `THORN_VERBOSE` to any value to enable
+verbose output from Thorn.
+
+Before commiting tests, **please ensure you run them with THORN_VERBOSE enabled** so you can be sure you are making the
+HTTP requests and getting the responses back that you expect.
+
 [chakram]: http://dareid.github.io/chakram/
 [chakram API]: https://dareid.github.io/chakram/jsdoc/module-chakram.html
 [chakram response]: https://dareid.github.io/chakram/jsdoc/global.html#ChakramResponse
