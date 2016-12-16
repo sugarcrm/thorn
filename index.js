@@ -18,6 +18,27 @@ if (!ROOT_URL) {
     throw new Error('Please set process.env.API_URL!');
 }
 
+// Verbose mode support for debugging tests
+if (process.env.THORN_VERBOSE) {
+    chakram.startDebug((type, data, r) => {
+        switch(type) {
+        case 'request':
+            console.info('Request  ' + data.debugId + ' ' + r.headers['X-Thorn'] + ': ' + r.method + ' ' + r.uri.pathname);
+            break;
+        case 'response':
+            console.info('Response ' + data.debugId + ' ' + r.headers['X-Thorn'] + ': ' + r.method + ' ' + r.uri.pathname + ' ' + data.statusCode);
+            break;
+        case 'redirect':
+        case 'auth':
+            console.info('Redirect: ' + data.statusCode + ' ' + data.uri);
+            break;
+        default:
+            console.info('Unidentified event ' + type);
+            break;
+        }
+    });
+}
+
 /**
  * Mimics default version until we have a way to get it from the instance being tested.
  * @type {string}
@@ -181,7 +202,7 @@ let Fixtures = {
      *
      * @param {Object} response Response object from record creation bulk call.
      * @param {Object[]} models An array of objects, each containing a list of
-     *   attributes for each new model. 
+     *   attributes for each new model.
      *
      * @return {Object} Map between module names and created records from the `response`.
      *
@@ -225,7 +246,7 @@ let Fixtures = {
      *
      * @param {Object} response Response object from record creation bulk call.
      * @param {Object[]} models An array of objects, each containing a list of
-     *   attributes for each new model. 
+     *   attributes for each new model.
      *
      * @return {Object} Bulk call object for links.
      *
@@ -269,7 +290,7 @@ let Fixtures = {
      * Generates the bulk call object for object creation based on models.
      *
      * @param {Object[]} models An array of objects, each containing a list of
-     *   attributes for each new model. 
+     *   attributes for each new model.
      * @param {Object} [options] Additional information about `models`.
      * @param {string} [options.module] The module of all models (if not specified in the models' object).
      *
