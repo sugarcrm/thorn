@@ -3,7 +3,6 @@ process.env.ADMIN_PASSWORD = 'asdf';
 process.env.API_URL = 'http://thisisnotarealserver.localdev';
 
 let _ = require('lodash');
-let chakram = require('chakram');
 let nock = require('nock');
 
 // TODO Put in correct server
