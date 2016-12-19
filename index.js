@@ -438,7 +438,7 @@ let Fixtures = {
     },
 
     /**
-     * Logins as the admin user.
+     * Logs in as the admin user.
      *
      * @return {Promise} ChakramPromise
      *
