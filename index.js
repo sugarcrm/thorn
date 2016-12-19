@@ -519,7 +519,7 @@ class Agent {
  * @param {string} refreshToken Refresh token to use if you have to do a refresh.
  * @param {function} afterRefresh Additional tasks to be performed after
  *   a refresh occurs. Passed the chakram response object from the refresh.
- * @param {string} [version=VERSION] API version to make the retry request on.
+ * @param {string} [retryVersion=VERSION] API version to make the retry request on.
  *   Non-retry requests are made on whatever version is specified by `args`.
  * @return {ChakramPromise} A promise resolving to the result of the request.
  *   If the first try failed, it will resolve to the result of the second,
