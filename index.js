@@ -474,43 +474,6 @@ let Fixtures = {
 // ********************************************************************************************************************
 
 /**
- * Map between usernames and agent instances.
- *
- * @type {Object}
- * @private
- */
-let cachedAgents = {};
-
-/**
- * Namespace for UserAgent access methods.
- */
-class Agent {
-    /**
-     * Return a UserAgent with the given user name and log them in.
-     *
-     * @param {string} username Username of the user agent.
-     * @return {UserAgent} A UserAgent corresponding to the user with the given username.
-     */
-    static as(username) {
-        if (!username) {
-            throw new Error('Tried to create a user agent with no username!');
-        }
-
-        let cachedAgent = cachedAgents[username];
-        if (cachedAgent) {
-            return cachedAgent;
-        }
-        let password = credentials[username];
-        if (!password) {
-            throw new Error('No credentials available for user agent ' + username);
-        }
-        let agent = new UserAgent(username, password, VERSION);
-        agent._login();
-        return agent;
-    }
-}
-
-/**
  * Tries a request. If it fails because of HTTP 401, do a refresh and then try again.
  *
  * @param {function} chakramMethod Chakram request method to call.
@@ -586,6 +549,45 @@ function _constructUrl(endpoint, version) {
         version,
         endpoint
     ].join('/');
+}
+
+// ********************************************************************************************************************
+
+/**
+ * Map between usernames and agent instances.
+ *
+ * @type {Object}
+ * @private
+ */
+let cachedAgents = {};
+
+/**
+ * Namespace for UserAgent access methods.
+ */
+class Agent {
+    /**
+     * Return a UserAgent with the given user name and log them in.
+     *
+     * @param {string} username Username of the user agent.
+     * @return {UserAgent} A UserAgent corresponding to the user with the given username.
+     */
+    static as(username) {
+        if (!username) {
+            throw new Error('Tried to create a user agent with no username!');
+        }
+
+        let cachedAgent = cachedAgents[username];
+        if (cachedAgent) {
+            return cachedAgent;
+        }
+        let password = credentials[username];
+        if (!password) {
+            throw new Error('No credentials available for user agent ' + username);
+        }
+        let agent = new UserAgent(username, password, VERSION);
+        agent._login();
+        return agent;
+    }
 }
 
 /**
@@ -744,6 +746,8 @@ class UserAgent {
         return this._requestSkeleton(chakram.delete, [endpoint, data, params]);
     }
 }
+
+// ********************************************************************************************************************
 
 /**
  * Assertions for Thorn tests.
