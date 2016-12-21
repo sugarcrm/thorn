@@ -1,4 +1,5 @@
 let MetadataFetcher = require('./metadata-fetcher.js');
+let faker = require('faker');
 
 var MetadataHandler = {
     /**
@@ -16,52 +17,98 @@ var MetadataHandler = {
      * @return {string} Random field value according to type and module.
      */
     generateFieldValue(field) {
-        let val;
+        let val, length, afterDecimal, beforeDecimal;
 
         switch (field.type) {
+        case 'bool':
+            val = faker.random.boolean();
+            break;
+        case 'char':
+        case 'password':
         case 'varchar':
-            val = this._generateVarChar(field.len);
+            // this is char in the SQL sense, not the C sense
+            length = field.len || 30;
+            val = faker.random.alphaNumeric(length);
             break;
-        /**
-        TODO
+        case 'date':
         case 'datetime':
-            val = this._generateDateTime();
+            val = faker.date.recent(5);
             break;
-        case 'url':
-            val = this._generateURL();
+        case 'decimal':
+            // faker.js has no support for decimal numbers
+            [beforeDecimal, afterDecimal] = this._parsePrecision(field.len);
+            val = faker.random.number({max: Math.pow(10, beforeDecimal)}) +
+                (faker.random.number({max: Math.pow(10, afterDecimal)}) / Math.pow(10, afterDecimal));
             break;
         case 'email':
-            val = this._generateEmail();
+            val = faker.internet.exampleEmail('Jack', 'Jackson');
+            // FIXME: support maximum lengths!
+            break;
+        case 'enum':
+            // for now, we just return an arbitrary random string
+            val = faker.lorem.word();
+            break;
+        case 'name':
+            val = faker.name.firstName();
             break;
         case 'phone':
-            val = this._genenrateNumber();
+            // these are used with callto: URLs
+            val = faker.phone.phoneNumber().replace(/\D/g, '');
+            if (field.len) {
+                val = val.substring(0, field.len);
+            }
             break;
         case 'text':
-            val = this._generateText(reqs.length);
+        case 'longtext':
+            val = faker.lorem.paragraph();
             break;
+        case 'url':
+            val = faker.internet.url();
+            if (field.len) {
+                /* the minimum length of an HTTPS URL is 9 ("https://a").
+                   Other protocols could obviously allow shorter ones,
+                   but Faker only supports HTTP(S). So forbid any lengths
+                   shorter than that. */
+                if (field.len < 9) {
+                    throw new Error('URLs with fewer than 9 characters are not supported.');
+                }
+                val = val.substring(0, field.len);
+            }
+            break;
+        case 'assigned_user_name':
         case 'id':
-            val = this._generateUID();
-            break;
-        */
+        case 'image':
+        case 'link':
+        case 'relate':
+        case 'team_list':
+            throw new Error('Fields of type ' + field.type + ' are not supported. Please define them manually.');
         default:
-            val = '';
+            throw new Error('Field type ' + field.type + ' is not recognized.');
         }
 
         return val;
     },
 
     /**
-     * Returns an alphanumeric string.
+     * Parse an SQL precision specification.
      *
-     * @param {number} [length] Length of the string.
+     * @param {string} prec The precision specification.
      *
-     * @return {string}
-     *
+     * @return {number[]} The maximum number of digits expected on
+     *     either end of the decimal point.
+     * @see https://msdn.microsoft.com/en-us/library/ms187746.aspx
      * @private
      */
-    _generateVarChar(length = 10) {
-        // hack to generate a random alphanumeric string.
-        return (Math.random() + 1).toString(36).substring(2, length - 1) + 'gen';
+    _parsePrecision(prec) {
+        let [precision, scale] = prec.split(',');
+        if (scale) {
+            let afterDecimal = Number.parseInt(scale);
+            let beforeDecimal = Number.parseInt(precision) - afterDecimal;
+            return [beforeDecimal, afterDecimal];
+        }
+
+        // FIXME!!!
+        throw new Error('Single-digit precision specifications are not currently supported!');
     },
 
     /**
