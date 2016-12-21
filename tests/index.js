@@ -500,9 +500,11 @@ describe('Agent', () => {
 
         it('should return a clone of the original agent with updated version', () => {
             let myAgentV11 = myAgent.on('v11');
-
             expect(myAgentV11.version).to.equal('v11');
             expect(myAgentV11).to.not.equal(myAgent);
+
+            let myOtherAgentV11 = myAgent.on('v11');
+            expect(myOtherAgentV11).to.equal(myAgentV11);
         });
     });
 
