@@ -184,7 +184,7 @@ let Fixtures = {
         // return Promise
         return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], {
             refreshToken: this._refreshToken,
-            _afterRefresh: _.bind(this._afterRefresh, this),
+            afterRefresh: _.bind(this._afterRefresh, this),
             xthorn: 'Fixtures'
         })
             .then((response) => {
