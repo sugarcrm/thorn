@@ -1,3 +1,4 @@
+let MetadataFetcher = require('./metadata-fetcher.js');
 var MetadataHandler = {
     /**
      * @property {Object} _metadata Metadata structure.
