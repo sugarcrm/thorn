@@ -182,7 +182,11 @@ let Fixtures = {
         let createdRecords;
 
         // return Promise
-        return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
+        return _wrap401(chakram.post, [url, bulkRecordCreateDef, params], {
+            refreshToken: this._refreshToken,
+            _afterRefresh: _.bind(this._afterRefresh, this),
+            xthorn: 'Fixtures'
+        })
             .then((response) => {
                 createdRecords = this._cacheResponse(response, models);
                 bulkRecordLinkDef = this._processLinks(response, models);
@@ -375,7 +379,11 @@ let Fixtures = {
         });
 
         // Create promise for record deletion
-        return _wrap401(chakram.post, [url, bulkRecordDeleteDef, params], this._refreshToken, _.bind(this._afterRefresh, this))
+        return _wrap401(chakram.post, [url, bulkRecordDeleteDef, params], {
+            refreshToken: this._refreshToken,
+            afterRefresh: _.bind(this._afterRefresh, this),
+            xthorn: 'Fixtures'
+        })
             .then(() => {
                 _restore();
             });
@@ -454,7 +462,11 @@ let Fixtures = {
         };
         let url = _constructUrl('oauth2/token', VERSION);
 
-        return chakram.post(url, credentials).then((response) => {
+        return chakram.post(url, credentials, {
+            headers: {
+                'X-Thorn': 'Fixtures'
+            }
+        }).then((response) => {
             this._storeAuth(response);
         });
     },
@@ -479,10 +491,11 @@ let Fixtures = {
  * @param {function} chakramMethod Chakram request method to call.
  * @param {array} args Arguments to call the chakram request method with.
  *   The last member of the array must be a `params`-like object.
- * @param {string} refreshToken Refresh token to use if you have to do a refresh.
- * @param {function} afterRefresh Additional tasks to be performed after
+ * @param {Object} options Additional configuration options.
+ * @param {string} options.refreshToken Refresh token to use if you have to do a refresh.
+ * @param {function} options.afterRefresh Additional tasks to be performed after
  *   a refresh occurs. Passed the chakram response object from the refresh.
- * @param {string} [retryVersion=VERSION] API version to make the retry request on.
+ * @param {string} [options.retryVersion=VERSION] API version to make the retry request on.
  *   Non-retry requests are made on whatever version is specified by `args`.
  * @return {ChakramPromise} A promise resolving to the result of the request.
  *   If the first try failed, it will resolve to the result of the second,
@@ -490,7 +503,8 @@ let Fixtures = {
  *
  * @private
  */
-function _wrap401(chakramMethod, args, refreshToken, afterRefresh, retryVersion = VERSION) {
+function _wrap401(chakramMethod, args, options) {
+    let retryVersion = options.retryVersion || VERSION;
     return chakramMethod.apply(chakram, args).then((response) => {
         if (!response || !response.response) {
             throw new Error('Invalid response received!');
@@ -500,8 +514,8 @@ function _wrap401(chakramMethod, args, refreshToken, afterRefresh, retryVersion 
             return response;
         }
 
-        return _refresh(retryVersion, refreshToken).then((response) => {
-            afterRefresh(response);
+        return _refresh(retryVersion, options.refreshToken, options.xthorn).then((response) => {
+            options.afterRefresh(response);
 
             // FIXME THIS SUCKS
             // have to update parameters after a refresh
@@ -518,11 +532,12 @@ function _wrap401(chakramMethod, args, refreshToken, afterRefresh, retryVersion 
  *
  * @param {string} version API version to do the refresh request on.
  * @param {string} token The refresh token of the user you wish to refresh.
+ * @param {string} xthorn Value of the X-Thorn header.
  * @return {ChakramPromise} A promise which resolves to the Chakram refresh response.
  *
  * @private
  */
-function _refresh(version, token) {
+function _refresh(version, token, xthorn) {
     let credentials = {
         grant_type: 'refresh_token',
         refresh_token: token,
@@ -530,7 +545,11 @@ function _refresh(version, token) {
         client_secret: ''
     };
     let url = _constructUrl('oauth2/token', version);
-    return chakram.post(url, credentials);
+    return chakram.post(url, credentials, {
+        headers: {
+            'X-Thorn': xthorn
+        }
+    });
 }
 
 /**
@@ -656,7 +675,11 @@ class UserAgent {
         };
 
         let url = _constructUrl('oauth2/token', this.version);
-        this._setState('loginPromise', chakram.post(url, credentials).then(this._updateAuthState));
+        this._setState('loginPromise', chakram.post(url, credentials, {
+            headers: {
+                'X-Thorn': 'Agent'
+            }
+        }).then(this._updateAuthState));
     };
 
     /**
@@ -680,7 +703,12 @@ class UserAgent {
             args[paramIndex].headers = {};
             _.extend(args[paramIndex].headers, this._getState('headers'));
 
-            return _wrap401(chakramMethod, args, this._getState('refreshToken'), _.bind(this._updateAuthState, this), this.version);
+            return _wrap401(chakramMethod, args, {
+                refreshToken: this._getState('refreshToken'),
+                afterRefresh: _.bind(this._updateAuthState, this),
+                xthorn: 'Agent',
+                retryVersion: this.version
+            });
         });
     };
 
