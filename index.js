@@ -578,7 +578,7 @@ class Agent {
 
         let cachedAgent = cachedAgents[username];
         if (cachedAgent) {
-            return cachedAgent;
+            return cachedAgent[VERSION];
         }
         let password = credentials[username];
         if (!password) {
@@ -614,32 +614,34 @@ class UserAgent {
         this.password = password;
         this.version = version;
 
-        this._headers = {
-            'Content-Type': 'application/json',
-            'X-Thorn': 'Agent'
-        };
+        this._cacheMe();
     }
 
     /**
-     * Clones this user agent and sets its API version.
-     * If the supplied version matches the previously supplied version,
-     * the same agent instance is returned.
+     * Returns a user agent with the same username and password as this one,
+     * with the given `version`. If such an agent does not exist, clone this
+     * one.
      *
-     * @param {string} version API version to switch to.
+     * @param {string} version API version to use.
      * @return {Agent} A UserAgent set to use the given API version.
      */
     on(version) {
         if (version === this.version) {
             return this;
         }
-        let agentClone = _.clone(this);
-        agentClone.version = version;
-        return agentClone;
+
+        let cachedAgent = cachedAgents[this.username];
+        if (cachedAgent && cachedAgent[version]) {
+            return cachedAgent[version];
+        }
+
+        return new UserAgent(this.username, this.password, version);
     }
 
     /**
      * Log this user agent in.
-     * After calling this function, `this._loginPromise` is set to a promise
+     * After calling this function,
+     * `cachedAgents[this.username]._state.loginPromise` is set to a promise
      * that, when resolved, will verify that the OAuth token is available.
      *
      * @private
@@ -654,11 +656,7 @@ class UserAgent {
         };
 
         let url = _constructUrl('oauth2/token', this.version);
-        this._loginPromise = chakram.post(url, credentials).then((response) => {
-            cachedAgents[this.username] = this;
-            this._headers['OAuth-Token'] = response.body.access_token;
-            this._refreshToken = response.body.refresh_token;
-        });
+        this._setState('loginPromise', chakram.post(url, credentials).then(this._updateAuthState));
     };
 
     /**
@@ -674,29 +672,76 @@ class UserAgent {
     _requestSkeleton = (chakramMethod, args) => {
         args[0] = _constructUrl(args[0], this.version);
 
-        return this._loginPromise.then(() => {
+        return this._getState('loginPromise').then(() => {
             // must wait for login promise to resolve or else OAuth-Token may not be available
             let paramIndex = args.length - 1;
             // FIXME: eventually will want to support multiple types of headers
             args[paramIndex] = args[paramIndex] || {};
             args[paramIndex].headers = {};
-            _.extend(args[paramIndex].headers, this._headers);
+            _.extend(args[paramIndex].headers, this._getState('headers'));
 
-            return _wrap401(chakramMethod, args, this._refreshToken, _.bind(this._afterRefresh, this), this.version);
-        }, () => {
-            console.error('Making a ' + chakramMethod.name + ' request failed!');
+            return _wrap401(chakramMethod, args, this._getState('refreshToken'), _.bind(this._updateAuthState, this), this.version);
         });
     };
 
     /**
      * Callback to be performed after a refresh.
      *
-     * @param {object} response Chakram refresh response.
+     * @param {object} response Chakram login/refresh response.
      * @private
      */
-    _afterRefresh = (response) => {
-        this._headers['OAuth-Token'] = response.body.access_token;
-        this._refreshToken = response.body.refresh_token;
+    _updateAuthState = (response) => {
+        let headers = this._getState('headers');
+        headers['OAuth-Token'] = response.body.access_token;
+        this._setState('headers', headers);
+        this._setState('refreshToken', response.body.refresh_token);
+    };
+
+    /**
+     * Add this UserAgent to the cache.
+     *
+     * @private
+     */
+    _cacheMe = () => {
+        if (!cachedAgents[this.username]) {
+            cachedAgents[this.username] = {
+                [this.version]: this,
+                _state: {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Thorn': 'Agent'
+                    }
+                }
+            };
+        }
+
+        if (!cachedAgents[this.username][this.version]) {
+            cachedAgents[this.username][this.version] = this;
+        }
+    };
+
+    /**
+     * Retrieve shared state for this UserAgent.
+     *
+     * @param {string} key State parameter to receive.
+     * @return {*} The value of the specified shared state parameter.
+     *
+     * @private
+     */
+    _getState = (key) => {
+        return cachedAgents[this.username]._state[key];
+    };
+
+    /**
+     * Set shared state for this UserAgent.
+     *
+     * @param {string} key State parameter to update.
+     * @param {*} value Value to set it to.
+     *
+     * @private
+     */
+    _setState = (key, value) => {
+        cachedAgents[this.username]._state[key] = value;
     };
 
     /**
