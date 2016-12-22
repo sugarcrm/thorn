@@ -73,18 +73,27 @@ var MetadataHandler = {
     getRequiredFields(module) {
         this._metadata = this._metadata || require(process.env.METADATA_FILE);
         let self = this;
-        if (!this._metadata) {
+        if (this._metadata) {
+            if (!this._metadata[module]) {
+                throw new Error('Unrecognized module');
+            }
+
+            return Promise.resolve(this._metadata[module].fields);
+        }
+
+        if (process.env.METADATA_FILE) {
+            this._metadata = require(process.env.METADATA_FILE);
+            return Promise.resolve(this._metadata[module].fields);
+        } else {
             return MetadataFetcher.fetchMetadata()
             .then((metadata) => {
                 self._metadata = metadata;
                 return self._metadata[module].fields;
             });
         }
-        if (!this._metadata[module]) {
-            throw new Error('Unrecognized module');
-        }
-
-        return Promise.resolve(this._metadata[module].fields);
+    },
+    clearCachedMetadata() {
+        this._metadata = null;
     }
 };
 
