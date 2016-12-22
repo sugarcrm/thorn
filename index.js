@@ -467,7 +467,9 @@ let Fixtures = {
                 'X-Thorn': 'Fixtures'
             }
         }).then((response) => {
-            this._storeAuth(response);
+            if (response.response.statusCode === 200) {
+                this._storeAuth(response);
+            }
         });
     },
 
