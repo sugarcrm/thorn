@@ -168,6 +168,52 @@ describe('Thorn', () => {
                     done();
                 });
             });
+
+            it('should retry fixture creation on 401\'s', () => {
+                let originalRequestBody;
+
+                nock(serverUrl)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .post(isBulk, function(requestBody) {
+                        originalRequestBody = requestBody;
+                        return requestBody;
+                    })
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .post(isBulk, function(requestBody) {
+                        expect(requestBody).to.eql(originalRequestBody);
+                        return requestBody;
+                    })
+                    .reply(200, function(uri, requestBody) {
+                        return [{
+                            contents: {
+                                _module: 'TestModule1',
+                                id: 'TestId1',
+                                name: 'TestRecord1',
+                                testField1: 'TestField1data',
+                                testField2: 'TestField2data'
+                            }
+                        }];
+                    });
+
+                return Fixtures.create(myFixture);
+            });
+
+            it('should retry fixture creation until maximum login attempts are reached', () => {
+                nock(serverUrl)
+                    .post(isTokenReq)
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(401);
+
+                return Fixtures.create(myFixture).catch((e) => {
+                    return expect(e.message).to.equal('Max number of login attempts exceeded!');
+                });
+            });
         });
 
         it('should create multiple fixtures', () => {
