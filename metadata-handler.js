@@ -68,15 +68,23 @@ var MetadataHandler = {
      *
      * @param {string} module Module name.
      *
-     * @return {Object} Object of required fields.
+     * @return {Promise} Promise that resolves to required fields.
      */
     getRequiredFields(module) {
         this._metadata = this._metadata || require(process.env.METADATA_FILE);
+        let self = this;
+        if (!this._metadata) {
+            return MetadataFetcher.fetchMetadata()
+            .then((metadata) => {
+                self._metadata = metadata;
+                return self._metadata[module].fields;
+            });
+        }
         if (!this._metadata[module]) {
             throw new Error('Unrecognized module');
         }
 
-        return this._metadata[module].fields;
+        return Promise.resolve(this._metadata[module].fields);
     }
 };
 

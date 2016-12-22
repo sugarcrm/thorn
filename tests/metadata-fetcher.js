@@ -1,16 +1,17 @@
-process.env.ADMIN_USERNAME = 'admin';
-process.env.ADMIN_PASSWORD = 'asdf';
-process.env.API_URL = 'http://thisisnotarealserver.localdev';
-
 let _ = require('lodash');
 let nock = require('nock');
 let fs = require('fs');
 let expect = require('chai').expect;
 
 let MetadataFetcher = require('../dist/metadata-fetcher.js');
-
+let ReturnMetadata = require('./metadata-fetcher-fixture.json');
 
 before(() => {
+    process.env.ADMIN_USERNAME = 'admin';
+    process.env.ADMIN_PASSWORD = 'asdf';
+    process.env.API_URL = 'http://thisisnotarealserver.localdev';
+    process.env.METADATA_FILE = '';
+
     nock.disableNetConnect();
     nock.emitter.on('no match', function(req, fullReq, reqData) {
         if (fullReq) {
@@ -20,9 +21,11 @@ before(() => {
         throw new Error('No handler remaining.');
     });
 });
+afterEach(() => {
+    nock.cleanAll();
+});
 describe('metadata retrieval', () => {
-    it('should return formatted metadata retrieved from the server', () => {
-        let ReturnMetadata = JSON.parse(fs.readFileSync('tests/metadata-fetcher-fixture.json', 'utf8'));
+    beforeEach(() => {
         nock(process.env.API_URL)
             .post((url) => {
                 return url.indexOf('oauth2/token') >= 0;
@@ -35,6 +38,8 @@ describe('metadata retrieval', () => {
             })
             .reply(200, ReturnMetadata);
 
+    });
+    it('should return formatted metadata retrieved from the server', () => {
         return MetadataFetcher.fetchMetadata()
         .then((metadata) => {
             // Expect:
@@ -78,6 +83,11 @@ describe('metadata retrieval', () => {
             expect(metadata.Module2.fields['field2.1'].name).to.equal('field2.1');
             expect(metadata.Module2.fields['field2.1'].required).to.be.true;
         });
+    });
+});
+
+describe('integration with metadata-helper', () => {
+    it('should retrieve metadata from the server', () => {
     });
 });
 
