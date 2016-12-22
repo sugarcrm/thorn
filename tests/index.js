@@ -22,7 +22,7 @@ function isPromise(input) {
 let thorn;
 let Fixtures;
 let Agent;
-let expect;
+let expect = require('chakram').expect;
 let thornFile = '../dist/index.js';
 
 function isTokenReq(url) {
@@ -44,7 +44,6 @@ beforeEach(() => {
     thorn = require(thornFile);
     Agent = thorn.Agent;
     Fixtures = thorn.Fixtures;
-    expect = thorn.Expect;
 });
 
 afterEach(() => {
