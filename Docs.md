@@ -221,10 +221,7 @@ intends to create.
 
 <br/>
 
-### Best Practices & Tips
-
-* In the `before` and `after` functions, as well as in `Promise` chains, every `Promise` created must be `returned` in
-order for server requests to effectuate. Not returning `Promises` could lead to test failures and false positives.
+### Tips
 
 * `Fixtures` is designed to be a tool that facilitates the setup and cleanup of test cases. Its methods are *not* meant
 to be provide means of testing the correctness of SugarCRM's record creation, linking, and deletion APIs. Such tests
@@ -391,6 +388,13 @@ john.get('Notifications').then(response) => {
 ## Thorn.Expect
 
 Thorn.Expect makes [Chakram assertions][expect] easily accessible.
+
+## Best Practices
+
+* Every test file should be wrapped in a `describe` block to protect against cross-test contamination.
+
+* In the `before` and `after` functions, as well as in `Promise` chains, every `Promise` created must be `returned` in
+order for server requests to effectuate. Not returning `Promises` could lead to test failures and false positives.
 
 ## Debugging Tests
 
