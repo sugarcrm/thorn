@@ -2,12 +2,27 @@ describe('Thorn', () => {
     let _ = require('lodash');
     let nock = require('nock');
     let serverUrl;
+    let thorn;
+    let Fixtures;
+    let Agent;
+    let expect = require('chakram').expect;
+    let thornFile = '../dist/index.js';
+
     before(() => {
         process.env.ADMIN_USERNAME = 'admin';
         process.env.ADMIN_PASSWORD = 'asdf';
         process.env.API_URL = 'http://thisisnotarealserver.localdev';
         // TODO Put in correct server
         serverUrl = process.env.API_URL;
+
+        nock.disableNetConnect();
+        nock.emitter.on('no match', function(req, fullReq, reqData) {
+            if (fullReq) {
+                throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+            }
+
+            throw new Error('No handler remaining.');
+        });
     });
 
     // expect the result to be a promise
@@ -20,13 +35,6 @@ describe('Thorn', () => {
 
         return false;
     }
-
-    let thorn;
-    let Fixtures;
-    let Agent;
-    let expect;
-    let expect = require('chakram').expect;
-    let thornFile = '../dist/index.js';
 
     function isTokenReq(url) {
         return url.indexOf('oauth2/token') >= 0;
@@ -47,7 +55,6 @@ describe('Thorn', () => {
         thorn = require(thornFile);
         Agent = thorn.Agent;
         Fixtures = thorn.Fixtures;
-        expect = thorn.Expect;
     });
 
     afterEach(() => {
@@ -56,17 +63,6 @@ describe('Thorn', () => {
     });
 
     describe('Fixtures', () => {
-
-        before(() => {
-            nock.disableNetConnect();
-            nock.emitter.on('no match', function(req, fullReq, reqData) {
-                if (fullReq) {
-                    throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
-                }
-
-                throw new Error('No handler remaining.');
-            });
-        });
 
         describe('creating one record', () => {
             let myFixture;
@@ -462,17 +458,6 @@ describe('Thorn', () => {
 
 
     describe('Agent', () => {
-        before(() => {
-            nock.disableNetConnect();
-            nock.emitter.on('no match', function(req, fullReq, reqData) {
-                if (fullReq) {
-                    throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
-                }
-
-                throw new Error('No handler remaining.');
-            });
-        });
-
         beforeEach(() => {
             nock(serverUrl)
                 .post(isTokenReq)
