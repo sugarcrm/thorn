@@ -1,13 +1,14 @@
 describe('Thorn', () => {
-    process.env.ADMIN_USERNAME = 'admin';
-    process.env.ADMIN_PASSWORD = 'asdf';
-    process.env.API_URL = 'http://thisisnotarealserver.localdev';
-
     let _ = require('lodash');
     let nock = require('nock');
-
-    // TODO Put in correct server
-    var serverUrl = process.env.API_URL;
+    let serverUrl;
+    before(() => {
+        process.env.ADMIN_USERNAME = 'admin';
+        process.env.ADMIN_PASSWORD = 'asdf';
+        process.env.API_URL = 'http://thisisnotarealserver.localdev';
+        // TODO Put in correct server
+        serverUrl = process.env.API_URL;
+    });
 
     // expect the result to be a promise
     // The only standard for a promise is that is has a `then`
