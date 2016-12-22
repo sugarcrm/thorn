@@ -455,7 +455,9 @@ let Fixtures = {
         let url = _constructUrl('oauth2/token', VERSION);
 
         return chakram.post(url, credentials).then((response) => {
-            this._storeAuth(response);
+            if (response.response.statusCode === 200) {
+                this._storeAuth(response);
+            }
         });
     },
 
