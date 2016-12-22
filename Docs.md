@@ -224,7 +224,7 @@ intends to create.
 ### Tips
 
 * `Fixtures` is designed to be a tool that facilitates the setup and cleanup of test cases. Its methods are *not* meant
-to be provide means of testing the correctness of SugarCRM's record creation, linking, and deletion APIs. Such tests
+to be provide a means of testing the correctness of SugarCRM's record creation, linking, and deletion APIs. Such tests
 should make use of the request methods of `UserAgent`.
 
 * The same model object cannot be used to create multiple records; this will lead to collisions in `Fixtures` internal
