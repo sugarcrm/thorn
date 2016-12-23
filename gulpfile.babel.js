@@ -5,7 +5,7 @@ var sourceFiles = ['index.js', 'metadata-handler.js'];
 
 gulp.task('build', () => {
     var babel = require('gulp-babel');
-    gulp.src(sourceFiles)
+    return gulp.src(sourceFiles)
         .pipe(babel())
         .pipe(gulp.dest('dist'));
 });
