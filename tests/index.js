@@ -310,194 +310,188 @@ describe('Thorn', () => {
                 testField2: 'TestField2data2'
             };
 
-            it('should create fixtures and link them in a single call', () => {
-                let linkedLeft = _.extend(_.clone(LEFT_FIXTURE), {
-                    links: {
-                        leftToRight: [
-                            RIGHT_FIXTURE
-                        ]
-                    }
+            it('should create fixtures and link them', () => {});
+
+            it('should retry fixture creation and linking on 401\'s', () => {});
+
+            describe('with pre-existing records', () => {
+                let records;
+
+                beforeEach(() => {
+                    nock(serverUrl)
+                        .post(isTokenReq)
+                        .reply(200, ACCESS)
+                        .post(isBulk)
+                        .reply(200, function() {
+                            return [
+                                {contents: LEFT_RESPONSE},
+                                {contents: RIGHT_RESPONSE}
+                            ];
+                        });
+
+                    return Fixtures.create([LEFT_FIXTURE, RIGHT_FIXTURE]).then((response) => {
+                        records = response;
+                    });
                 });
-                nock(serverUrl)
-                    .post(isTokenReq)
-                    .reply(200, ACCESS)
-                    .post(isBulk)
-                    .reply(200, function(uri, requestBody) {
-                        // FIXME: at the moment, Fixtures only includes the X-Thorn header
-                        // on the bulk, not on its constitutient requests
-                        // we should probably change that in the future
-                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
 
-                        let requests = requestBody.requests;
-                        let leftRequest = requests[0];
-                        expect(leftRequest.url).to.contain('TestModule1');
-                        expect(leftRequest.data).to.eql(LEFT_FIXTURE.attributes);
+                it('should link fixtures', () => {
+                    nock(serverUrl)
+                        .post(/TestId1\/link$/)
+                        .reply(200, function(uri, requestBody) {
+                            expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                            expect(requestBody.link_name).to.equal('leftToRight');
+                            expect(requestBody.ids.length).to.equal(1);
+                            expect(requestBody.ids[0]).to.equal('TestId2');
+                            return {
+                                record: LEFT_RESPONSE,
+                                relatedRecords: [RIGHT_RESPONSE]
+                            };
+                        });
 
-                        let rightRequest = requests[1];
-                        expect(rightRequest.url).to.contain('TestModule2');
-                        expect(rightRequest.data).to.eql(RIGHT_FIXTURE.attributes);
-
-                        return [
-                            {
-                                contents: LEFT_RESPONSE
-                            },
-                            {
-                                contents: RIGHT_RESPONSE
-                            }
-                        ];
-                    })
-                    .post(isBulk)
-                    .reply(200, function(uri, requestBody) {
-                        let requests = requestBody.requests;
-                        expect(requests.length).to.equal(1);
-                        let request = requests[0];
-                        expect(request.url).to.contain('TestModule1/TestId1/link');
-                        let data = request.data;
-                        expect(data.link_name).to.equal('leftToRight');
-                        let ids = data.ids;
-                        expect(ids.length).to.equal(1);
-                        expect(ids[0]).to.equal('TestId2');
-                    });
-                return Fixtures.create([linkedLeft, RIGHT_FIXTURE]);
-            });
-
-            it('should create fixtures and link them in 2 calls', () => {
-                let fixture = [
-                    LEFT_FIXTURE,
-                    RIGHT_FIXTURE
-                ];
-                nock(serverUrl)
-                    .post(isTokenReq)
-                    .reply(200, ACCESS)
-                    .post(isBulk)
-                    .reply(200, function(uri, requestBody) {
-                        return [
-                            {
-                                contents: LEFT_RESPONSE
-                            },
-                            {
-                                contents: RIGHT_RESPONSE
-                            }
-                        ];
-                    })
-                    .post(/TestId1\/link$/)
-                    .reply(200, function(uri, requestBody) {
-                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
-                        expect(requestBody.link_name).to.equal('leftToRight');
-                        expect(requestBody.ids.length).to.equal(1);
-                        expect(requestBody.ids[0]).to.equal('TestId2');
-                        return {
-                            record: LEFT_RESPONSE,
-                            relatedRecords: [
-                                RIGHT_RESPONSE
-                            ]
-                        };
-                    });
-                return Fixtures.create(fixture).then((records) => {
                     let left = records.TestModule1[0];
                     let right = records.TestModule2[0];
+
                     return Fixtures.link(left, 'leftToRight', right);
                 });
+
+                it('should retry linking fixtures on 401\'s', () => {});
             });
         });
 
-        it('should clean up after itself when you call cleanup', () => {
-            let record1 = {
-                module: 'TestModule1',
-                attributes: {
-                    name: 'TestRecord1',
-                    testField1: 'TestField1data1'
-                }
-            };
-            let record2 = {
-                module: 'TestModule1',
-                attributes: {
-                    name: 'TestRecord2',
-                    testField1: 'TestField1data2'
-                }
-            };
-            let record3 = {
-                module: 'TestModule2',
-                attributes: {
-                    name: 'TestRecord3',
-                    testField2: 'TestField2data'
-                }
-            };
-            let bigFixture = [record1, record2, record3];
-            nock(serverUrl)
-                .post(isTokenReq)
-                .reply(200, ACCESS)
-                .post(isBulk)
-                .reply(200, function(uri, requestBody) {
-                    return [
-                        {
-                            contents: {
-                                _module: 'TestModule1',
-                                name: 'TestRecord1',
-                                testField1: 'TestField1data1',
-                                id: 'TestId1'
-                            }
-                        },
-                        {
-                            contents: {
-                                _module: 'TestModule1',
-                                name: 'TestRecord2',
-                                testField1: 'TestField1data2',
-                                id: 'TestId2'
-                            }
-                        },
-                        {
-                            contents: {
-                                _module: 'TestModule2',
-                                name: 'TestRecord3',
-                                testField2: 'TestField2data',
-                                id: 'TestId3'
-                            }
+        describe('cleanup', () => {
+
+            it('should retry clean up until maximum login attempts are reached', () => {
+                nock(serverUrl)
+                    .post(isTokenReq)
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(401);
+
+                return Fixtures.cleanup().catch((e) => {
+                    return expect(e.message).to.equal('Max number of login attempts exceeded!');
+                });
+            });
+
+            describe('with pre-existing records', () => {
+                beforeEach(() => {
+                    let record1 = {
+                        module: 'TestModule1',
+                        attributes: {
+                            name: 'TestRecord1',
+                            testField1: 'TestField1data1'
                         }
-                    ];
-                })
-                .post(isBulk)
-                .reply(200, function(uri, requestBody) {
-                    let requests = requestBody.requests;
-                    let request1 = requests[0];
-                    expect(request1.url).to.contain('TestModule1/TestId1');
-                    expect(request1.method).to.equal('DELETE');
-                    let request2 = requests[1];
-                    expect(request2.url).to.contain('TestModule1/TestId2');
-                    expect(request2.method).to.equal('DELETE');
-                    let request3 = requests[2];
-                    expect(request3.url).to.contain('TestModule2/TestId3');
-                    expect(request3.method).to.equal('DELETE');
-                    return [
-                        {
-                            contents: {
-                                id: 'TestId1'
-                            }
-                        },
-                        {
-                            contents: {
-                                id: 'TestId2'
-                            }
-                        },
-                        {
-                            contents: {
-                                id: 'TestId3'
-                            }
+                    };
+                    let record2 = {
+                        module: 'TestModule1',
+                        attributes: {
+                            name: 'TestRecord2',
+                            testField1: 'TestField1data2'
                         }
-                    ];
+                    };
+                    let record3 = {
+                        module: 'TestModule2',
+                        attributes: {
+                            name: 'TestRecord3',
+                            testField2: 'TestField2data'
+                        }
+                    };
+                    let bigFixture = [record1, record2, record3];
+                    nock(serverUrl)
+                        .post(isTokenReq)
+                        .reply(200, ACCESS)
+                        .post(isBulk)
+                        .reply(200, function() {
+                            return [
+                                {
+                                    contents: {
+                                        _module: 'TestModule1',
+                                        name: 'TestRecord1',
+                                        testField1: 'TestField1data1',
+                                        id: 'TestId1'
+                                    }
+                                },
+                                {
+                                    contents: {
+                                        _module: 'TestModule1',
+                                        name: 'TestRecord2',
+                                        testField1: 'TestField1data2',
+                                        id: 'TestId2'
+                                    }
+                                },
+                                {
+                                    contents: {
+                                        _module: 'TestModule2',
+                                        name: 'TestRecord3',
+                                        testField2: 'TestField2data',
+                                        id: 'TestId3'
+                                    }
+                                }
+                            ];
+                        });
+
+                    return Fixtures.create(bigFixture);
                 });
 
-            return Fixtures.create(bigFixture).then(() => {
-                return Fixtures.cleanup().then((response) => {
-                    expect(_.isUndefined(response)).to.be.true;
-                    let gets = [
-                        () => { return Fixtures.lookup('TestModule1', { name: 'TestRecord1' }); },
-                        () => { return Fixtures.lookup('TestModule1', { name: 'TestRecord2' }); },
-                        () => { return Fixtures.lookup('TestModule2', { name: 'TestRecord3' }); }
-                    ];
-                    _.each(gets, (get) => {
-                        expect(get).to.throw(Error);
+                it('should clean up after itself when you call cleanup', () => {
+
+                    nock(serverUrl)
+                        .post(isBulk, function(requestBody) {
+                            let requests = requestBody.requests;
+
+                            expect(requests[0].url).to.contain('TestModule1/TestId1');
+                            expect(requests[0].method).to.equal('DELETE');
+
+                            expect(requests[1].url).to.contain('TestModule1/TestId2');
+                            expect(requests[1].method).to.equal('DELETE');
+
+                            expect(requests[2].url).to.contain('TestModule2/TestId3');
+                            expect(requests[2].method).to.equal('DELETE');
+
+                            return requestBody;
+                        })
+                        .reply(200, function() {
+                            return [
+                                {contents: {id: 'TestId1'}},
+                                {contents: {id: 'TestId2'}},
+                                {contents: {id: 'TestId3'}}
+                            ];
+                        });
+
+                    return Fixtures.cleanup().then(() => {
+                        try {
+                            Fixtures.lookup();
+                        } catch (e) {
+                            return expect(e.message).to.equal('No cached records are currently available!');
+                        }
                     });
+                });
+
+                it('should retry clean up on 401\'s', () => {
+                    let originalRequestBody;
+
+                    nock(serverUrl)
+                        .post(isBulk, function(requestBody) {
+                            originalRequestBody = requestBody;
+                            return requestBody;
+                        })
+                        .reply(401)
+                        .post(isTokenReq)
+                        .reply(200, ACCESS)
+                        .post(isBulk, function(requestBody) {
+                            expect(requestBody).to.eql(originalRequestBody);
+                            return requestBody;
+                        })
+                        .reply(200, function() {
+                            return [
+                                {contents: {id: 'TestId1'}},
+                                {contents: {id: 'TestId2'}},
+                                {contents: {id: 'TestId3'}}
+                            ];
+                        });
+
+                    return Fixtures.cleanup();
                 });
             });
         });

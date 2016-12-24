@@ -191,7 +191,11 @@ let Fixtures = {
                 createdRecords = this._cacheResponse(response, models);
                 bulkRecordLinkDef = this._processLinks(response, models);
                 if (bulkRecordLinkDef.requests.length) {
-                    return chakram.post(url, bulkRecordLinkDef, params);
+                    return _wrap401(chakram.post, [url, bulkRecordLinkDef, params], {
+                        refreshToken: this._refreshToken,
+                        afterRefresh: _.bind(this._afterRefresh, this),
+                        xthorn: 'Fixtures'
+                    });
                 }
 
                 return response;
