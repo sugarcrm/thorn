@@ -383,10 +383,10 @@ let Fixtures = {
             refreshToken: this._refreshToken,
             afterRefresh: _.bind(this._afterRefresh, this),
             xthorn: 'Fixtures'
-        })
-            .then(() => {
-                _restore();
-            });
+        }).then((response) => {
+            _restore();
+            return response;
+        });
     },
 
     /**
