@@ -398,7 +398,7 @@ let Fixtures = {
      * @return {Object} The first record in `cachedRecords` that match properties.
      */
     lookup(module, properties) {
-        if (!cachedRecords) {
+        if (_.isEmpty(cachedRecords)) {
             throw new Error('No cached records are currently available!');
         }
 
