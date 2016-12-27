@@ -85,7 +85,7 @@ var MetadataHandler = {
             this._metadata = require(process.env.METADATA_FILE);
             return Promise.resolve(this._metadata[module].fields);
         } else {
-            return MetadataFetcher.fetchMetadata()
+            return MetadataFetcher.fetch()
             .then((metadata) => {
                 self._metadata = metadata;
                 return self._metadata[module].fields;

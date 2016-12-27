@@ -47,7 +47,7 @@ describe('Metadata Fetcher', () => {
 
         });
         it('should return formatted metadata retrieved from the server', () => {
-            return MetadataFetcher.fetchMetadata()
+            return MetadataFetcher.fetch()
             .then((metadata) => {
                 // Expect:
                 // 

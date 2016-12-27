@@ -1,12 +1,13 @@
 let RP = require('request-promise');
 let _ = require('lodash');
+
 var MetadataFetcher = {
     /**
      * Returns a promise that resolves to the formatted metadata.
      *
      * @return {Promise} A promise that resolves to formatted metadata.
      */
-    fetchMetadata() {
+    fetch() {
         let authToken;
         let _this = this;
         
