@@ -1,12 +1,12 @@
 {
-    "opts": {
-        "destination": "./docs"
-    },
-    "plugins": [
-        "plugins/markdown",
-        "node_modules/jsdoc-babel"
-    ],
-    "babel": {
-        "plugins": ["transform-class-properties"]
-    }
+  "opts": {
+    "destination": "./docs"
+  },
+  "plugins": [
+    "plugins/markdown",
+    "node_modules/jsdoc-babel"
+  ],
+  "babel": {
+    "plugins": ["transform-class-properties"]
+  }
 }
