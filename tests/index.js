@@ -12,6 +12,7 @@ describe('Thorn', () => {
         process.env.ADMIN_USERNAME = 'foo';
         process.env.ADMIN_PASSWORD = 'bar';
         process.env.API_URL = 'http://thisisnotarealserver.localdev';
+        process.env.METADATA_FILE = '../metadata.json';
         // TODO Put in correct server
         serverUrl = process.env.API_URL;
 
