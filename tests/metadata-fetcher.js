@@ -9,7 +9,7 @@ describe('Metadata Fetcher', () => {
 
     let MetadataHandler = require(metadataHandlerFile);
     let MetadataFetcher = require('../dist/metadata-fetcher.js');
-    let ReturnMetadata = require('./metadata-fetcher-fixture.json');
+    let metadata = require('./metadata-fetcher-fixture.json');
 
     before(() => {
         process.env.ADMIN_USERNAME = 'foo';
@@ -43,9 +43,10 @@ describe('Metadata Fetcher', () => {
                 .get((url) => {
                     return url.indexOf('metadata') >= 0;
                 })
-                .reply(200, ReturnMetadata);
+                .reply(200, metadata);
 
         });
+
         it('should return formatted metadata retrieved from the server', () => {
             return MetadataFetcher.fetch()
             .then((metadata) => {
@@ -105,9 +106,10 @@ describe('Metadata Fetcher', () => {
                 .get((url) => {
                     return url.indexOf('metadata') >= 0;
                 })
-                .reply(200, ReturnMetadata);
+                .reply(200, metadata);
 
         });
+
         it('should retrieve metadata from the server', () => {
             return MetadataHandler.getRequiredFields('Module1')
                 .then((metadata) => {
@@ -116,7 +118,6 @@ describe('Metadata Fetcher', () => {
                     expect(metadata['field1.1']).to.be.an.object;
                     expect(metadata['field1.1'].name).to.equal('field1.1');
                     expect(metadata['field1.1'].required).to.be.true;
-                    console.log(metadata);
                 });
         });
     });
