@@ -13,7 +13,7 @@ var MetadataFetcher = {
         
         let loginOptions = {
             method: 'POST',
-            uri: process.env.API_URL + "/rest/v10/oauth2/token",
+            uri: process.env.API_URL + '/rest/v10/oauth2/token',
             headers: {
                 'X-Thorn': 'MetadataFetcher'
             },
@@ -33,10 +33,10 @@ var MetadataFetcher = {
 
             let metadataOptions = {
                 method: 'GET',
-                uri: process.env.API_URL + "/rest/v10/metadata?modules",
+                uri: process.env.API_URL + '/rest/v10/metadata?modules',
                 headers: {
                     'X-Thorn': 'MetadataFetcher',
-                    'oauth-token': authToken
+                    'OAuth-token': authToken
                 },
             };
             // Make request for metadata
@@ -53,6 +53,7 @@ var MetadataFetcher = {
         });
 
     },
+
     _filterByRequiredFields(fields) {
         let filteredFields = {fields: {}};
         _.forEach(fields, (field, fieldName) => {

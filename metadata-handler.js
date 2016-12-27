@@ -1,4 +1,5 @@
 let MetadataFetcher = require('./metadata-fetcher.js');
+
 var MetadataHandler = {
     /**
      * @property {Object} _metadata Metadata structure.
@@ -83,14 +84,20 @@ var MetadataHandler = {
 
         if (process.env.METADATA_FILE) {
             this._metadata = require(process.env.METADATA_FILE);
+            if (!this._metadata[module]) {
+                throw new Error('Unrecognized module');
+            }
             return Promise.resolve(this._metadata[module].fields);
-        } else {
-            return MetadataFetcher.fetch()
-            .then((metadata) => {
-                self._metadata = metadata;
-                return self._metadata[module].fields;
-            });
         }
+
+        return MetadataFetcher.fetch()
+        .then((metadata) => {
+            self._metadata = metadata;
+            if (!self._metadata[module]) {
+                throw new Error('Unrecognized module');
+            }
+            return self._metadata[module].fields;
+        });
     },
     clearCachedMetadata() {
         this._metadata = null;
