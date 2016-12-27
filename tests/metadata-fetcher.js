@@ -11,6 +11,25 @@ describe('Metadata Fetcher', () => {
     let MetadataFetcher = require('../dist/metadata-fetcher.js');
     let metadata = require('./metadata-fetcher-fixture.json');
 
+    let expected = {
+        "Module1": {
+             "fields": {
+                 "field1.1": {
+                     "name": "field1.1",
+                     "required": true
+                 }
+             }
+         },
+         "Module2": {
+             "fields": {
+                 "field2.1": {
+                     "name": "field2.1",
+                     "required": true
+                }
+            }
+        }
+    };
+
     before(() => {
         process.env.ADMIN_USERNAME = 'foo';
         process.env.ADMIN_PASSWORD = 'bar';
@@ -50,46 +69,7 @@ describe('Metadata Fetcher', () => {
         it('should return formatted metadata retrieved from the server', () => {
             return MetadataFetcher.fetch()
             .then((metadata) => {
-                // Expect:
-                // 
-                // {
-                //     "Module1": {
-                //         "fields": {
-                //             "field1.1": {
-                //                 "name": "field1.1",
-                //                 "required": true
-                //             }
-                //         }
-                //     },
-                //     "Module2": {
-                //         "fields": {
-                //             "field2.1": {
-                //                 "name": "field2.1",
-                //                 "required": true
-                //             }
-                //         }
-                //     }
-                // }
-
-                expect(Object.keys(metadata).length).to.equal(2);
-
-                expect(metadata.Module1).to.be.an.object;
-                expect(Object.keys(metadata.Module1).length).to.equal(1);
-                expect(metadata.Module1.fields).to.be.an.object;
-                expect(Object.keys(metadata.Module1.fields).length).to.equal(1);
-                expect(metadata.Module1.fields['field1.1']).to.be.an.object;
-                expect(Object.keys(metadata.Module1.fields['field1.1']).length).to.equal(2);
-                expect(metadata.Module1.fields['field1.1'].name).to.equal('field1.1');
-                expect(metadata.Module1.fields['field1.1'].required).to.be.true;
-
-                expect(metadata.Module2).to.be.an.object;
-                expect(Object.keys(metadata.Module2).length).to.equal(1);
-                expect(metadata.Module2.fields).to.be.an.object;
-                expect(Object.keys(metadata.Module2.fields).length).to.equal(1);
-                expect(metadata.Module2.fields['field2.1']).to.be.an.object;
-                expect(Object.keys(metadata.Module2.fields['field2.1']).length).to.equal(2);
-                expect(metadata.Module2.fields['field2.1'].name).to.equal('field2.1');
-                expect(metadata.Module2.fields['field2.1'].required).to.be.true;
+                expect(metadata).eql(expected);
             });
         });
     });
@@ -113,11 +93,7 @@ describe('Metadata Fetcher', () => {
         it('should retrieve metadata from the server', () => {
             return MetadataHandler.getRequiredFields('Module1')
                 .then((metadata) => {
-                    // expected metadata:
-                    expect(Object.keys(metadata).length).to.equal(1);
-                    expect(metadata['field1.1']).to.be.an.object;
-                    expect(metadata['field1.1'].name).to.equal('field1.1');
-                    expect(metadata['field1.1'].required).to.be.true;
+                    expect(metadata).eql(expected.Module1.fields);
                 });
         });
     });
