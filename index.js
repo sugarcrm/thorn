@@ -11,22 +11,12 @@ let _ = require('lodash');
 let utils = require('./utils.js');
 
 // Verbose mode support for debugging tests
-if (process.env.THORN_VERBOSE) {
+let verbosity = Number.parseInt(process.env.THORN_VERBOSE);
+if (verbosity) {
+    const VERBOSE_FUNCTIONS = require('./debug.js').VERBOSE_FUNCTIONS;
     chakram.startDebug((type, data, r) => {
-        switch(type) {
-        case 'request':
-            console.info('Request  ' + data.debugId + ' ' + r.headers['X-Thorn'] + ': ' + r.method + ' ' + r.uri.pathname);
-            break;
-        case 'response':
-            console.info('Response ' + data.debugId + ' ' + r.headers['X-Thorn'] + ': ' + r.method + ' ' + r.uri.pathname + ' ' + data.statusCode);
-            break;
-        case 'redirect':
-        case 'auth':
-            console.info('Redirect: ' + data.statusCode + ' ' + data.uri);
-            break;
-        default:
-            console.info('Unidentified event ' + type);
-            break;
+        for (let i = 0; i < verbosity; i++) {
+            VERBOSE_FUNCTIONS[i](type, data, r);
         }
     });
 }
