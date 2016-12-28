@@ -3,6 +3,7 @@ describe('Metadata Fetcher', () => {
     let nock = require('nock');
     let fs = require('fs');
     let expect = require('chai').expect;
+    let fail = require('chai').fail;
     let metadataHandlerFile = '../dist/metadata-handler.js';
 
     delete require.cache[require.resolve(metadataHandlerFile)];
@@ -68,12 +69,38 @@ describe('Metadata Fetcher', () => {
 
         it('should return formatted metadata retrieved from the server', () => {
             return MetadataFetcher.fetch()
-            .then((metadata) => {
-                expect(metadata).eql(expected);
-            });
+                .then((metadata) => {
+                    expect(metadata).eql(expected);
+                });
         });
     });
 
+    describe('when two fetches are in progress', () => {
+        it('should only trigger a single server request', () => {
+            nock(process.env.API_URL)
+                .post((url) => {
+                    return url.indexOf('oauth2/token') >= 0;
+                })
+                .reply(200, {
+                    access_token: 'Test-Access-Token',
+                })
+                .get((url) => {
+                    return url.indexOf('metadata') >= 0;
+                })
+                .delay(0)
+                .reply(200, metadata)
+                .post((url) => {
+                    fail('two requests', 'one request');
+                    return true;
+                })
+                .reply(200);
+            return Promise.all([
+                MetadataFetcher.fetch(), 
+                MetadataFetcher.fetch()
+            ]);
+        });
+
+    });
     describe('integration with metadata-helper', () => {
         beforeEach(() => {
             nock(process.env.API_URL)
@@ -97,5 +124,6 @@ describe('Metadata Fetcher', () => {
                 });
         });
     });
+
 });
 

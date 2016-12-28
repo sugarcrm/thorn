@@ -2,12 +2,20 @@ let RP = require('request-promise');
 let _ = require('lodash');
 
 var MetadataFetcher = {
+
+    currentRequest: null,
+
     /**
      * Returns a promise that resolves to the formatted metadata.
      *
      * @return {Promise} A promise that resolves to formatted metadata.
      */
     fetch() {
+        // If there is already a request in progress, return that immediately.
+        if (this.currentRequest) {
+            return this.currentRequest;
+        }
+
         let authToken;
         let _this = this;
         
@@ -26,31 +34,38 @@ var MetadataFetcher = {
             },
             json: true
         }
-        // Log into server as admin
-        return RP(loginOptions)
-        .then((response) => {
-            authToken = response.access_token;
 
-            let metadataOptions = {
-                method: 'GET',
-                uri: process.env.API_URL + '/rest/v10/metadata?modules',
-                headers: {
-                    'X-Thorn': 'MetadataFetcher',
-                    'OAuth-token': authToken
-                },
-            };
-            // Make request for metadata
-            return RP(metadataOptions)
-        })
-        .then((response) => {
-            // Then, format the metadata
-            let metadata = {};
-            var responseJson = JSON.parse(response);
-            _.forEach(responseJson.modules, function(data, module) {
-                metadata[module] = _this._filterByRequiredFields(data.fields);
+        let self = this;
+        // Log into server as admin
+        this.currentRequest = RP(loginOptions)
+            .then((response) => {
+                authToken = response.access_token;
+
+                let metadataOptions = {
+                    method: 'GET',
+                    uri: process.env.API_URL + '/rest/v10/metadata?modules',
+                    headers: {
+                        'X-Thorn': 'MetadataFetcher',
+                        'OAuth-token': authToken
+                    },
+                };
+                // Make request for metadata
+                return RP(metadataOptions)
+            })
+            .then((response) => {
+                // Then, format the metadata
+                let metadata = {};
+                var responseJson = JSON.parse(response);
+                _.forEach(responseJson.modules, function(data, module) {
+                    metadata[module] = _this._filterByRequiredFields(data.fields);
+                });
+
+                self.currentRequest = null;
+
+                return metadata;
             });
-            return metadata;
-        });
+
+        return this.currentRequest;
 
     },
 
