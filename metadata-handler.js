@@ -91,14 +91,18 @@ var MetadataHandler = {
         }
 
         return MetadataFetcher.fetch()
-        .then((metadata) => {
-            self._metadata = metadata;
-            if (!self._metadata[module]) {
-                throw new Error('Unrecognized module');
-            }
-            return self._metadata[module].fields;
-        });
+            .then((metadata) => {
+                self._metadata = metadata;
+                if (!self._metadata[module]) {
+                    throw new Error('Unrecognized module');
+                }
+                return self._metadata[module].fields;
+            });
     },
+
+    /**
+     * Clears the cached metadata
+     */
     clearCachedMetadata() {
         this._metadata = null;
     }

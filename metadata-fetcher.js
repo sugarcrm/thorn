@@ -3,6 +3,10 @@ let _ = require('lodash');
 
 var MetadataFetcher = {
 
+    /**
+     * @property {string} currentRequest The current request to
+     *   fetch metadata, if a request is ongoing.
+     */
     currentRequest: null,
 
     /**
@@ -69,6 +73,16 @@ var MetadataFetcher = {
 
     },
 
+    /**
+     * Given an object containing the metadata fields,
+     *  returns the fields that are required.
+     *
+     * @param {Object} fields The fields to search
+     *
+     * @return {Object} The required fields
+     * 
+     * @private
+     */
     _filterByRequiredFields(fields) {
         let filteredFields = {fields: {}};
         _.forEach(fields, (field, fieldName) => {
