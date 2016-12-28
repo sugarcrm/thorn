@@ -50,6 +50,22 @@ describe('Thorn', () => {
         refresh_token: 'Test-Refresh-Token'
     };
 
+    function constructBulkResponse(responses) {
+        if (!_.isArray(responses)) {
+            responses = [responses];
+        }
+
+        let bulkResponseWrapper = [];
+        _.each(responses, (response) => {
+            bulkResponseWrapper.push({
+                contents: response,
+                status: 200
+            });
+        });
+
+        return bulkResponseWrapper;
+    }
+
     // The only way to reset the state of thorn & thorn.fixtures is to do the below.
     // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
     beforeEach(() => {
@@ -64,7 +80,6 @@ describe('Thorn', () => {
     });
 
     describe('Fixtures', () => {
-
         describe('creating one record', () => {
             let myFixture;
             beforeEach(() => {
@@ -90,15 +105,13 @@ describe('Thorn', () => {
                         expect(requestBody.requests[0].data.name).to.equal('TestRecord1');
                         expect(requestBody.requests[0].data.testField1).to.equal('TestField1data');
                         expect(requestBody.requests[0].data.testField2).to.equal('TestField2data');
-                        return [{
-                            contents: {
-                                _module: 'TestModule1',
-                                id: 'TestId1',
-                                name: 'TestRecord1',
-                                testField1: 'TestField1data',
-                                testField2: 'TestField2data'
-                            }
-                        }];
+                        return constructBulkResponse({
+                            _module: 'TestModule1',
+                            id: 'TestId1',
+                            name: 'TestRecord1',
+                            testField1: 'TestField1data',
+                            testField2: 'TestField2data'
+                        });
                     });
                 let createPromise = Fixtures.create(myFixture);
 
@@ -121,14 +134,12 @@ describe('Thorn', () => {
                         expect(requestBody.requests[0].data.name).to.equal('TestRecord1');
                         expect(requestBody.requests[0].data.testField1).to.equal('TestField1data');
                         expect(requestBody.requests[0].data.testField2).to.equal('TestField2data');
-                        return [{
-                            contents: {
-                                id: 'TestId1',
-                                name: 'TestRecord1',
-                                testField1: 'TestField1data',
-                                testField2: 'TestField2data'
-                            }
-                        }];
+                        return constructBulkResponse({
+                            id: 'TestId1',
+                            name: 'TestRecord1',
+                            testField1: 'TestField1data',
+                            testField2: 'TestField2data'
+                        });
                     });
                 let createPromise = Fixtures.create(fixtureWithoutModule, {module: 'TestModule2'});
 
@@ -143,15 +154,13 @@ describe('Thorn', () => {
                     .reply(200, ACCESS)
                     .post(isBulk)
                     .reply(200, function(uri, requestBody) {
-                        return [{
-                            contents: {
-                                _module: 'TestModule1',
-                                id: 'TestId1',
-                                name: 'TestRecord1',
-                                testField1: 'TestField1data',
-                                testField2: 'TestField2data'
-                            }
-                        }];
+                        return constructBulkResponse({
+                            _module: 'TestModule1',
+                            id: 'TestId1',
+                            name: 'TestRecord1',
+                            testField1: 'TestField1data',
+                            testField2: 'TestField2data'
+                        });
                     });
 
                 let createPromise = Fixtures.create(myFixture);
@@ -187,15 +196,13 @@ describe('Thorn', () => {
                         return requestBody;
                     })
                     .reply(200, function(uri, requestBody) {
-                        return [{
-                            contents: {
-                                _module: 'TestModule1',
-                                id: 'TestId1',
-                                name: 'TestRecord1',
-                                testField1: 'TestField1data',
-                                testField2: 'TestField2data'
-                            }
-                        }];
+                        return constructBulkResponse({
+                            _module: 'TestModule1',
+                            id: 'TestId1',
+                            name: 'TestRecord1',
+                            testField1: 'TestField1data',
+                            testField2: 'TestField2data'
+                        });
                     });
 
                 return Fixtures.create(myFixture);
@@ -234,7 +241,6 @@ describe('Thorn', () => {
                 name: 'TestRecord1',
                 testField1: 'TestField1data1'
             };
-
             let contents2 = {
                 _module: 'TestModule1',
                 name: 'TestRecord2',
@@ -258,14 +264,10 @@ describe('Thorn', () => {
 
                     expect(this.req.headers['x-thorn']).to.equal('Fixtures');
 
-                    return [
-                        {
-                            contents: contents1
-                        },
-                        {
-                            contents: contents2
-                        }
-                    ];
+                    return constructBulkResponse([
+                        contents1,
+                        contents2,
+                    ]);
                 });
             let myFixture = [record1, record2];
             let createPromise = Fixtures.create(myFixture, {module: 'TestModule1'}).then((records) => {
@@ -323,10 +325,10 @@ describe('Thorn', () => {
                         .reply(200, ACCESS)
                         .post(isBulk)
                         .reply(200, function() {
-                            return [
-                                {contents: LEFT_RESPONSE},
-                                {contents: RIGHT_RESPONSE}
-                            ];
+                            return constructBulkResponse([
+                                LEFT_RESPONSE,
+                                RIGHT_RESPONSE
+                            ]);
                         });
 
                     return Fixtures.create([LEFT_FIXTURE, RIGHT_FIXTURE]).then((response) => {
@@ -350,7 +352,6 @@ describe('Thorn', () => {
 
                     let left = records.TestModule1[0];
                     let right = records.TestModule2[0];
-
                     return Fixtures.link(left, 'leftToRight', right);
                 });
 
@@ -403,32 +404,26 @@ describe('Thorn', () => {
                         .reply(200, ACCESS)
                         .post(isBulk)
                         .reply(200, function() {
-                            return [
+                            return constructBulkResponse([
                                 {
-                                    contents: {
-                                        _module: 'TestModule1',
-                                        name: 'TestRecord1',
-                                        testField1: 'TestField1data1',
-                                        id: 'TestId1'
-                                    }
+                                    _module: 'TestModule1',
+                                    name: 'TestRecord1',
+                                    testField1: 'TestField1data1',
+                                    id: 'TestId1'
                                 },
                                 {
-                                    contents: {
-                                        _module: 'TestModule1',
-                                        name: 'TestRecord2',
-                                        testField1: 'TestField1data2',
-                                        id: 'TestId2'
-                                    }
+                                    _module: 'TestModule1',
+                                    name: 'TestRecord2',
+                                    testField1: 'TestField1data2',
+                                    id: 'TestId2'
                                 },
                                 {
-                                    contents: {
-                                        _module: 'TestModule2',
-                                        name: 'TestRecord3',
-                                        testField2: 'TestField2data',
-                                        id: 'TestId3'
-                                    }
+                                    _module: 'TestModule2',
+                                    name: 'TestRecord3',
+                                    testField2: 'TestField2data',
+                                    id: 'TestId3'
                                 }
-                            ];
+                            ]);
                         });
 
                     return Fixtures.create(bigFixture);
@@ -452,11 +447,11 @@ describe('Thorn', () => {
                             return requestBody;
                         })
                         .reply(200, function() {
-                            return [
-                                {contents: {id: 'TestId1'}},
-                                {contents: {id: 'TestId2'}},
-                                {contents: {id: 'TestId3'}}
-                            ];
+                            return constructBulkResponse([
+                                {id: 'TestId1'},
+                                {id: 'TestId2'},
+                                {id: 'TestId3'}
+                            ]);
                         });
 
                     return Fixtures.cleanup().then(() => {
@@ -484,11 +479,11 @@ describe('Thorn', () => {
                             return requestBody;
                         })
                         .reply(200, function() {
-                            return [
-                                {contents: {id: 'TestId1'}},
-                                {contents: {id: 'TestId2'}},
-                                {contents: {id: 'TestId3'}}
-                            ];
+                            return constructBulkResponse([
+                                {id: 'TestId1'},
+                                {id: 'TestId2'},
+                                {id: 'TestId3'}
+                            ]);
                         });
 
                     return Fixtures.cleanup();
@@ -496,7 +491,6 @@ describe('Thorn', () => {
             });
         });
     });
-
 
     describe('Agent', () => {
         beforeEach(() => {
