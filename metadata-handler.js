@@ -4,7 +4,7 @@ var MetadataHandler = {
      *
      * @private
      */
-    _metadata: require(process.env.METADATA_FILE || '../metadata.json'),
+    _metadata: null,
 
     /**
      * Generates random values field types.
@@ -70,6 +70,7 @@ var MetadataHandler = {
      * @return {Object} Object of required fields.
      */
     getRequiredFields(module) {
+        this._metadata = this._metadata || require(process.env.METADATA_FILE);
         if (!this._metadata[module]) {
             throw new Error('Unrecognized module');
         }
