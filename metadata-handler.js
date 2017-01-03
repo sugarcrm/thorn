@@ -72,7 +72,6 @@ var MetadataHandler = {
      * @return {Promise} Promise that resolves to required fields.
      */
     getRequiredFields(module) {
-        this._metadata = this._metadata || require(process.env.METADATA_FILE);
         let self = this;
         if (this._metadata) {
             if (!this._metadata[module]) {
