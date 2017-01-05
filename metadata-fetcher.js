@@ -21,7 +21,6 @@ var MetadataFetcher = {
         }
 
         let authToken;
-        let _this = this;
         
         let loginOptions = {
             method: 'POST',
@@ -55,9 +54,8 @@ var MetadataFetcher = {
                 };
                 // Make request for metadata
                 return RP(metadataOptions)
-            })
-            .then((response) => {
-                // Then, format the metadata
+            }).then((response) => {
+                // Format the metadata
                 let metadata = {};
                 var responseJson = JSON.parse(response);
                 _.forEach(responseJson.modules, function(data, module) {
@@ -70,7 +68,6 @@ var MetadataFetcher = {
             });
 
         return this.currentRequest;
-
     },
 
     /**
