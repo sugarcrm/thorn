@@ -191,7 +191,11 @@ let Fixtures = {
                 createdRecords = this._cacheResponse(response, models);
                 bulkRecordLinkDef = this._processLinks(response, models);
                 if (bulkRecordLinkDef.requests.length) {
-                    return chakram.post(url, bulkRecordLinkDef, params);
+                    return _wrap401(chakram.post, [url, bulkRecordLinkDef, params], {
+                        refreshToken: this._refreshToken,
+                        afterRefresh: _.bind(this._afterRefresh, this),
+                        xthorn: 'Fixtures'
+                    });
                 }
 
                 return response;
@@ -383,10 +387,10 @@ let Fixtures = {
             refreshToken: this._refreshToken,
             afterRefresh: _.bind(this._afterRefresh, this),
             xthorn: 'Fixtures'
-        })
-            .then(() => {
-                _restore();
-            });
+        }).then((response) => {
+            _restore();
+            return response;
+        });
     },
 
     /**
@@ -398,7 +402,7 @@ let Fixtures = {
      * @return {Object} The first record in `cachedRecords` that match properties.
      */
     lookup(module, properties) {
-        if (!cachedRecords) {
+        if (_.isEmpty(cachedRecords)) {
             throw new Error('No cached records are currently available!');
         }
 
@@ -467,7 +471,9 @@ let Fixtures = {
                 'X-Thorn': 'Fixtures'
             }
         }).then((response) => {
-            this._storeAuth(response);
+            if (response.response.statusCode === 200) {
+                this._storeAuth(response);
+            }
         });
     },
 
