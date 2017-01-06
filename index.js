@@ -172,7 +172,7 @@ let Fixtures = {
 
         return this._processModels(models, options)
         .then((bulkRecordCreateDef) => {
-            
+
             let bulkRecordLinkDef;
             let createdRecords;
 
@@ -183,16 +183,16 @@ let Fixtures = {
                 xthorn: 'Fixtures',
                 retryVersion: VERSION
             }).then((response) => {
-                    createdRecords = this._cacheResponse(response, models);
-                    bulkRecordLinkDef = this._processLinks(response, models);
-                    if (bulkRecordLinkDef.requests.length) {
-                        return chakram.post(url, bulkRecordLinkDef, params);
-                    }
+                createdRecords = this._cacheResponse(response, models);
+                bulkRecordLinkDef = this._processLinks(response, models);
+                if (bulkRecordLinkDef.requests.length) {
+                    return chakram.post(url, bulkRecordLinkDef, params);
+                }
 
-                    return response;
-                }).then(() => {
-                    return createdRecords;
-                });
+                return response;
+            }).then(() => {
+                return createdRecords;
+            });
         });
     },
 
@@ -304,7 +304,6 @@ let Fixtures = {
         // Fetch module's required fields and pre-fill them
         _.each(models, (model) => {
             model.module = model.module || options.module;
-            let requiredFields;
             let request = {
                 url: '/' + VERSION + '/' + model.module,
                 method: 'POST',
