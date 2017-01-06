@@ -172,7 +172,7 @@ let Fixtures = {
 
         return this._processModels(models, options)
         .then((bulkRecordCreateDef) => {
-            
+
             let bulkRecordLinkDef;
             let createdRecords;
 
@@ -333,7 +333,7 @@ let Fixtures = {
                     _insertCredentials(request.data.user_name, request.data.user_hash);
                 }
 
-                // Use chakram.post (with Header X-Fixtures: true) to bulk create the record(s).
+                // Use chakram.post to bulk create the record(s).
                 bulkRecordCreateDef.requests.push(request);
             });
             getRequiredFieldsPromises.push(getRequiredFieldPromise);
