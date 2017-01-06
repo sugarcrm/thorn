@@ -1,3 +1,5 @@
+let MetadataFetcher = require('./metadata-fetcher.js');
+
 var MetadataHandler = {
     /**
      * @property {Object} _metadata Metadata structure.
@@ -67,15 +69,41 @@ var MetadataHandler = {
      *
      * @param {string} module Module name.
      *
-     * @return {Object} Object of required fields.
+     * @return {Promise} Promise that resolves to required fields.
      */
     getRequiredFields(module) {
-        this._metadata = this._metadata || require(process.env.METADATA_FILE);
-        if (!this._metadata[module]) {
-            throw new Error('Unrecognized module');
+        let self = this;
+        if (this._metadata) {
+            if (!this._metadata[module]) {
+                throw new Error('Unrecognized module: ' + module);
+            }
+
+            return Promise.resolve(this._metadata[module].fields);
         }
 
-        return this._metadata[module].fields;
+        if (process.env.METADATA_FILE) {
+            this._metadata = require(process.env.METADATA_FILE);
+            if (!this._metadata[module]) {
+                throw new Error('Unrecognized module: ' + module);
+            }
+            return Promise.resolve(this._metadata[module].fields);
+        }
+
+        return MetadataFetcher.fetch()
+            .then((metadata) => {
+                self._metadata = metadata;
+                if (!self._metadata[module]) {
+                    throw new Error('Unrecognized module');
+                }
+                return self._metadata[module].fields;
+            });
+    },
+
+    /**
+     * Clears the cached metadata
+     */
+    clearCachedMetadata() {
+        this._metadata = null;
     }
 };
 

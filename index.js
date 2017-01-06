@@ -169,31 +169,30 @@ let Fixtures = {
 
         let url = utils.constructUrl(VERSION, 'bulk');
         let params = {headers: this._headers};
-        let bulkRecordCreateDef = this._processModels(models, options);
-        let bulkRecordLinkDef;
-        let createdRecords;
 
-        // return Promise
-        return utils.wrap401(chakram.post, [url, bulkRecordCreateDef, params], {
-            refreshToken: this._refreshToken,
-            afterRefresh: _.bind(this._afterRefresh, this),
-            xthorn: 'Fixtures',
-            retryVersion: VERSION
-        }).then((response) => {
-            createdRecords = this._cacheResponse(response, models);
-            bulkRecordLinkDef = this._processLinks(response, models);
-            if (bulkRecordLinkDef.requests.length) {
-                return utils.wrap401(chakram.post, [url, bulkRecordLinkDef, params], {
-                    refreshToken: this._refreshToken,
-                    afterRefresh: _.bind(this._afterRefresh, this),
-                    xthorn: 'Fixtures',
-                    retryVersion: VERSION
+        return this._processModels(models, options)
+        .then((bulkRecordCreateDef) => {
+            
+            let bulkRecordLinkDef;
+            let createdRecords;
+
+            // return Promise
+            return utils.wrap401(chakram.post, [url, bulkRecordCreateDef, params], {
+                refreshToken: this._refreshToken,
+                afterRefresh: _.bind(this._afterRefresh, this),
+                xthorn: 'Fixtures',
+                retryVersion: VERSION
+            }).then((response) => {
+                    createdRecords = this._cacheResponse(response, models);
+                    bulkRecordLinkDef = this._processLinks(response, models);
+                    if (bulkRecordLinkDef.requests.length) {
+                        return chakram.post(url, bulkRecordLinkDef, params);
+                    }
+
+                    return response;
+                }).then(() => {
+                    return createdRecords;
                 });
-            }
-
-            return response;
-        }).then(() => {
-            return createdRecords;
         });
     },
 
@@ -294,11 +293,12 @@ let Fixtures = {
      * @param {Object} [options] Additional information about `models`.
      * @param {string} [options.module] The module of all models (if not specified in the models' object).
      *
-     * @return {Object} Bulk call object for record creation.
+     * @return {Promise} Promise that resolves to bulk call object for record creation.
      *
      * @private
      */
     _processModels(models, options = {}) {
+        let getRequiredFieldsPromises = [];
         let bulkRecordCreateDef = { requests: [] };
         // Loop models to check if any model has been cached already
         // Fetch module's required fields and pre-fill them
@@ -320,23 +320,29 @@ let Fixtures = {
                 throw new Error(model.toString());
             }
 
-            requiredFields = MetadataHandler.getRequiredFields(model.module);
-            _.each(requiredFields, (field) => {
-                if (!request.data[field.name]) {
-                    request.data[field.name] = MetadataHandler.generateFieldValue(field);
+            let getRequiredFieldPromise = MetadataHandler.getRequiredFields(model.module)
+            .then((requiredFields) => {
+                _.each(requiredFields, (field) => {
+                    if (!request.data[field.name]) {
+                        request.data[field.name] = MetadataHandler.generateFieldValue(field);
+                    }
+                });
+
+                // Populate the `credentials` object.
+                if (model.module === 'Users') {
+                    _insertCredentials(request.data.user_name, request.data.user_hash);
                 }
+
+                // Use chakram.post (with Header X-Fixtures: true) to bulk create the record(s).
+                bulkRecordCreateDef.requests.push(request);
             });
-
-            // Populate the `credentials` object.
-            if (model.module === 'Users') {
-                _insertCredentials(request.data.user_name, request.data.user_hash);
-            }
-
-            // Use chakram.post (with Header X-Fixtures: true) to bulk create the record(s).
-            bulkRecordCreateDef.requests.push(request);
+            getRequiredFieldsPromises.push(getRequiredFieldPromise);
         });
 
-        return bulkRecordCreateDef;
+        return Promise.all(getRequiredFieldsPromises)
+        .then(() => {
+            return bulkRecordCreateDef;
+        });
     },
 
     /**

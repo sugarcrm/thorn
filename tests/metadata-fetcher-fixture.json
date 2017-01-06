@@ -1,0 +1,40 @@
+{
+  "modules": {
+    "Module1": {
+      "fields": {
+        "field1.1": {
+          "name": "field1.1",
+          "required": true
+        },
+        "field1.2": {
+          "name": "field1.2",
+          "required": false
+        },
+        "field1.3": {
+          "name": "field1.3",
+          "required": true,
+          "source": "non-db"
+        },
+        "field1.4": {
+          "name": "field1.4",
+          "required": true,
+          "readonly": true
+        },
+        "field1.5": {
+          "name": "field1.5",
+          "required": true,
+          "type": "id"
+        }
+      }
+    },
+    "Module2": {
+      "fields": {
+        "field2.1": {
+          "name": "field2.1",
+          "required": true
+        }
+      }
+    }
+  }
+}
+
