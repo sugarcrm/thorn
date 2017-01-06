@@ -1,5 +1,8 @@
-let RP = require('request-promise');
 let _ = require('lodash');
+let utils = require('./utils');
+let chakram = require('chakram');
+
+const VERSION = 'v10';
 
 var MetadataFetcher = {
 
@@ -23,43 +26,33 @@ var MetadataFetcher = {
         let authToken;
         
         let loginOptions = {
-            method: 'POST',
-            uri: process.env.API_URL + '/rest/v10/oauth2/token',
-            headers: {
-                'X-Thorn': 'MetadataFetcher'
-            },
-            body: {
-                username: process.env.ADMIN_USERNAME,
-                password: process.env.ADMIN_PASSWORD,
-                grant_type: 'password',
-                client_id: 'sugar',
-                client_secret: ''
-            },
-            json: true
+            username: process.env.ADMIN_USERNAME,
+            password: process.env.ADMIN_PASSWORD,
+            version: VERSION,
+            xthorn: 'MetadataFetcher'
         }
 
         let self = this;
         // Log into server as admin
-        this.currentRequest = RP(loginOptions)
+        this.currentRequest = utils.login(loginOptions)
             .then((response) => {
                 authToken = response.access_token;
 
+                let url = process.env.API_URL + '/rest/' + VERSION + '/metadata?modules';
                 let metadataOptions = {
-                    method: 'GET',
-                    uri: process.env.API_URL + '/rest/v10/metadata?modules',
                     headers: {
                         'X-Thorn': 'MetadataFetcher',
-                        'OAuth-token': authToken
+                        'OAuth-Token': authToken
                     },
                 };
                 // Make request for metadata
-                return RP(metadataOptions)
+                return chakram.get(url, metadataOptions);
             }).then((response) => {
                 // Format the metadata
                 let metadata = {};
-                var responseJson = JSON.parse(response);
+                var responseJson = response.body;
                 _.forEach(responseJson.modules, function(data, module) {
-                    metadata[module] = _this._filterByRequiredFields(data.fields);
+                    metadata[module] = self._filterByRequiredFields(data.fields);
                 });
 
                 self.currentRequest = null;

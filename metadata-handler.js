@@ -75,7 +75,7 @@ var MetadataHandler = {
         let self = this;
         if (this._metadata) {
             if (!this._metadata[module]) {
-                throw new Error('Unrecognized module');
+                throw new Error('Unrecognized module: ' + module);
             }
 
             return Promise.resolve(this._metadata[module].fields);
@@ -84,7 +84,7 @@ var MetadataHandler = {
         if (process.env.METADATA_FILE) {
             this._metadata = require(process.env.METADATA_FILE);
             if (!this._metadata[module]) {
-                throw new Error('Unrecognized module');
+                throw new Error('Unrecognized module: ' + module);
             }
             return Promise.resolve(this._metadata[module].fields);
         }

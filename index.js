@@ -320,7 +320,7 @@ let Fixtures = {
                 throw new Error(model.toString());
             }
 
-            let getReqFieldPromise = MetadataHandler.getRequiredFields(model.module)
+            let getRequiredFieldPromise = MetadataHandler.getRequiredFields(model.module)
             .then((requiredFields) => {
                 _.each(requiredFields, (field) => {
                     if (!request.data[field.name]) {
@@ -336,7 +336,7 @@ let Fixtures = {
                 // Use chakram.post (with Header X-Fixtures: true) to bulk create the record(s).
                 bulkRecordCreateDef.requests.push(request);
             });
-            getRequiredFieldsPromises.push(getReqFieldPromise);
+            getRequiredFieldsPromises.push(getRequiredFieldPromise);
         });
 
         return Promise.all(getRequiredFieldsPromises)

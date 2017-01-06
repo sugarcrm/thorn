@@ -1,4 +1,7 @@
 describe('Metadata Fetcher', () => {
+    process.env.ADMIN_USERNAME = 'foo';
+    process.env.ADMIN_PASSWORD = 'bar';
+    process.env.API_URL = 'http://thisisnotarealserver.localdev';
     let _ = require('lodash');
     let nock = require('nock');
     let fs = require('fs');
@@ -32,9 +35,6 @@ describe('Metadata Fetcher', () => {
     };
 
     before(() => {
-        process.env.ADMIN_USERNAME = 'foo';
-        process.env.ADMIN_PASSWORD = 'bar';
-        process.env.API_URL = 'http://thisisnotarealserver.localdev';
         process.env.METADATA_FILE = '';
 
         nock.disableNetConnect();
