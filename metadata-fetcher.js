@@ -24,13 +24,13 @@ var MetadataFetcher = {
         }
 
         let authToken;
-        
+
         let loginOptions = {
             username: process.env.ADMIN_USERNAME,
             password: process.env.ADMIN_PASSWORD,
             version: VERSION,
             xthorn: 'MetadataFetcher'
-        }
+        };
 
         let self = this;
         // Log into server as admin
@@ -70,7 +70,7 @@ var MetadataFetcher = {
      * @param {Object} fields The fields to search
      *
      * @return {Object} The required fields
-     * 
+     *
      * @private
      */
     _filterByRequiredFields(fields) {
@@ -78,7 +78,7 @@ var MetadataFetcher = {
         _.forEach(fields, (field, fieldName) => {
             if (
                 !_.isUndefined(field.required) &&
-                field.required && 
+                field.required &&
                 _.isUndefined(field.source) &&
                 _.isUndefined(field.readonly) &&
                 (_.isUndefined(field.type) || field.type !== 'id')
@@ -91,4 +91,3 @@ var MetadataFetcher = {
 };
 
 module.exports = MetadataFetcher;
-

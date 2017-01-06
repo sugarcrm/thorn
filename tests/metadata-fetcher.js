@@ -2,9 +2,7 @@ describe('Metadata Fetcher', () => {
     process.env.ADMIN_USERNAME = 'foo';
     process.env.ADMIN_PASSWORD = 'bar';
     process.env.API_URL = 'http://thisisnotarealserver.localdev';
-    let _ = require('lodash');
     let nock = require('nock');
-    let fs = require('fs');
     let expect = require('chai').expect;
     let fail = require('chai').fail;
     let metadataHandlerFile = '../dist/metadata-handler.js';
@@ -16,19 +14,19 @@ describe('Metadata Fetcher', () => {
     let metadata = require('./metadata-fetcher-fixture.json');
 
     let expected = {
-        "Module1": {
-             "fields": {
-                 "field1.1": {
-                     "name": "field1.1",
-                     "required": true
-                 }
-             }
-         },
-         "Module2": {
-             "fields": {
-                 "field2.1": {
-                     "name": "field2.1",
-                     "required": true
+        Module1: {
+            fields: {
+                'field1.1': {
+                    name: 'field1.1',
+                    required: true
+                }
+            }
+        },
+        Module2: {
+            fields: {
+                'field2.1': {
+                    name: 'field2.1',
+                    required: true
                 }
             }
         }
@@ -95,7 +93,7 @@ describe('Metadata Fetcher', () => {
                 })
                 .reply(200);
             return Promise.all([
-                MetadataFetcher.fetch(), 
+                MetadataFetcher.fetch(),
                 MetadataFetcher.fetch()
             ]);
         });
@@ -126,4 +124,3 @@ describe('Metadata Fetcher', () => {
     });
 
 });
-
