@@ -1,3 +1,5 @@
+require('co-mocha');
+require('babel-polyfill');
 describe('Metadata Fetcher', () => {
     process.env.ADMIN_USERNAME = 'foo';
     process.env.ADMIN_PASSWORD = 'bar';
@@ -65,11 +67,9 @@ describe('Metadata Fetcher', () => {
 
         });
 
-        it('should return formatted metadata retrieved from the server', () => {
-            return MetadataFetcher.fetch()
-                .then((metadata) => {
-                    expect(metadata).eql(expected);
-                });
+        it('should return formatted metadata retrieved from the server', function*() {
+            let metadata = yield MetadataFetcher.fetch();
+            expect(metadata).eql(expected);
         });
     });
 
@@ -115,11 +115,9 @@ describe('Metadata Fetcher', () => {
 
         });
 
-        it('should retrieve metadata from the server', () => {
-            return MetadataHandler.getRequiredFields('Module1')
-                .then((metadata) => {
-                    expect(metadata).eql(expected.Module1.fields);
-                });
+        it('should retrieve metadata from the server', function*() {
+            let metadata = yield MetadataHandler.getRequiredFields('Module1');
+            expect(metadata).eql(expected.Module1.fields);
         });
     });
 
