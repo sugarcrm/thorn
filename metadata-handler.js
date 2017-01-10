@@ -1,5 +1,6 @@
 let MetadataFetcher = require('./metadata-fetcher.js');
 let faker = require('faker');
+let _ = require('lodash');
 
 var MetadataHandler = {
     /**
@@ -41,7 +42,8 @@ var MetadataHandler = {
         case 'currency':
         case 'decimal':
             // faker.js has no support for decimal numbers
-            [beforeDecimal, afterDecimal] = this._parsePrecision(field.len);
+            let splitLen = _.isUndefined(field.len) ? "26,6" : field.len;
+            [beforeDecimal, afterDecimal] = this._parsePrecision(splitLen);
             val = faker.random.number({max: Math.pow(10, beforeDecimal)}) +
                 (faker.random.number({max: Math.pow(10, afterDecimal)}) / Math.pow(10, afterDecimal));
             break;
