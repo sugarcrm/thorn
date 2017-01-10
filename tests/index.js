@@ -473,12 +473,8 @@ describe('Thorn', () => {
                             ]);
                         });
 
-                    yield Fixtures.cleanup()
-                    try {
-                        Fixtures.lookup();
-                    } catch (e) {
-                        return expect(e.message).to.equal('No cached records are currently available!');
-                    }
+                    yield Fixtures.cleanup();
+                    expect(Fixtures.lookup).to.throw('No cached records are currently available!');
                 });
 
                 it('should retry clean up on 401\'s', () => {
