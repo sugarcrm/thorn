@@ -32,6 +32,7 @@ var MetadataHandler = {
             break;
         case 'date':
         case 'datetime':
+        case 'datetimecombo':
             val = faker.date.recent(5);
             break;
         case 'int':
