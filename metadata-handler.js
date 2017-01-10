@@ -34,6 +34,10 @@ var MetadataHandler = {
         case 'datetime':
             val = faker.date.recent(5);
             break;
+        case 'int':
+            val = faker.random.number({max:10000});
+            break;
+        case 'currency':
         case 'decimal':
             // faker.js has no support for decimal numbers
             [beforeDecimal, afterDecimal] = this._parsePrecision(field.len);
@@ -81,6 +85,9 @@ var MetadataHandler = {
         case 'link':
         case 'relate':
         case 'team_list':
+        case 'file':
+        case 'json':
+        case 'username':
             throw new Error('Fields of type ' + field.type + ' are not supported. Please define them manually.');
         default:
             throw new Error('Field type ' + field.type + ' is not recognized.');
