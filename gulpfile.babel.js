@@ -16,21 +16,27 @@ gulp.task('test', ['build'], () => {
     var mocha = require('gulp-spawn-mocha');
 
     commander
+        .option('--coverage', 'Enable code coverage')
         .option('--ci', 'Enable CI specific options')
         .option('--path <path>', 'Set base output path')
         .parse(process.argv);
 
     var path = commander.path || process.env.WORKSPACE || os.tmpdir();
 
-    var options = {};
+    var options = {
+        timeout: '5000'
+    };
     if (commander.ci) {
         var testResultPath = path + '/test-results.xml';
         options.reporter = 'mocha-junit-reporter';
         options.reporterOptions = 'mochaFile=' + testResultPath;
         process.stdout.write('Test reports will be generated to: ' + testResultPath + '\n');
     }
-
-    options.timeout = '5000';
+    if (commander.coverage) {
+        options.istanbul = {
+            dir: path + '/coverage'
+        };
+    }
 
     return gulp.src(['tests/**/*.js'], {read: false})
         .pipe(mocha(options));
