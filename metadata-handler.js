@@ -139,6 +139,11 @@ var MetadataHandler = {
         }
 
         if (process.env.METADATA_FILE) {
+            let fileMetadata = require(process.env.METADATA_FILE);
+            fileMetadata.Users.fields.user_hash = {
+                name: 'user_hash',
+                type: 'password'
+            };
             this._metadata = require(process.env.METADATA_FILE);
             if (!this._metadata[module]) {
                 throw new Error('Unrecognized module: ' + module);
@@ -148,6 +153,12 @@ var MetadataHandler = {
 
         return MetadataFetcher.fetch()
             .then((metadata) => {
+                metadata.Users.fields.user_hash = {
+                    name: 'user_hash',
+                    required: true,
+                    type: 'password',
+                    len: '255'
+                };
                 self._metadata = metadata;
                 if (!self._metadata[module]) {
                     throw new Error('Unrecognized module');
