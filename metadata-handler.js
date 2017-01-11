@@ -37,13 +37,21 @@ var MetadataHandler = {
             val = faker.date.recent(5);
             break;
         case 'int':
-            val = faker.random.number({max:10000});
+            let maxLength = _.isUndefined(field.len) ? 5 : field.len;
+
+            // For sanity, set the max number of digits to 5
+            maxLength = maxLength > 5 ? 5 : maxLength;
+            val = faker.random.number({max:Math.pow(10, maxLength)});
             break;
         case 'currency':
         case 'decimal':
             // faker.js has no support for decimal numbers
-            let splitLen = _.isUndefined(field.len) ? "26,6" : field.len;
+            let splitLen = _.isUndefined(field.len) ? "5,5" : field.len;
             [beforeDecimal, afterDecimal] = this._parsePrecision(splitLen);
+
+            // For sanity, set the max number of digits to 5
+            beforeDecimal = beforeDecimal > 5 ? 5 : beforeDecimal;
+            afterDecimal = afterDecimal > 5 ? 5 : afterDecimal;
             val = faker.random.number({max: Math.pow(10, beforeDecimal)}) +
                 (faker.random.number({max: Math.pow(10, afterDecimal)}) / Math.pow(10, afterDecimal));
             break;
@@ -138,12 +146,16 @@ var MetadataHandler = {
             return Promise.resolve(this._metadata[module].fields);
         }
 
+        let userHash = {
+            name: 'user_hash',
+            type: 'password'
+        };
+
         if (process.env.METADATA_FILE) {
             let fileMetadata = require(process.env.METADATA_FILE);
-            fileMetadata.Users.fields.user_hash = {
-                name: 'user_hash',
-                type: 'password'
-            };
+            if (fileMetadata.Users) {
+                fileMetadata.Users.fields.user_hash = userHash;
+            }
             this._metadata = require(process.env.METADATA_FILE);
             if (!this._metadata[module]) {
                 throw new Error('Unrecognized module: ' + module);
@@ -153,12 +165,9 @@ var MetadataHandler = {
 
         return MetadataFetcher.fetch()
             .then((metadata) => {
-                metadata.Users.fields.user_hash = {
-                    name: 'user_hash',
-                    required: true,
-                    type: 'password',
-                    len: '255'
-                };
+                if (metadata.Users) {
+                    metadata.Users.fields.user_hash = userHash;
+                }
                 self._metadata = metadata;
                 if (!self._metadata[module]) {
                     throw new Error('Unrecognized module');

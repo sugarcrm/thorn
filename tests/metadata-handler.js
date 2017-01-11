@@ -13,6 +13,9 @@ describe('Metadata Handler', () => {
                     'link',
                     'relate',
                     'team_list',
+                    'file',
+                    'json',
+                    'username'
                 ];
                 _.each(types, (type) => {
                     let msg = 'Fields of type ' + type + ' are not supported. Please define them manually.';
@@ -75,6 +78,20 @@ describe('Metadata Handler', () => {
             });
         });
 
+        describe('ints', () => {
+            it('should return an integer with the proper number of digits', () => {
+                let value = Meta.generateFieldValue({type: 'int', len: '4'});
+                expect(value).to.be.a.number;
+                expect(value).to.be.at.most(9999);
+            });
+
+            it('should only return a number with at most 5 digits', () => {
+                let value = Meta.generateFieldValue({type: 'int', len: '6'});
+                expect(value).to.be.a.number;
+                expect(value).to.be.at.most(99999);
+            });
+        });
+
         describe('decimals', () => {
             it('should return a number with the proper number of digits', () => {
                 let value = Meta.generateFieldValue({type: 'decimal', len: '5,2'});
@@ -83,6 +100,14 @@ describe('Metadata Handler', () => {
                 let [intPart, decimalPart] = value.toString().split('.');
                 expect(intPart.length).to.be.at.most(3);
                 expect(decimalPart.length).to.be.at.most(2);
+            });
+
+            it('should only return a number with at most 5 digits before and after the decimal', () => {
+                let value = Meta.generateFieldValue({type: 'decimal', len: '6,6'});
+                // Number.toString() always uses a ".", even in European locales
+                let [intPart, decimalPart] = value.toString().split('.');
+                expect(intPart.length).to.be.at.most(5);
+                expect(decimalPart.length).to.be.at.most(5);
             });
         });
 
