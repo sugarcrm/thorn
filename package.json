@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "chakram": "^1.5.0",
+    "faker": "git+https://github.com/Marak/faker.js#7e96b93869b422af5a63c115e04ff0206bf7b228",
     "lodash": "^4.17.4"
   },
   "scripts": {
