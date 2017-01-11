@@ -398,10 +398,13 @@ order for server requests to effectuate. Not returning `Promises` could lead to 
 
 ## Debugging Tests
 
-While developing or debugging a test, you can set the environment variable `THORN_VERBOSE` to any value to enable
+While developing or debugging a test, you can set the environment variable `THORN_VERBOSE` to enable
 verbose output from Thorn.
 
-Before commiting tests, **please ensure you run them with THORN_VERBOSE enabled** so you can be sure you are making the
+Users of Thorn seeking to debug their tests should set `THORN_VERBOSE=1`.
+`THORN_VERBOSE=2` is intended for those developing Thorn itself and is not intended for users.
+
+Before commiting tests, **please ensure you run them with THORN_VERBOSE=1** so you can be sure you are making the
 HTTP requests and getting the responses back that you expect.
 
 [chakram]: http://dareid.github.io/chakram/
