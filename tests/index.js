@@ -317,7 +317,8 @@ describe('Thorn', () => {
             it('should retry fixture creation and linking on 401\'s', () => {});
 
             describe('with pre-existing records', () => {
-                let records;
+                let records, left, right;
+                let linkTestId1Regex = /TestId1\/link$/;
 
                 beforeEach(() => {
                     nock(serverUrl)
@@ -333,12 +334,14 @@ describe('Thorn', () => {
 
                     return Fixtures.create([LEFT_FIXTURE, RIGHT_FIXTURE]).then((response) => {
                         records = response;
+                        left = records.TestModule1[0];
+                        right = records.TestModule2[0];
                     });
                 });
 
                 it('should link fixtures', () => {
                     nock(serverUrl)
-                        .post(/TestId1\/link$/)
+                        .post(linkTestId1Regex)
                         .reply(200, function(uri, requestBody) {
                             expect(this.req.headers['x-thorn']).to.equal('Fixtures');
                             expect(requestBody.link_name).to.equal('leftToRight');
@@ -350,12 +353,33 @@ describe('Thorn', () => {
                             };
                         });
 
-                    let left = records.TestModule1[0];
-                    let right = records.TestModule2[0];
                     return Fixtures.link(left, 'leftToRight', right);
                 });
 
-                it('should retry linking fixtures on 401\'s', () => {});
+                it('should retry linking fixtures on 401\'s', () => {
+                    let originalRequestBody;
+
+                    nock(serverUrl)
+                        .post(linkTestId1Regex, function(requestBody) {
+                            originalRequestBody = requestBody;
+                            return true;
+                        })
+                        .reply(401)
+                        .post(isTokenReq)
+                        .reply(200, ACCESS)
+                        .post(linkTestId1Regex, function(requestBody) {
+                            expect(requestBody).to.eql(originalRequestBody);
+                            return true;
+                        })
+                        .reply(200, function(uri, requestBody) {
+                            return {
+                                record: LEFT_RESPONSE,
+                                relatedRecords: [RIGHT_RESPONSE]
+                            };
+                        });
+
+                    return Fixtures.link(left, 'leftToRight', right);
+                });
             });
         });
 

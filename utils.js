@@ -88,6 +88,7 @@ var utils = {
      *   a refresh occurs. Passed the chakram response object from the refresh.
      * @param {string} options.retryVersion API version to make the retry request on.
      *   Non-retry requests are made on whatever version is specified by `args`.
+     * @param {string} options.xthorn Value of the X-Thorn header.
      * @return {ChakramPromise} A promise resolving to the result of the request.
      *   If the first try failed, it will resolve to the result of the second,
      *   whether it succeeded or not.
