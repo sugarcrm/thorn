@@ -90,7 +90,7 @@ describe('Metadata Handler', () => {
         describe('ints', () => {
             it('should return an integer with the proper number of digits', () => {
                 let value = Meta.generateFieldValue({type: 'int', len: '4'});
-                expect(value).to.be.a.number;
+                expect(Number.isInteger(value)).to.be.true;
                 expect(value).to.be.at.most(9999);
             });
 

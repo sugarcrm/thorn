@@ -1,6 +1,5 @@
 let MetadataFetcher = require('./metadata-fetcher.js');
 let faker = require('faker');
-let _ = require('lodash');
 
 var MetadataHandler = {
     /**
@@ -18,7 +17,7 @@ var MetadataHandler = {
      * @return {string} Random field value according to type and module.
      */
     generateFieldValue(field) {
-        let val, length, afterDecimal, beforeDecimal;
+        let val, maxLength, afterDecimal, beforeDecimal;
 
         switch (field.type) {
         case 'bool':
@@ -28,11 +27,9 @@ var MetadataHandler = {
         case 'password':
         case 'varchar':
             // this is char in the SQL sense, not the C sense
-            length = field.len || 30;
-            if (length > 30) {
-                length = 30;
-            }
-            val = faker.random.alphaNumeric(length);
+            maxLength = field.len || 30;
+            maxLength = maxLength > 30 ? 30 : maxLength;
+            val = faker.random.alphaNumeric(maxLength);
             break;
         case 'date':
         case 'datetime':
@@ -40,7 +37,7 @@ var MetadataHandler = {
             val = faker.date.recent(5);
             break;
         case 'int':
-            let maxLength = field.len || 5;
+            maxLength = field.len || 5;
 
             // For sanity, set the max number of digits to 5
             maxLength = maxLength > 5 ? 5 : maxLength;
@@ -49,7 +46,7 @@ var MetadataHandler = {
         case 'currency':
         case 'decimal':
             // faker.js has no support for decimal numbers
-            let splitLen = field.len || "5,5";
+            let splitLen = field.len || '5,5';
             [beforeDecimal, afterDecimal] = this._parsePrecision(splitLen);
 
             // For sanity, set the max number of digits to 5
@@ -94,13 +91,13 @@ var MetadataHandler = {
             }
             break;
         case 'assigned_user_name':
+        case 'file':
         case 'id':
         case 'image':
+        case 'json':
         case 'link':
         case 'relate':
         case 'team_list':
-        case 'file':
-        case 'json':
         case 'username':
             throw new Error('Fields of type ' + field.type + ' are not supported. Please define them manually.');
         default:
@@ -149,17 +146,11 @@ var MetadataHandler = {
             return Promise.resolve(this._metadata[module].fields);
         }
 
-        let userHash = {
-            name: 'user_hash',
-            type: 'password'
-        };
-
         if (process.env.METADATA_FILE) {
             let fileMetadata = require(process.env.METADATA_FILE);
-            if (fileMetadata.Users) {
-                fileMetadata.Users.fields.user_hash = userHash;
-            }
-            this._metadata = require(process.env.METADATA_FILE);
+            fileMetadata = this._patchMetadata(fileMetadata);
+            
+            this._metadata = fileMetadata;
             if (!this._metadata[module]) {
                 throw new Error('Unrecognized module: ' + module);
             }
@@ -168,9 +159,7 @@ var MetadataHandler = {
 
         return MetadataFetcher.fetch()
             .then((metadata) => {
-                if (metadata.Users) {
-                    metadata.Users.fields.user_hash = userHash;
-                }
+                metadata = this._patchMetadata(metadata);
                 self._metadata = metadata;
                 if (!self._metadata[module]) {
                     throw new Error('Unrecognized module');
@@ -185,6 +174,30 @@ var MetadataHandler = {
     clearCachedMetadata() {
         this._metadata = null;
     },
+
+    /**
+     * Updates the passed in metadata with special cases.
+     *
+     * Special cases include:
+     *   Users.user_hash
+     *
+     * @param{Object} The metadata to patch.
+     * @return {Object} The patched metadata.
+     */
+    _patchMetadata(metadata) {
+
+        // When creating a user that we want to use to log in, we need a user_hash
+        let userHash = {
+            name: 'user_hash',
+            type: 'password'
+        };
+
+        if (metadata.Users) {
+            metadata.Users.fields.user_hash = metadata.Users.fields.user_hash || userHash;
+        }
+
+        return metadata;
+    }
 };
 
 module.exports = MetadataHandler;
