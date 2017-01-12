@@ -46,6 +46,15 @@ describe('Metadata Handler', () => {
                 let value = Meta.generateFieldValue({type: 'varchar'});
                 expect(value).to.have.lengthOf(30);
             });
+
+            it('should not generate strings longer than 30', () => {
+                let field = {
+                    type: 'varchar',
+                    len: 255
+                };
+                let value = Meta.generateFieldValue(field);
+                expect(value).to.have.lengthOf(30);
+            });
         });
 
         describe('passwords', () => {

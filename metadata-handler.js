@@ -29,6 +29,9 @@ var MetadataHandler = {
         case 'varchar':
             // this is char in the SQL sense, not the C sense
             length = field.len || 30;
+            if (length > 30) {
+                length = 30;
+            }
             val = faker.random.alphaNumeric(length);
             break;
         case 'date':
@@ -37,7 +40,7 @@ var MetadataHandler = {
             val = faker.date.recent(5);
             break;
         case 'int':
-            let maxLength = _.isUndefined(field.len) ? 5 : field.len;
+            let maxLength = field.len || 5;
 
             // For sanity, set the max number of digits to 5
             maxLength = maxLength > 5 ? 5 : maxLength;
@@ -46,7 +49,7 @@ var MetadataHandler = {
         case 'currency':
         case 'decimal':
             // faker.js has no support for decimal numbers
-            let splitLen = _.isUndefined(field.len) ? "5,5" : field.len;
+            let splitLen = field.len || "5,5";
             [beforeDecimal, afterDecimal] = this._parsePrecision(splitLen);
 
             // For sanity, set the max number of digits to 5
