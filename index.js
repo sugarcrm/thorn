@@ -486,15 +486,17 @@ let cachedAgents = {};
 
 /**
  * Namespace for UserAgent access methods.
+ * @namespace
+ * @property {string} ADMIN Username for the SugarCRM administrative user.
  */
-class Agent {
+var Agent = {
     /**
      * Return a UserAgent with the given user name and log them in.
      *
      * @param {string} username Username of the user agent.
      * @return {UserAgent} A UserAgent corresponding to the user with the given username.
      */
-    static as(username) {
+    as: (username) => {
         if (!username) {
             throw new Error('Tried to create a user agent with no username!');
         }
@@ -510,15 +512,11 @@ class Agent {
         let agent = new UserAgent(username, password, VERSION);
         agent._login();
         return agent;
-    }
-}
+    },
 
-/**
- * Username for the SugarCRM administrative user.
- *
- * @property {string}
- */
-Agent.ADMIN = process.env.ADMIN_USERNAME;
+    ADMIN: process.env.ADMIN_USERNAME
+};
+
 Object.freeze(Agent);
 
 /**
