@@ -24,6 +24,7 @@ if (verbosity) {
 /**
  * Mimics default version until we have a way to get it from the instance being tested.
  * @type {string}
+ *
  * @private
  */
 const VERSION = 'v10';
@@ -41,6 +42,7 @@ const VERSION = 'v10';
  *     }
  *
  * @type {Object}
+ *
  * @private
  */
 let cachedRecords;
@@ -55,6 +57,7 @@ let cachedRecords;
  *  }
  *
  * @type {Object}
+ *
  * @private
  */
 let credentials;
@@ -94,6 +97,7 @@ _restore();
  * Record map indexed by fixture.
  *
  * @type WeakMap<Object, Object>
+ *
  * @private
  */
 let fixturesMap = new WeakMap();
@@ -588,6 +592,7 @@ class UserAgent {
      *   The first member of the array must be the desired endpoint;
      *   the last must be a `params`-like object.
      * @return {ChakramPromise} A promise resolving to the result of the request.
+     *
      * @private
      */
     _requestSkeleton = (chakramMethod, args) => {
@@ -614,6 +619,7 @@ class UserAgent {
      * Callback to be performed after a login or refresh.
      *
      * @param {object} response Chakram login/refresh response.
+     *
      * @private
      */
     _updateAuthState = (response) => {

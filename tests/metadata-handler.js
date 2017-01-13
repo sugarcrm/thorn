@@ -8,11 +8,14 @@ describe('Metadata Handler', () => {
             it('should throw an error', () => {
                 let types = [
                     'assigned_user_name',
+                    'file',
                     'id',
                     'image',
+                    'json',
                     'link',
                     'relate',
                     'team_list',
+                    'username',
                 ];
                 _.each(types, (type) => {
                     let msg = 'Fields of type ' + type + ' are not supported. Please define them manually.';
@@ -41,6 +44,15 @@ describe('Metadata Handler', () => {
 
             it('should have a default length of 30', () => {
                 let value = Meta.generateFieldValue({type: 'varchar'});
+                expect(value).to.have.lengthOf(30);
+            });
+
+            it('should not generate strings longer than 30', () => {
+                let field = {
+                    type: 'varchar',
+                    len: 255,
+                };
+                let value = Meta.generateFieldValue(field);
                 expect(value).to.have.lengthOf(30);
             });
         });
@@ -75,10 +87,32 @@ describe('Metadata Handler', () => {
             });
         });
 
+        describe('ints', () => {
+            it('should return an integer with the proper number of digits', () => {
+                let value = Meta.generateFieldValue({type: 'int', len: 4});
+                expect(Number.isInteger(value)).to.be.true;
+                expect(value).to.be.at.most(9999);
+            });
+
+            it('should only return a number with at most 5 digits', () => {
+                let value = Meta.generateFieldValue({type: 'int', len: 6});
+                expect(Number.isInteger(value)).to.be.true;
+                expect(value).to.be.at.most(99999);
+            });
+        });
+
         describe('decimals', () => {
             it('should return a number with the proper number of digits', () => {
                 let value = Meta.generateFieldValue({type: 'decimal', len: '5,2'});
                 expect(value).to.be.a.number;
+                // Number.toString() always uses a ".", even in European locales
+                let [intPart, decimalPart] = value.toString().split('.');
+                expect(intPart.length).to.be.at.most(3);
+                expect(decimalPart.length).to.be.at.most(2);
+            });
+
+            it('should only return a number with at most 3 digits before and 2 after the decimal', () => {
+                let value = Meta.generateFieldValue({type: 'decimal', len: '10,5'});
                 // Number.toString() always uses a ".", even in European locales
                 let [intPart, decimalPart] = value.toString().split('.');
                 expect(intPart.length).to.be.at.most(3);
