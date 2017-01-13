@@ -186,14 +186,14 @@ describe('Thorn', () => {
                     .reply(200, ACCESS)
                     .post(isBulk, function(requestBody) {
                         originalRequestBody = requestBody;
-                        return requestBody;
+                        return true;
                     })
                     .reply(401)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk, function(requestBody) {
                         expect(requestBody).to.eql(originalRequestBody);
-                        return requestBody;
+                        return true;
                     })
                     .reply(200, function(uri, requestBody) {
                         return constructBulkResponse({
@@ -493,14 +493,14 @@ describe('Thorn', () => {
                     nock(serverUrl)
                         .post(isBulk, function(requestBody) {
                             originalRequestBody = requestBody;
-                            return requestBody;
+                            return true;
                         })
                         .reply(401)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk, function(requestBody) {
                             expect(requestBody).to.eql(originalRequestBody);
-                            return requestBody;
+                            return true;
                         })
                         .reply(200, function() {
                             return constructBulkResponse([
