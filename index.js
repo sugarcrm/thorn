@@ -422,8 +422,12 @@ let Fixtures = {
         return utils.wrap401(
             chakram.post,
             [url, linkDef, params],
-            this._refreshToken,
-            _.bind(this._afterRefresh, this)
+            {
+                afterRefresh: _.bind(this._afterRefresh, this),
+                refreshToken: this._refreshToken,
+                retryVersion: VERSION,
+                xthorn: 'Fixtures'
+            }
         ).then((response) => {
             return response.response.body;
         });
