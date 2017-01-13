@@ -89,13 +89,13 @@ describe('Metadata Handler', () => {
 
         describe('ints', () => {
             it('should return an integer with the proper number of digits', () => {
-                let value = Meta.generateFieldValue({type: 'int', len: '4'});
+                let value = Meta.generateFieldValue({type: 'int', len: 4});
                 expect(Number.isInteger(value)).to.be.true;
                 expect(value).to.be.at.most(9999);
             });
 
             it('should only return a number with at most 5 digits', () => {
-                let value = Meta.generateFieldValue({type: 'int', len: '6'});
+                let value = Meta.generateFieldValue({type: 'int', len: 6});
                 expect(value).to.be.a.number;
                 expect(value).to.be.at.most(99999);
             });
@@ -111,12 +111,12 @@ describe('Metadata Handler', () => {
                 expect(decimalPart.length).to.be.at.most(2);
             });
 
-            it('should only return a number with at most 5 digits before and after the decimal', () => {
-                let value = Meta.generateFieldValue({type: 'decimal', len: '6,6'});
+            it('should only return a number with at most 3 digits before and 2 after the decimal', () => {
+                let value = Meta.generateFieldValue({type: 'decimal', len: '10,5'});
                 // Number.toString() always uses a ".", even in European locales
                 let [intPart, decimalPart] = value.toString().split('.');
-                expect(intPart.length).to.be.at.most(5);
-                expect(decimalPart.length).to.be.at.most(5);
+                expect(intPart.length).to.be.at.most(3);
+                expect(decimalPart.length).to.be.at.most(2);
             });
         });
 

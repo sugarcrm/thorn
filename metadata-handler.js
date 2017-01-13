@@ -17,7 +17,7 @@ var MetadataHandler = {
      * @return {string} Random field value according to type and module.
      */
     generateFieldValue(field) {
-        let val, maxLength, afterDecimal, beforeDecimal;
+        let val, maxLength, afterDecimal, beforeDecimal, intVal, numVal, denVal;
 
         switch (field.type) {
         case 'bool':
@@ -46,14 +46,20 @@ var MetadataHandler = {
         case 'currency':
         case 'decimal':
             // faker.js has no support for decimal numbers
-            let splitLen = field.len || '5,5';
-            [beforeDecimal, afterDecimal] = this._parsePrecision(splitLen);
+            maxLength = field.len || '5,2';
+            [beforeDecimal, afterDecimal] = this._parsePrecision(maxLength);
 
-            // For sanity, set the max number of digits to 5
-            beforeDecimal = beforeDecimal > 5 ? 5 : beforeDecimal;
-            afterDecimal = afterDecimal > 5 ? 5 : afterDecimal;
-            val = faker.random.number({max: Math.pow(10, beforeDecimal)}) +
-                (faker.random.number({max: Math.pow(10, afterDecimal)}) / Math.pow(10, afterDecimal));
+            // For sanity, set the max before decmial to 3 and after to 2
+            beforeDecimal = beforeDecimal > 3 ? 3 : beforeDecimal;
+            afterDecimal = afterDecimal > 2 ? 2 : afterDecimal;
+
+            // To avoid JS floating point issues, build string and cast as float
+            val = parseFloat(
+                faker.random.number({max: Math.pow(10, beforeDecimal)})
+                + "." +
+                faker.random.number({max: Math.pow(10, afterDecimal)})
+            );
+
             break;
         case 'email':
             val = faker.internet.exampleEmail('Jack', 'Jackson');
@@ -181,7 +187,7 @@ var MetadataHandler = {
      * Special cases include:
      *   Users.user_hash
      *
-     * @param{Object} The metadata to patch.
+     * @param {Object} The metadata to patch.
      * @return {Object} The patched metadata.
      */
     _patchMetadata(metadata) {
@@ -193,7 +199,11 @@ var MetadataHandler = {
         };
 
         if (metadata.Users) {
-            metadata.Users.fields.user_hash = metadata.Users.fields.user_hash || userHash;
+            if (metadata.Users.fields.user_hash) {
+                console.warn('Users user_hash field is required => true on the Mango side. Skipping metadata patch.');
+            } else {
+                metadata.Users.fields.user_hash = userHash;
+            }
         }
 
         return metadata;
