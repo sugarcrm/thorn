@@ -278,7 +278,7 @@ describe('Thorn', () => {
         });
 
         describe('linking', () => {
-            const LEFT_FIXTURE = {
+            let record1 = {
                 module: 'TestModule1',
                 attributes: {
                     name: 'TestRecord1',
@@ -286,7 +286,7 @@ describe('Thorn', () => {
                     testField2: 'TestField2data1',
                 },
             };
-            const RIGHT_FIXTURE = {
+            let record2 = {
                 module: 'TestModule2',
                 attributes: {
                     name: 'TestRecord2',
@@ -294,14 +294,14 @@ describe('Thorn', () => {
                     testField2: 'TestField2data2',
                 },
             };
-            const LEFT_RESPONSE = {
+            let contents1 = {
                 _module: 'TestModule1',
                 id: 'TestId1',
                 name: 'TestRecord1',
                 testField1: 'TestField1data1',
                 testField2: 'TestField2data1',
             };
-            const RIGHT_RESPONSE = {
+            let contents2 = {
                 _module: 'TestModule2',
                 id: 'TestId2',
                 name: 'TestRecord2',
@@ -324,12 +324,12 @@ describe('Thorn', () => {
                         .post(isBulk)
                         .reply(200, function() {
                             return constructBulkResponse([
-                                LEFT_RESPONSE,
-                                RIGHT_RESPONSE,
+                                contents1,
+                                contents2,
                             ]);
                         });
 
-                    let response = yield Fixtures.create([LEFT_FIXTURE, RIGHT_FIXTURE]);
+                    let response = yield Fixtures.create([record1, record2]);
                     records = response;
                     left = records.TestModule1[0];
                     right = records.TestModule2[0];
@@ -344,8 +344,8 @@ describe('Thorn', () => {
                             expect(requestBody.ids.length).to.equal(1);
                             expect(requestBody.ids[0]).to.equal('TestId2');
                             return {
-                                record: LEFT_RESPONSE,
-                                relatedRecords: [RIGHT_RESPONSE],
+                                record: contents1,
+                                relatedRecords: [contents2],
                             };
                         });
 
@@ -369,8 +369,8 @@ describe('Thorn', () => {
                         })
                         .reply(200, function(uri, requestBody) {
                             return {
-                                record: LEFT_RESPONSE,
-                                relatedRecords: [RIGHT_RESPONSE],
+                                record: contents1,
+                                relatedRecords: [contents2],
                             };
                         });
 
