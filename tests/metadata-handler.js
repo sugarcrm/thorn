@@ -8,13 +8,13 @@ describe('Metadata Handler', () => {
             it('should throw an error', () => {
                 let types = [
                     'assigned_user_name',
+                    'file',
                     'id',
                     'image',
+                    'json',
                     'link',
                     'relate',
                     'team_list',
-                    'file',
-                    'json',
                     'username'
                 ];
                 _.each(types, (type) => {

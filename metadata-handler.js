@@ -31,25 +31,13 @@ var MetadataHandler = {
             maxLength = maxLength > 30 ? 30 : maxLength;
             val = faker.random.alphaNumeric(maxLength);
             break;
-        case 'date':
-        case 'datetime':
-        case 'datetimecombo':
-            val = faker.date.recent(5);
-            break;
-        case 'int':
-            maxLength = field.len || 5;
-
-            // For sanity, set the max number of digits to 5
-            maxLength = maxLength > 5 ? 5 : maxLength;
-            val = faker.random.number({max:Math.pow(10, maxLength)});
-            break;
         case 'currency':
         case 'decimal':
             // faker.js has no support for decimal numbers
             maxLength = field.len || '5,2';
             [beforeDecimal, afterDecimal] = this._parsePrecision(maxLength);
 
-            // For sanity, set the max before decmial to 3 and after to 2
+            // For sanity, set the max before decimal to 3 and after to 2
             beforeDecimal = beforeDecimal > 3 ? 3 : beforeDecimal;
             afterDecimal = afterDecimal > 2 ? 2 : afterDecimal;
 
@@ -61,6 +49,11 @@ var MetadataHandler = {
             );
 
             break;
+        case 'date':
+        case 'datetime':
+        case 'datetimecombo':
+            val = faker.date.recent(5);
+            break;
         case 'email':
             val = faker.internet.exampleEmail('Jack', 'Jackson');
             // FIXME: support maximum lengths!
@@ -68,6 +61,13 @@ var MetadataHandler = {
         case 'enum':
             // for now, we just return an arbitrary random string
             val = faker.lorem.word();
+            break;
+        case 'int':
+            maxLength = field.len || 5;
+
+            // For sanity, set the max number of digits to 5
+            maxLength = maxLength > 5 ? 5 : maxLength;
+            val = faker.random.number({max:Math.pow(10, maxLength)});
             break;
         case 'name':
             val = faker.name.firstName();
@@ -187,12 +187,17 @@ var MetadataHandler = {
      * Special cases include:
      *   Users.user_hash
      *
-     * @param {Object} The metadata to patch.
+     * @param {Object} metadata The metadata to patch.
      * @return {Object} The patched metadata.
      */
     _patchMetadata(metadata) {
+        // When we want to log in with a created user, the user_hash
+        // must be defined. If we want to generate the user_hash automatically,
+        // the user_hash field must be required.
 
-        // When creating a user that we want to use to log in, we need a user_hash
+        // Currently OOTB user_hash isn't set as required. If this changes
+        // in the future, throw warning below. At that point, the patch
+        // to the User metadata is no longer necessary.
         let userHash = {
             name: 'user_hash',
             type: 'password'
