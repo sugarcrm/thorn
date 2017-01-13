@@ -533,17 +533,19 @@ describe('Thorn', () => {
 
         describe('request methods', () => {
             let myAgent;
+            let endpoint = 'not/real/endpoint';
+
+            function isNotRealEndpoint(uri) {
+                return uri.indexOf(endpoint) >= 0;
+            }
 
             before(() => {
                 myAgent = Agent.as(process.env.ADMIN_USERNAME);
             });
 
             it('should send GET request', () => {
-                let endpoint = 'not/real/endpoint';
                 nock(serverUrl)
-                    .get((uri) => {
-                        return uri.indexOf('not/real/endpoint') >= 0;
-                    })
+                    .get(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
                         return [];
@@ -556,14 +558,11 @@ describe('Thorn', () => {
             });
 
             it('should send POST request', () => {
-                let endpoint = 'not/real/endpoint';
                 let data = {
                     myField: 'myValue'
                 };
                 nock(serverUrl)
-                    .post((uri) => {
-                        return uri.indexOf('not/real/endpoint') >= 0;
-                    })
+                    .post(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
                         expect(requestBody).to.eql(data);
@@ -578,14 +577,11 @@ describe('Thorn', () => {
             });
 
             it('should send PUT request', () => {
-                let endpoint = 'not/real/endpoint';
                 let data = {
                     myField: 'myUpdatedValue'
                 };
                 nock(serverUrl)
-                    .put((uri) => {
-                        return uri.indexOf('not/real/endpoint') >= 0;
-                    })
+                    .put(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
                         expect(requestBody).to.eql(data);
@@ -600,14 +596,11 @@ describe('Thorn', () => {
             });
 
             it('should send DELETE request', () => {
-                let endpoint = 'not/real/endpoint';
                 let data = {
                     myField: 'myValue'
                 };
                 nock(serverUrl)
-                    .delete((uri) => {
-                        return uri.indexOf('not/real/endpoint') >= 0;
-                    })
+                    .delete(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
                         expect(requestBody).to.eql(data);
