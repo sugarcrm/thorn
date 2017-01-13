@@ -68,46 +68,42 @@ let DashboardsOnly = [
     }
 ];
 
-return Fixtures.create(AccountsContacts)
-    .then((response) => {
-        console.log(response); // Map containing one account, and one contact
-        /*
+let response = yield Fixtures.create(AccountsContacts);
+console.log(response); // Map containing one account, and one contact
+/*
+{
+    Accounts: [
         {
-            Accounts: [
-                {
-                    id: '12257c7c-bb40-11e6-afb2-a0937b020fc9',
-                    name: 'MyAccount',
-                    ...
-                    _module: 'Accounts'
-                }
-            ],
-            Contacts: [
-                {
-                    id: '11232c7c-bb40-11e6-bfb2-a0937b020sc9',
-                    first_name: 'FirstName'
-                    ...
-                    _module: 'Contacts'
-                }
-            ]
+            id: '12257c7c-bb40-11e6-afb2-a0937b020fc9',
+            name: 'MyAccount',
+            ...
+            _module: 'Accounts'
         }
-        */
-        return Fixtures.create(DashboardsOnly, {module: 'Dashboard'});
-    })
-    .then((response) => {
-        console.log(response);
-        /*
+    ],
+    Contacts: [
         {
-            Dashboards: [
-                {
-                    id: '11232c7c-bb40-11e6-bfb2-a0937b020sc9',
-                    name: 'MyDashboard',
-                    ...
-                    _module: 'Dashboards'
-                }
-            ]
+            id: '11232c7c-bb40-11e6-bfb2-a0937b020sc9',
+            first_name: 'FirstName'
+            ...
+            _module: 'Contacts'
         }
-        */
-    });
+    ]
+}
+*/
+response = yield Fixtures.create(DashboardsOnly, {module: 'Dashboard'});
+console.log(response);
+/*
+{
+    Dashboards: [
+        {
+            id: '11232c7c-bb40-11e6-bfb2-a0937b020sc9',
+            name: 'MyDashboard',
+            ...
+            _module: 'Dashboards'
+        }
+    ]
+}
+*/
 ```
 
 <br/>
@@ -145,35 +141,30 @@ let Contact = {
     }
 };
 
-return Fixtures.create([Account, Contact])
-    .then((cachedRecords) => {
-        console.log(cachedRecords); // Map containing one Account and one Contact
-        return Fixtures.link(cachedRecords.Accounts[0], 'accounts_contacts', cachedRecords.Contacts[0]);
-    })
-    .then((response) => {
-        // Server response containing the Accounts record and a `related_records` property,
-        // which contains the Contacts record.
-        console.log(response);
-        /*
+let cachedRecords = yield Fixtures.create([Account, Contact]);
+console.log(cachedRecords); // Map containing one Account and one Contact
+let response = yield Fixtures.link(cachedRecords.Accounts[0], 'accounts_contacts', cachedRecords.Contacts[0]);
+// Server response containing the Accounts record and a `related_records` property,
+// which contains the Contacts record.
+console.log(response);
+/*
+{
+    record: {
+        id: '12257c7c-bb40-11e6-afb2-a0937b020fc9',
+        name: 'LinkedAccount',
+        ...
+        _module: 'Accounts'
+    },
+    related_records: [
         {
-            record: {
-                id: '12257c7c-bb40-11e6-afb2-a0937b020fc9',
-                name: 'LinkedAccount',
-                ...
-                _module: 'Accounts'
-            },
-            related_records: [
-                {
-                    id: '12557c7c-bd40-11e6-afb2-a0345b020fc9',
-                    last_name: 'LinkedContact',
-                    ...
-                    _module: 'Contacts'
-                }
-            ]
+            id: '12557c7c-bd40-11e6-afb2-a0345b020fc9',
+            last_name: 'LinkedContact',
+            ...
+            _module: 'Contacts'
         }
-        */
-        return response;
-    });
+    ]
+}
+*/
 ```
 
 <br/>
@@ -263,10 +254,9 @@ let john = Agent.as('Dashboards.John');
 Agents can make HTTP GET, POST, PUT, and DELETE requests against any SugarCRM REST API endpoint. Each request method has a corresponding function, which makes the desired request and returns a JavaScript Promise which resolves to a [Chakram response object][chakram response] corresponding to the server's response to the request:
 
 ```javascript
-john.get('Accounts').then((response) => {
-    console.log('%j', response.response.body);
-    // displays response body
-});
+let response = yield john.get('Accounts');
+console.log('%j', response.response.body);
+// displays response body
 ```
 
 Required user refreshes are handled automatically by an agent. If a request fails with HTTP status 401, the agent's authentication is refreshed and the request is automatically retried. However, each request is only retried once to prevent infinite loops.
@@ -276,71 +266,67 @@ Required user refreshes are handled automatically by an agent. If a request fail
 #### get
 
 ```javascript
-john.get('Accounts').then(response) => {
-    console.log(response.response.body);
-    /*
-    {
-        next_offset: -1,
-        records: [
-            {
-                id: '12257c7c-bb40-11e6-afb2-a0999b020fc9',
-                name: 'Accounts.Samantha',
-                date_entered: '2016-12-05T15:10:53-08:00',
-                date_modified: '2016-12-05T15:10:53-08:00',
-                ...
-                _module: 'Accounts'
-            },
+let response = yield john.get('Accounts');
+console.log(response.response.body);
+/*
+{
+    next_offset: -1,
+    records: [
+        {
+            id: '12257c7c-bb40-11e6-afb2-a0999b020fc9',
+            name: 'Accounts.Samantha',
+            date_entered: '2016-12-05T15:10:53-08:00',
+            date_modified: '2016-12-05T15:10:53-08:00',
             ...
-        ]
-    */
-});
+            _module: 'Accounts'
+        },
+        ...
+    ]
+*/
 ```
 
 #### post
 
 ```javascript
-john.post('Accounts', { name: 'Accounts.Smith' }).then((response) => {
-    console.log(response.response.body);
-    /*
-    {
-        id: '10e42218-bb41-11e6-82c7-a0999b020fc9',
-        name: 'Accounts.Smith',
-        date_entered: '2016-12-05T15:18:00-08:00',
-        date_modified: '2016-12-05T15:18:00-08:00',
-        ...
-    }
-    */
-});
+let response = yield john.post('Accounts', { name: 'Accounts.Smith' });
+console.log(response.response.body);
+/*
+{
+    id: '10e42218-bb41-11e6-82c7-a0999b020fc9',
+    name: 'Accounts.Smith',
+    date_entered: '2016-12-05T15:18:00-08:00',
+    date_modified: '2016-12-05T15:18:00-08:00',
+    ...
+}
+*/
 ```
 
 #### put
 
 ```javascript
 // assuming "id" is the the ID of Accounts.Smith
-john.put('Accounts/' + id, { industry: 'Not For Profit' }).then((response) => {
-    console.log(response.response.body);
-    /*
-    {
-        id: '10e42218-bb41-11e6-82c7-a0999b020fc9',
-        name: 'Accounts.Smith',
-        date_entered: '2016-12-05T15:54:26-08:00',
-        date_modified: '2016-12-05T15:54:27-08:00',
-        industry: 'Not For Profit',
-        ...
-    }
-    */
-});
+let response = yield john.put('Accounts/' + id, { industry: 'Not For Profit' });
+console.log(response.response.body);
+/*
+{
+    id: '10e42218-bb41-11e6-82c7-a0999b020fc9',
+    name: 'Accounts.Smith',
+    date_entered: '2016-12-05T15:54:26-08:00',
+    date_modified: '2016-12-05T15:54:27-08:00',
+    industry: 'Not For Profit',
+    ...
+}
+*/
 ```
 
 #### delete
 
 ```javascript
-john.delete('Accounts' + id).then((response) => {
-    console.log(response.response.body);
-    /*
-    { id: '10e42218-bb41-11e6-82c7-a0999b020fc9' }
-    */
-});
+let response = yield john.delete('Accounts' + id);
+console.log(response.response.body);
+/*
+{ id: '10e42218-bb41-11e6-82c7-a0999b020fc9' }
+*/
 ```
 
 ### Request Arguments
@@ -369,20 +355,18 @@ Agents make requests against the default API version (currently, `v10`) by defau
 let johnV11 = john.on('v11');
 
 // all requests made against API version 11
-johnV11.get('Dashboards').then((response) => {
-    ...
+let response = yield johnV11.get('Dashboards');
+...
 });
-johnV11.get('KBContents').then((response) => {
-    ...
-});
+let response = yield johnV11.get('KBContents');
+...
 ```
 
 Note that the original Agent remains valid and can continue to make requests against the default API version with no additional effort:
 
 ```javascript
-john.get('Notifications').then(response) => {
-    ...
-});
+let response = yield john.get('Notifications')
+...
 ```
 
 ## Thorn.Expect
