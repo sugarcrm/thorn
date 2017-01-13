@@ -90,6 +90,7 @@ console.log(response); // Map containing one account, and one contact
     ]
 }
 */
+
 response = yield Fixtures.create(DashboardsOnly, {module: 'Dashboard'});
 console.log(response);
 /*
@@ -143,6 +144,7 @@ let Contact = {
 
 let cachedRecords = yield Fixtures.create([Account, Contact]);
 console.log(cachedRecords); // Map containing one Account and one Contact
+
 let response = yield Fixtures.link(cachedRecords.Accounts[0], 'accounts_contacts', cachedRecords.Contacts[0]);
 // Server response containing the Accounts record and a `related_records` property,
 // which contains the Contacts record.
@@ -357,7 +359,7 @@ let johnV11 = john.on('v11');
 // all requests made against API version 11
 let response = yield johnV11.get('Dashboards');
 ...
-});
+
 let response = yield johnV11.get('KBContents');
 ...
 ```
