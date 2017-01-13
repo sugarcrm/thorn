@@ -168,7 +168,7 @@ var MetadataHandler = {
                 metadata = this._patchMetadata(metadata);
                 self._metadata = metadata;
                 if (!self._metadata[module]) {
-                    throw new Error('Unrecognized module');
+                    throw new Error('Unrecognized module: ' + module);
                 }
                 return self._metadata[module].fields;
             });
