@@ -17,7 +17,7 @@ var MetadataHandler = {
      * @return {string} Random field value according to type and module.
      */
     generateFieldValue(field) {
-        let val, maxLength, afterDecimal, beforeDecimal, intVal, numVal, denVal;
+        let val, maxLength, afterDecimal, beforeDecimal;
 
         switch (field.type) {
         case 'bool':
@@ -56,7 +56,7 @@ var MetadataHandler = {
             // To avoid JS floating point issues, build string and cast as float
             val = parseFloat(
                 faker.random.number({max: Math.pow(10, beforeDecimal)})
-                + "." +
+                + '.' +
                 faker.random.number({max: Math.pow(10, afterDecimal)})
             );
 
