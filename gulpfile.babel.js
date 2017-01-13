@@ -74,4 +74,4 @@ gulp.task('watch', () => {
     });
 });
 
-gulp.task('default', ['build']);
+gulp.task('default', ['lint', 'build']);
