@@ -111,8 +111,7 @@ var utils = {
             }).then((response) => {
                 options.afterRefresh(response);
 
-                // FIXME THIS SUCKS
-                // have to update parameters after a refresh
+                // FIXME have to update parameters after a refresh
                 let paramIndex = args.length - 1;
                 args[paramIndex].headers['OAuth-Token'] = response.body.access_token;
 
