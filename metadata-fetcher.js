@@ -38,7 +38,7 @@ var MetadataFetcher = {
             .then((response) => {
                 authToken = response.access_token;
 
-                let url = process.env.API_URL + '/rest/' + VERSION + '/metadata?modules';
+                let url = utils.constructUrl(VERSION, 'metadata') + '?modules';
                 let metadataOptions = {
                     headers: {
                         'X-Thorn': 'MetadataFetcher',
