@@ -1,0 +1,11 @@
+{
+  "Users": {
+    "fields": {
+      "user_name": {
+        "name": "user_name",
+        "type": "username",
+        "required": true
+      }
+    }
+  }
+}

@@ -1,3 +1,5 @@
+require('babel-polyfill');
+require('co-mocha');
 describe('Metadata Handler', () => {
     let _ = require('lodash');
     let Meta = require('../dist/metadata-handler.js');
@@ -191,6 +193,46 @@ describe('Metadata Handler', () => {
         describe('names', () => {
             it('should return a string', () => {
                 expect(Meta.generateFieldValue({type: 'name'})).to.be.a.string;
+            });
+        });
+    });
+    describe('Getting Users fields', () => {
+        let Meta = require('../dist/metadata-handler.js');
+        afterEach(() => {
+            Meta.clearCachedMetadata();
+        });
+
+        describe('when there is a Users module but no user_hash', () => {
+            it('should generate Users.user_hash', function*() {
+                process.env.METADATA_FILE = '../tests/fixtures/metadata-handler/user-module-only.json';
+                let metadata = yield Meta.getRequiredFields('Users');
+                let expected = {
+                    name: 'user_hash',
+                    type: 'password',
+                };
+                expect(metadata.user_hash).to.eql(expected);
+            });
+        });
+
+        describe('when there is a Users module and a user_hash', () => {
+            it('should not Users.user_hash', function*() {
+                process.env.METADATA_FILE = '../tests/fixtures/metadata-handler/user-module-hash.json';
+                let metadata = yield Meta.getRequiredFields('Users');
+                let expected = {
+                    name: 'user_hash',
+                    type: 'password',
+                    required: true,
+                    test: 'abc123',
+                };
+                expect(metadata.user_hash).to.eql(expected);
+            });
+        });
+
+        describe('when there is no Users module', () => {
+            it('should not create a Users module', function*() {
+                process.env.METADATA_FILE = '../tests/fixtures/metadata-handler/no-user-module.json';
+                let metadata = yield Meta.getRequiredFields('Notusers');
+                expect(metadata.Users).to.be.undefined;
             });
         });
     });

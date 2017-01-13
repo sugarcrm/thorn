@@ -1,0 +1,11 @@
+{
+  "Notusers": {
+    "fields": {
+      "notuser_name": {
+        "name": "notuser_name",
+        "type": "username",
+        "required": true
+      }
+    }
+  }
+}
