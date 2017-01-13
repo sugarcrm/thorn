@@ -69,7 +69,7 @@ describe('Metadata Fetcher', () => {
 
         it('should return formatted metadata retrieved from the server', function*() {
             let metadata = yield MetadataFetcher.fetch();
-            expect(metadata).eql(expected);
+            expect(metadata).to.eql(expected);
         });
     });
 

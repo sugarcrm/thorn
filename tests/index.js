@@ -312,7 +312,7 @@ describe('Thorn', () => {
 
             it('should retry fixture creation and linking on 401\'s', () => {});
 
-            describe('with pre-existing records', function() {
+            describe('with pre-existing records', () => {
                 let records, left, right;
                 let linkTestId1Regex = /TestId1\/link$/;
 
