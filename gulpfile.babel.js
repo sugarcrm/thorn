@@ -24,7 +24,7 @@ gulp.task('test', ['build'], () => {
     var path = commander.path || process.env.WORKSPACE || os.tmpdir();
 
     var options = {
-        timeout: '5000'
+        timeout: '5000',
     };
     if (commander.ci) {
         var testResultPath = path + '/test-results.xml';
@@ -34,7 +34,7 @@ gulp.task('test', ['build'], () => {
     }
     if (commander.coverage) {
         options.istanbul = {
-            dir: path + '/coverage'
+            dir: path + '/coverage',
         };
     }
 

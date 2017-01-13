@@ -49,7 +49,7 @@ describe('Thorn', () => {
 
     const ACCESS = {
         access_token: 'Test-Access-Token',
-        refresh_token: 'Test-Refresh-Token'
+        refresh_token: 'Test-Refresh-Token',
     };
 
     function constructBulkResponse(responses) {
@@ -61,7 +61,7 @@ describe('Thorn', () => {
         _.each(responses, (response) => {
             bulkResponseWrapper.push({
                 contents: response,
-                status: 200
+                status: 200,
             });
         });
 
@@ -90,8 +90,8 @@ describe('Thorn', () => {
                     attributes: {
                         name: 'TestRecord1',
                         testField1: 'TestField1data',
-                        testField2: 'TestField2data'
-                    }
+                        testField2: 'TestField2data',
+                    },
                 }];
             });
 
@@ -112,7 +112,7 @@ describe('Thorn', () => {
                             id: 'TestId1',
                             name: 'TestRecord1',
                             testField1: 'TestField1data',
-                            testField2: 'TestField2data'
+                            testField2: 'TestField2data',
                         });
                     });
                 let createPromise = Fixtures.create(myFixture);
@@ -140,7 +140,7 @@ describe('Thorn', () => {
                             id: 'TestId1',
                             name: 'TestRecord1',
                             testField1: 'TestField1data',
-                            testField2: 'TestField2data'
+                            testField2: 'TestField2data',
                         });
                     });
                 let createPromise = Fixtures.create(fixtureWithoutModule, {module: 'TestModule2'});
@@ -161,7 +161,7 @@ describe('Thorn', () => {
                             id: 'TestId1',
                             name: 'TestRecord1',
                             testField1: 'TestField1data',
-                            testField2: 'TestField2data'
+                            testField2: 'TestField2data',
                         });
                     });
 
@@ -200,7 +200,7 @@ describe('Thorn', () => {
                             id: 'TestId1',
                             name: 'TestRecord1',
                             testField1: 'TestField1data',
-                            testField2: 'TestField2data'
+                            testField2: 'TestField2data',
                         });
                     });
 
@@ -226,24 +226,24 @@ describe('Thorn', () => {
             let record1 = {
                 attributes: {
                     name: 'TestRecord1',
-                    testField1: 'TestField1data1'
-                }
+                    testField1: 'TestField1data1',
+                },
             };
             let record2 = {
                 attributes: {
                     name: 'TestRecord2',
-                    testField1: 'TestField1data2'
-                }
+                    testField1: 'TestField1data2',
+                },
             };
             let contents1 = {
                 _module: 'TestModule1',
                 name: 'TestRecord1',
-                testField1: 'TestField1data1'
+                testField1: 'TestField1data1',
             };
             let contents2 = {
                 _module: 'TestModule1',
                 name: 'TestRecord2',
-                testField1: 'TestField1data2'
+                testField1: 'TestField1data2',
             };
             nock(serverUrl)
                 .post(isTokenReq)
@@ -282,30 +282,30 @@ describe('Thorn', () => {
                 attributes: {
                     name: 'TestRecord1',
                     testField1: 'TestField1data1',
-                    testField2: 'TestField2data1'
-                }
+                    testField2: 'TestField2data1',
+                },
             };
             const RIGHT_FIXTURE = {
                 module: 'TestModule2',
                 attributes: {
                     name: 'TestRecord2',
                     testField1: 'TestField1data2',
-                    testField2: 'TestField2data2'
-                }
+                    testField2: 'TestField2data2',
+                },
             };
             const LEFT_RESPONSE = {
                 _module: 'TestModule1',
                 id: 'TestId1',
                 name: 'TestRecord1',
                 testField1: 'TestField1data1',
-                testField2: 'TestField2data1'
+                testField2: 'TestField2data1',
             };
             const RIGHT_RESPONSE = {
                 _module: 'TestModule2',
                 id: 'TestId2',
                 name: 'TestRecord2',
                 testField1: 'TestField1data2',
-                testField2: 'TestField2data2'
+                testField2: 'TestField2data2',
             };
 
             it('should create fixtures and link them', () => {});
@@ -324,7 +324,7 @@ describe('Thorn', () => {
                         .reply(200, function() {
                             return constructBulkResponse([
                                 LEFT_RESPONSE,
-                                RIGHT_RESPONSE
+                                RIGHT_RESPONSE,
                             ]);
                         });
 
@@ -344,7 +344,7 @@ describe('Thorn', () => {
                             expect(requestBody.ids[0]).to.equal('TestId2');
                             return {
                                 record: LEFT_RESPONSE,
-                                relatedRecords: [RIGHT_RESPONSE]
+                                relatedRecords: [RIGHT_RESPONSE],
                             };
                         });
 
@@ -369,7 +369,7 @@ describe('Thorn', () => {
                         .reply(200, function(uri, requestBody) {
                             return {
                                 record: LEFT_RESPONSE,
-                                relatedRecords: [RIGHT_RESPONSE]
+                                relatedRecords: [RIGHT_RESPONSE],
                             };
                         });
 
@@ -400,22 +400,22 @@ describe('Thorn', () => {
                         module: 'TestModule1',
                         attributes: {
                             name: 'TestRecord1',
-                            testField1: 'TestField1data1'
-                        }
+                            testField1: 'TestField1data1',
+                        },
                     };
                     let record2 = {
                         module: 'TestModule1',
                         attributes: {
                             name: 'TestRecord2',
-                            testField1: 'TestField1data2'
-                        }
+                            testField1: 'TestField1data2',
+                        },
                     };
                     let record3 = {
                         module: 'TestModule2',
                         attributes: {
                             name: 'TestRecord3',
-                            testField2: 'TestField2data'
-                        }
+                            testField2: 'TestField2data',
+                        },
                     };
                     let bigFixture = [record1, record2, record3];
                     nock(serverUrl)
@@ -428,20 +428,20 @@ describe('Thorn', () => {
                                     _module: 'TestModule1',
                                     name: 'TestRecord1',
                                     testField1: 'TestField1data1',
-                                    id: 'TestId1'
+                                    id: 'TestId1',
                                 },
                                 {
                                     _module: 'TestModule1',
                                     name: 'TestRecord2',
                                     testField1: 'TestField1data2',
-                                    id: 'TestId2'
+                                    id: 'TestId2',
                                 },
                                 {
                                     _module: 'TestModule2',
                                     name: 'TestRecord3',
                                     testField2: 'TestField2data',
-                                    id: 'TestId3'
-                                }
+                                    id: 'TestId3',
+                                },
                             ]);
                         });
 
@@ -469,7 +469,7 @@ describe('Thorn', () => {
                             return constructBulkResponse([
                                 {id: 'TestId1'},
                                 {id: 'TestId2'},
-                                {id: 'TestId3'}
+                                {id: 'TestId3'},
                             ]);
                         });
 
@@ -496,7 +496,7 @@ describe('Thorn', () => {
                             return constructBulkResponse([
                                 {id: 'TestId1'},
                                 {id: 'TestId2'},
-                                {id: 'TestId3'}
+                                {id: 'TestId3'},
                             ]);
                         });
 
@@ -573,7 +573,7 @@ describe('Thorn', () => {
 
             it('should send POST request', () => {
                 let data = {
-                    myField: 'myValue'
+                    myField: 'myValue',
                 };
                 nock(serverUrl)
                     .post(isNotRealEndpoint)
@@ -592,7 +592,7 @@ describe('Thorn', () => {
 
             it('should send PUT request', () => {
                 let data = {
-                    myField: 'myUpdatedValue'
+                    myField: 'myUpdatedValue',
                 };
                 nock(serverUrl)
                     .put(isNotRealEndpoint)
@@ -611,7 +611,7 @@ describe('Thorn', () => {
 
             it('should send DELETE request', () => {
                 let data = {
-                    myField: 'myValue'
+                    myField: 'myValue',
                 };
                 nock(serverUrl)
                     .delete(isNotRealEndpoint)

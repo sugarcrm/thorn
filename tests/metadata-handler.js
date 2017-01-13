@@ -32,7 +32,7 @@ describe('Metadata Handler', () => {
             it('should return a string of maximum length', () => {
                 let field = {
                     type: 'varchar',
-                    len: 15
+                    len: 15,
                 };
                 let value = Meta.generateFieldValue(field);
                 expect(value).to.be.a.string;
@@ -56,7 +56,7 @@ describe('Metadata Handler', () => {
             it('should return a string of specified length', () => {
                 let field = {
                     type: 'char',
-                    len: 15
+                    len: 15,
                 };
                 let value = Meta.generateFieldValue(field);
                 expect(value).to.be.a.string;
@@ -103,7 +103,7 @@ describe('Metadata Handler', () => {
             it('should support a maximum length', () => {
                 let field = {
                     type: 'url',
-                    len: 12
+                    len: 12,
                 };
                 let value = Meta.generateFieldValue(field);
                 expect(value.length).to.be.at.most(field.len);
@@ -128,7 +128,7 @@ describe('Metadata Handler', () => {
             it('should support a maximum length', () => {
                 let field = {
                     type: 'phone',
-                    len: 7
+                    len: 7,
                 };
                 let value = Meta.generateFieldValue(field);
                 expect(value).to.be.a.string;

@@ -151,7 +151,7 @@ var MetadataHandler = {
      */
     clearCachedMetadata() {
         this._metadata = null;
-    }
+    },
 };
 
 module.exports = MetadataHandler;

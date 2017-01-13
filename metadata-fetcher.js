@@ -29,7 +29,7 @@ var MetadataFetcher = {
             username: process.env.ADMIN_USERNAME,
             password: process.env.ADMIN_PASSWORD,
             version: VERSION,
-            xthorn: 'MetadataFetcher'
+            xthorn: 'MetadataFetcher',
         };
 
         let self = this;
@@ -42,7 +42,7 @@ var MetadataFetcher = {
                 let metadataOptions = {
                     headers: {
                         'X-Thorn': 'MetadataFetcher',
-                        'OAuth-Token': authToken
+                        'OAuth-Token': authToken,
                     },
                 };
                 // Make request for metadata
@@ -87,7 +87,7 @@ var MetadataFetcher = {
             }
         });
         return filteredFields;
-    }
+    },
 };
 
 module.exports = MetadataFetcher;
