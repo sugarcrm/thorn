@@ -121,6 +121,7 @@ var MetadataHandler = {
      * @return {number[]} The maximum number of digits expected on
      *     either end of the decimal point.
      * @see https://msdn.microsoft.com/en-us/library/ms187746.aspx
+     *
      * @private
      */
     _parsePrecision(prec) {
@@ -189,6 +190,8 @@ var MetadataHandler = {
      *
      * @param {Object} metadata The metadata to patch.
      * @return {Object} The patched metadata.
+     *
+     * @private
      */
     _patchMetadata(metadata) {
         // When we want to log in with a created user, the user_hash
