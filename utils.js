@@ -77,7 +77,8 @@ var utils = {
     },
 
     /**
-     * Tries a request. If it fails because of HTTP 401, do a refresh and then try again.
+     * Tries a request. If it fails because of HTTP 401, do a refresh and then
+     * try again. If it fails because of HTTP 500, throw an error.
      *
      * @param {function} chakramMethod Chakram request method to call.
      * @param {array} args Arguments to call the chakram request method with.
@@ -93,11 +94,15 @@ var utils = {
      *   If the first try failed, it will resolve to the result of the second,
      *   whether it succeeded or not.
      */
-    wrap401: function wrap401(chakramMethod, args, options) {
+    wrapRequest: function wrapRequest(chakramMethod, args, options) {
         let retryVersion = options.retryVersion;
         return chakramMethod.apply(chakram, args).then((response) => {
             if (!response || !response.response) {
                 throw new Error('Invalid response received!');
+            }
+
+            if (response.response.statusCode === 500) {
+                throw new Error('Internal server error!');
             }
 
             if (response.response.statusCode !== 401) {
