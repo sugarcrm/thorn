@@ -1,3 +1,5 @@
+require('babel-polyfill');
+require('co-mocha');
 describe('Thorn', () => {
     let _ = require('lodash');
     let nock = require('nock');
@@ -148,7 +150,7 @@ describe('Thorn', () => {
                 return createPromise;
             });
 
-            it('should create a fixture and find it', (done) => {
+            it('should create a fixture and find it', function*() {
                 nock(serverUrl)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
@@ -163,19 +165,16 @@ describe('Thorn', () => {
                         });
                     });
 
-                let createPromise = Fixtures.create(myFixture);
-                createPromise.then(() => {
-                    let lookup1 = Fixtures.lookup('TestModule1', {name: 'TestRecord1'});
-                    expect(lookup1.name).to.equal('TestRecord1');
-                    expect(lookup1.testField1).to.equal('TestField1data');
-                    expect(lookup1.testField2).to.equal('TestField2data');
+                yield Fixtures.create(myFixture);
+                let lookup1 = Fixtures.lookup('TestModule1', {name: 'TestRecord1'});
+                expect(lookup1.name).to.equal('TestRecord1');
+                expect(lookup1.testField1).to.equal('TestField1data');
+                expect(lookup1.testField2).to.equal('TestField2data');
 
-                    let lookup2 = Fixtures.lookup('TestModule1', {testField1: 'TestField1data'});
-                    let lookup3 = Fixtures.lookup('TestModule1', {testField2: 'TestField2data'});
-                    expect(lookup1 == lookup2).to.be.true;
-                    expect(lookup1 == lookup3).to.be.true;
-                    done();
-                });
+                let lookup2 = Fixtures.lookup('TestModule1', {testField1: 'TestField1data'});
+                let lookup3 = Fixtures.lookup('TestModule1', {testField2: 'TestField2data'});
+                expect(lookup1 == lookup2).to.be.true;
+                expect(lookup1 == lookup3).to.be.true;
             });
 
             it('should retry fixture creation on 401\'s', () => {
@@ -223,7 +222,7 @@ describe('Thorn', () => {
             });
         });
 
-        it('should create multiple fixtures', () => {
+        it('should create multiple fixtures', function*() {
             let record1 = {
                 attributes: {
                     name: 'TestRecord1',
@@ -270,14 +269,11 @@ describe('Thorn', () => {
                     ]);
                 });
             let myFixture = [record1, record2];
-            let createPromise = Fixtures.create(myFixture, {module: 'TestModule1'}).then((records) => {
-                let testModuleRecords = records.TestModule1;
-                expect(testModuleRecords.length).to.equal(2);
-                expect(testModuleRecords[0]).to.eql(contents1);
-                expect(testModuleRecords[1]).to.eql(contents2);
-            });
-            expect(isPromise(createPromise)).to.be.true;
-            return createPromise;
+            let records = yield Fixtures.create(myFixture, {module: 'TestModule1'});
+            let testModuleRecords = records.TestModule1;
+            expect(testModuleRecords.length).to.equal(2);
+            expect(testModuleRecords[0]).to.eql(contents1);
+            expect(testModuleRecords[1]).to.eql(contents2);
         });
 
         describe('linking', () => {
@@ -316,11 +312,11 @@ describe('Thorn', () => {
 
             it('should retry fixture creation and linking on 401\'s', () => {});
 
-            describe('with pre-existing records', () => {
+            describe('with pre-existing records', function() {
                 let records, left, right;
                 let linkTestId1Regex = /TestId1\/link$/;
 
-                beforeEach(() => {
+                beforeEach(function*() {
                     nock(serverUrl)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
@@ -332,11 +328,10 @@ describe('Thorn', () => {
                             ]);
                         });
 
-                    return Fixtures.create([LEFT_FIXTURE, RIGHT_FIXTURE]).then((response) => {
-                        records = response;
-                        left = records.TestModule1[0];
-                        right = records.TestModule2[0];
-                    });
+                    let response = yield Fixtures.create([LEFT_FIXTURE, RIGHT_FIXTURE]);
+                    records = response;
+                    left = records.TestModule1[0];
+                    right = records.TestModule2[0];
                 });
 
                 it('should link fixtures', () => {
@@ -453,7 +448,7 @@ describe('Thorn', () => {
                     return Fixtures.create(bigFixture);
                 });
 
-                it('should clean up after itself when you call cleanup', () => {
+                it('should clean up after itself when you call cleanup', function*() {
 
                     nock(serverUrl)
                         .post(isBulk, function(requestBody) {
@@ -478,13 +473,8 @@ describe('Thorn', () => {
                             ]);
                         });
 
-                    return Fixtures.cleanup().then(() => {
-                        try {
-                            Fixtures.lookup();
-                        } catch (e) {
-                            return expect(e.message).to.equal('No cached records are currently available!');
-                        }
-                    });
+                    yield Fixtures.cleanup();
+                    expect(Fixtures.lookup).to.throw('No cached records are currently available!');
                 });
 
                 it('should retry clean up on 401\'s', () => {
