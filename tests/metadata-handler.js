@@ -15,7 +15,7 @@ describe('Metadata Handler', () => {
                     'link',
                     'relate',
                     'team_list',
-                    'username'
+                    'username',
                 ];
                 _.each(types, (type) => {
                     let msg = 'Fields of type ' + type + ' are not supported. Please define them manually.';
@@ -50,7 +50,7 @@ describe('Metadata Handler', () => {
             it('should not generate strings longer than 30', () => {
                 let field = {
                     type: 'varchar',
-                    len: 255
+                    len: 255,
                 };
                 let value = Meta.generateFieldValue(field);
                 expect(value).to.have.lengthOf(30);

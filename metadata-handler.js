@@ -203,7 +203,7 @@ var MetadataHandler = {
         // to the User metadata is no longer necessary.
         let userHash = {
             name: 'user_hash',
-            type: 'password'
+            type: 'password',
         };
 
         if (metadata.Users) {
@@ -215,7 +215,7 @@ var MetadataHandler = {
         }
 
         return metadata;
-    }
+    },
 };
 
 module.exports = MetadataHandler;
