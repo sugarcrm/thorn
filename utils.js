@@ -26,7 +26,7 @@ var utils = {
         return [
             ROOT_URL,
             version,
-            endpoint
+            endpoint,
         ].join('/');
     },
 
@@ -47,10 +47,10 @@ var utils = {
                 password: options.password,
                 grant_type: 'password',
                 client_id: 'sugar',
-                client_secret: ''
+                client_secret: '',
             },
             version: options.version,
-            xthorn: options.xthorn
+            xthorn: options.xthorn,
         });
     },
 
@@ -69,10 +69,10 @@ var utils = {
                 grant_type: 'refresh_token',
                 refresh_token: options.token,
                 client_id: 'sugar',
-                client_secret: ''
+                client_secret: '',
             },
             version: options.version,
-            xthorn: options.xthorn
+            xthorn: options.xthorn,
         });
     },
 
@@ -107,7 +107,7 @@ var utils = {
             return utils.refresh({
                 version: retryVersion,
                 token: options.refreshToken,
-                xthorn: options.xthorn
+                xthorn: options.xthorn,
             }).then((response) => {
                 options.afterRefresh(response);
 
@@ -136,10 +136,10 @@ var utils = {
         let url = utils.constructUrl(options.version, 'oauth2/token');
         return chakram.post(url, options.credentials, {
             headers: {
-                'X-Thorn': options.xthorn
-            }
+                'X-Thorn': options.xthorn,
+            },
         });
-    }
+    },
 };
 
 module.exports = utils;

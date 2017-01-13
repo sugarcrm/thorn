@@ -20,18 +20,18 @@ describe('Metadata Fetcher', () => {
             fields: {
                 'field1.1': {
                     name: 'field1.1',
-                    required: true
-                }
-            }
+                    required: true,
+                },
+            },
         },
         Module2: {
             fields: {
                 'field2.1': {
                     name: 'field2.1',
-                    required: true
-                }
-            }
-        }
+                    required: true,
+                },
+            },
+        },
     };
 
     before(() => {
@@ -94,7 +94,7 @@ describe('Metadata Fetcher', () => {
                 .reply(200);
             return Promise.all([
                 MetadataFetcher.fetch(),
-                MetadataFetcher.fetch()
+                MetadataFetcher.fetch(),
             ]);
         });
 

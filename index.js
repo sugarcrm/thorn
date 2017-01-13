@@ -83,7 +83,7 @@ function _insertCredentials(username, userhash) {
 function _restore() {
     cachedRecords = {};
     credentials = {
-        [process.env.ADMIN_USERNAME]: process.env.ADMIN_PASSWORD
+        [process.env.ADMIN_USERNAME]: process.env.ADMIN_PASSWORD,
     };
 }
 
@@ -126,7 +126,7 @@ let Fixtures = {
      */
     _headers: {
         'Content-Type': 'application/json',
-        'X-Thorn': 'Fixtures'
+        'X-Thorn': 'Fixtures',
     },
 
     /**
@@ -171,7 +171,7 @@ let Fixtures = {
                 refreshToken: this._refreshToken,
                 afterRefresh: _.bind(this._afterRefresh, this),
                 xthorn: 'Fixtures',
-                retryVersion: VERSION
+                retryVersion: VERSION,
             }).then((response) => {
                 createdRecords = this._cacheResponse(response, models);
                 bulkRecordLinkDef = this._processLinks(response, models);
@@ -263,8 +263,8 @@ let Fixtures = {
                         method: 'POST',
                         data: {
                             link_name: linkToModule,
-                            ids: [cachedRecord.id]
-                        }
+                            ids: [cachedRecord.id],
+                        },
                     };
 
                     bulkRecordLinkDef.requests.push(request);
@@ -297,7 +297,7 @@ let Fixtures = {
             let request = {
                 url: '/' + VERSION + '/' + model.module,
                 method: 'POST',
-                data: model.attributes || {}
+                data: model.attributes || {},
             };
 
             if (!model.module) {
@@ -364,7 +364,7 @@ let Fixtures = {
             _.each(moduleRecords, (record) => {
                 bulkRecordDeleteDef.requests.push({
                     url: '/' + VERSION + '/' + module + '/' + record.id,
-                    method: 'DELETE'
+                    method: 'DELETE',
                 });
             });
         });
@@ -374,7 +374,7 @@ let Fixtures = {
             refreshToken: this._refreshToken,
             afterRefresh: _.bind(this._afterRefresh, this),
             xthorn: 'Fixtures',
-            retryVersion: VERSION
+            retryVersion: VERSION,
         }).then((response) => {
             _restore();
             return response;
@@ -416,7 +416,7 @@ let Fixtures = {
         let params = {headers: this._headers};
         let linkDef = {
             link_name: linkName,
-            ids: [right.id]
+            ids: [right.id],
         };
 
         return utils.wrap401(
@@ -426,7 +426,7 @@ let Fixtures = {
                 afterRefresh: _.bind(this._afterRefresh, this),
                 refreshToken: this._refreshToken,
                 retryVersion: VERSION,
-                xthorn: 'Fixtures'
+                xthorn: 'Fixtures',
             }
         ).then((response) => {
             return response.response.body;
@@ -457,7 +457,7 @@ let Fixtures = {
             username: process.env.ADMIN_USERNAME,
             password: process.env.ADMIN_PASSWORD,
             version: VERSION,
-            xthorn: 'Fixtures'
+            xthorn: 'Fixtures',
         }).then((response) => {
             if (response.response.statusCode === 200) {
                 this._storeAuth(response);
@@ -475,7 +475,7 @@ let Fixtures = {
     _afterRefresh(response) {
         this._headers['OAuth-Token'] = response.body.access_token;
         this._refreshToken = response.body.refresh_token;
-    }
+    },
 };
 
 // ********************************************************************************************************************
@@ -518,7 +518,7 @@ var Agent = {
         return agent;
     },
 
-    ADMIN: process.env.ADMIN_USERNAME
+    ADMIN: process.env.ADMIN_USERNAME,
 };
 
 Object.freeze(Agent);
@@ -576,7 +576,7 @@ class UserAgent {
             username: this.username,
             password: this.password,
             version: this.version,
-            xthorn: 'Agent'
+            xthorn: 'Agent',
         }).then(this._updateAuthState));
     };
 
@@ -605,7 +605,7 @@ class UserAgent {
                 refreshToken: this._getState('refreshToken'),
                 afterRefresh: _.bind(this._updateAuthState, this),
                 xthorn: 'Agent',
-                retryVersion: this.version
+                retryVersion: this.version,
             });
         });
     };
@@ -635,9 +635,9 @@ class UserAgent {
                 _state: {
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Thorn': 'Agent'
-                    }
-                }
+                        'X-Thorn': 'Agent',
+                    },
+                },
             };
         }
 

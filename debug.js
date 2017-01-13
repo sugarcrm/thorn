@@ -57,7 +57,7 @@ const VERBOSE_FUNCTIONS = [
                 break;
             }
         }
-    }
+    },
 ];
 
 export { VERBOSE_FUNCTIONS };
