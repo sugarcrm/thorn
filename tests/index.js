@@ -137,6 +137,7 @@ describe('Thorn', () => {
                         expect(requestBody.requests[0].data.testField1).to.equal('TestField1data');
                         expect(requestBody.requests[0].data.testField2).to.equal('TestField2data');
                         return constructBulkResponse({
+                            _module: 'TestModule1',
                             id: 'TestId1',
                             name: 'TestRecord1',
                             testField1: 'TestField1data',
