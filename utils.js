@@ -111,7 +111,9 @@ var utils = {
             }).then((response) => {
                 options.afterRefresh(response);
 
-                // FIXME have to update parameters after a refresh
+                // FIXME Currently, we have to update the HTTP parameters after the refresh
+                // to include the OAuth Token.
+                // Ideally, we would not have to mess with the parameters.
                 let paramIndex = args.length - 1;
                 args[paramIndex].headers['OAuth-Token'] = response.body.access_token;
 
