@@ -380,7 +380,6 @@ describe('Thorn', () => {
         });
 
         describe('cleanup', () => {
-
             it('should retry clean up until maximum login attempts are reached', () => {
                 nock(serverUrl)
                     .post(isTokenReq)
@@ -450,7 +449,6 @@ describe('Thorn', () => {
                 });
 
                 it('should clean up after itself when you call cleanup', function*() {
-
                     nock(serverUrl)
                         .post(isBulk, function(requestBody) {
                             let requests = requestBody.requests;
