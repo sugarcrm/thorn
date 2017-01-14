@@ -97,8 +97,8 @@ describe('Metadata Fetcher', () => {
                 MetadataFetcher.fetch(),
             ]);
         });
-
     });
+
     describe('integration with metadata-helper', () => {
         beforeEach(() => {
             nock(process.env.API_URL)
@@ -120,5 +120,4 @@ describe('Metadata Fetcher', () => {
             expect(metadata).eql(expected.Module1.fields);
         });
     });
-
 });
