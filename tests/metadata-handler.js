@@ -231,8 +231,13 @@ describe('Metadata Handler', () => {
         describe('when there is no Users module', () => {
             it('should not create a Users module', function*() {
                 process.env.METADATA_FILE = '../tests/fixtures/metadata-handler/no-user-module.json';
-                let metadata = yield Meta.getRequiredFields('Notusers');
-                expect(metadata.Users).to.be.undefined;
+                let errorMsg;
+                try {
+                    yield Meta.getRequiredFields('Users');
+                } catch(e) {
+                    errorMsg = e.message;
+                }
+                expect(errorMsg).to.eql('Unrecognized module: Users');
             });
         });
     });
