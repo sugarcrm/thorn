@@ -1,8 +1,8 @@
 {
-  "Notusers": {
+  "TestModule": {
     "fields": {
-      "notuser_name": {
-        "name": "notuser_name",
+      "test_user": {
+        "name": "test_user",
         "type": "username",
         "required": true
       }

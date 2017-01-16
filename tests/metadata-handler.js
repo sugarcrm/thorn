@@ -196,15 +196,16 @@ describe('Metadata Handler', () => {
             });
         });
     });
+
     describe('Getting Users fields', () => {
         let Meta = require('../dist/metadata-handler.js');
         afterEach(() => {
             Meta.clearCachedMetadata();
         });
 
-        describe('when there is a Users module but no user_hash', () => {
-            it('should generate Users.user_hash', function*() {
-                process.env.METADATA_FILE = __dirname + '/fixtures/metadata-handler/user-module-only.json';
+        describe('when the Users module is defined', () => {
+            it('should generate a missing Users.user_hash field definition', function*() {
+                process.env.METADATA_FILE = __dirname + '/fixtures/metadata-handler/users-module-only-without-user-hash.json';
                 let metadata = yield Meta.getRequiredFields('Users');
                 let expected = {
                     name: 'user_hash',
@@ -212,11 +213,9 @@ describe('Metadata Handler', () => {
                 };
                 expect(metadata.user_hash).to.eql(expected);
             });
-        });
 
-        describe('when there is a Users module and a user_hash', () => {
-            it('should not Users.user_hash', function*() {
-                process.env.METADATA_FILE = __dirname + '/fixtures/metadata-handler/user-module-hash.json';
+            it('should preserve a pre-existing Users.user_hash field definition', function*() {
+                process.env.METADATA_FILE = __dirname + '/fixtures/metadata-handler/users-module-only-with-user-hash.json';
                 let metadata = yield Meta.getRequiredFields('Users');
                 let expected = {
                     name: 'user_hash',
@@ -228,9 +227,9 @@ describe('Metadata Handler', () => {
             });
         });
 
-        describe('when there is no Users module', () => {
-            it('should not create a Users module', function*() {
-                process.env.METADATA_FILE = __dirname + '/fixtures/metadata-handler/no-user-module.json';
+        describe('when the Users module is not defined', () => {
+            it('should not create metadata for a Users module', function*() {
+                process.env.METADATA_FILE = __dirname + '/fixtures/metadata-handler/random-module.json';
                 let errorMsg;
                 try {
                     yield Meta.getRequiredFields('Users');
