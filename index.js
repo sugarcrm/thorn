@@ -134,7 +134,8 @@ let Fixtures = {
     },
 
     /**
-     * Using the supplied models, create records and links on the server cache those records locally.
+     * Using the supplied models, create records and links on the server
+     * and cache those records locally.
      *
      * @param {Object|Object[]} models An object or array of objects.
      *   Each object contains a list of attributes for each new model.
@@ -197,7 +198,7 @@ let Fixtures = {
      * @param {Object[]} models An array of objects, each containing a list of
      *   attributes for each new model.
      *
-     * @return {Object} Map between module names and created records from the `response`.
+     * @return {Object} Map between module names and created records from the response.
      *
      * @private
      */
@@ -287,7 +288,8 @@ let Fixtures = {
      * @param {Object} [options] Additional information about `models`.
      * @param {string} [options.module] The module of all models (if not specified in the models' object).
      *
-     * @return {Promise} Promise that resolves to bulk call object for record creation.
+     * @return {ChakramPromise} Promise that resolves to the bulk call object
+     *   for record creation.
      *
      * @private
      */
@@ -386,12 +388,12 @@ let Fixtures = {
     },
 
     /**
-     * Mimics _.find and using the supplied arguments, returns the cached record.
+     * Mimics `_.find` and using the supplied arguments, returns the cached record.
      *
      * @param {string} module The module of the record to find.
      * @param {Object} properties The properties to search for.
      *
-     * @return {Object} The first record in `cachedRecords` that match properties.
+     * @return {Object} The first record in `cachedRecords` that matches `properties`.
      */
     lookup(module, properties) {
         if (_.isEmpty(cachedRecords)) {
@@ -413,7 +415,7 @@ let Fixtures = {
      * @param {string} linkName Relationship link name.
      * @param {Object} right Record retrieved from cache.
      *
-     * @return {Promise} ChakramPromise
+     * @return {ChakramPromise} The result of the request to link the records.
      */
     link(left, linkName, right) {
         let url = process.env.API_URL + '/' + VERSION + '/' + left._module + '/' + left.id + '/link';
@@ -452,7 +454,7 @@ let Fixtures = {
     /**
      * Logs in as the admin user.
      *
-     * @return {Promise} ChakramPromise
+     * @return {ChakramPromise} The result of the login request.
      *
      * @private
      */
@@ -472,7 +474,7 @@ let Fixtures = {
     /**
      * Callback to be performed after a refresh.
      *
-     * @param {object} response Chakram refresh response.
+     * @param {Object} response Chakram refresh response.
      *
      * @private
      */
@@ -493,16 +495,16 @@ let Fixtures = {
 let cachedAgents = {};
 
 /**
- * Namespace for UserAgent access methods.
+ * Namespace for `UserAgent` access methods.
  * @namespace
  * @property {string} ADMIN Username for the SugarCRM administrative user.
  */
 var Agent = {
     /**
-     * Return a UserAgent with the given user name and log them in.
+     * Return a `UserAgent` with the given user name and log them in.
      *
      * @param {string} username Username of the user agent.
-     * @return {UserAgent} A UserAgent corresponding to the user with the given username.
+     * @return {UserAgent} A `UserAgent` corresponding to the user with the given username.
      */
     as: (username) => {
         if (!username) {
@@ -552,7 +554,7 @@ class UserAgent {
      * one.
      *
      * @param {string} version API version to use.
-     * @return {Agent} A UserAgent set to use the given API version.
+     * @return {UserAgent} A `UserAgent` set to use the given API version.
      */
     on(version) {
         if (version === this.version) {
@@ -618,7 +620,7 @@ class UserAgent {
     /**
      * Callback to be performed after a login or refresh.
      *
-     * @param {object} response Chakram login/refresh response.
+     * @param {Object} response Chakram login/refresh response.
      *
      * @private
      */
@@ -656,7 +658,7 @@ class UserAgent {
      * Retrieve shared state for this UserAgent.
      *
      * @param {string} key State parameter to receive.
-     * @return {*} The value of the specified shared state parameter.
+     * @return {Mixed} The value of the specified shared state parameter.
      *
      * @private
      */
@@ -668,7 +670,7 @@ class UserAgent {
      * Set shared state for this UserAgent.
      *
      * @param {string} key State parameter to update.
-     * @param {*} value Value to set it to.
+     * @param {Mixed} value The value to assign to the provided `key`.
      *
      * @private
      */
