@@ -8,6 +8,7 @@ if (!ROOT_URL) {
     throw new Error('Please set process.env.API_URL!');
 }
 
+let _ = require('lodash');
 let chakram = require('chakram');
 
 /**
@@ -16,18 +17,17 @@ let chakram = require('chakram');
  */
 var utils = {
     /**
-     * Return the URL needed to access the given endpoint.
+     * Construct a URL relative to the base URL.
+     * Each argument is joined with a `/`.
      *
-     * @param {string} version API version to make the request against.
-     * @param {string} endpoint API endpoint to access.
-     * @return {string} The full URL to access that endpoint.
+     * @param {...string} pathParts URL path component.
+     * @return {string} The full URL.
      */
-    constructUrl: function constructUrl(version, endpoint) {
-        return [
+    constructUrl: function constructUrl(...pathParts) {
+        return _.flatten([
             ROOT_URL,
-            version,
-            endpoint,
-        ].join('/');
+            pathParts,
+        ]).join('/');
     },
 
     /**

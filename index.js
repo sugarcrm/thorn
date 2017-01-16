@@ -416,7 +416,7 @@ let Fixtures = {
      * @return {ChakramPromise} The result of the request to link the records.
      */
     link(left, linkName, right) {
-        let url = process.env.API_URL + '/' + VERSION + '/' + left._module + '/' + left.id + '/link';
+        let url = utils.constructUrl(VERSION, left._module, left.id, 'link');
         let params = {headers: this._headers};
         let linkDef = {
             link_name: linkName,
