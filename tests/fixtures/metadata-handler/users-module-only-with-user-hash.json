@@ -1,0 +1,17 @@
+{
+  "Users": {
+    "fields": {
+      "user_name": {
+        "name": "user_name",
+        "type": "username",
+        "required": true
+      },
+      "user_hash": {
+        "name": "user_hash",
+        "type": "password",
+        "required": true,
+        "test": "abc123"
+      }
+    }
+  }
+}

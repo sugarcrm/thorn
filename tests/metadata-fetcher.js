@@ -13,7 +13,7 @@ describe('Metadata Fetcher', () => {
 
     let MetadataHandler = require(metadataHandlerFile);
     let MetadataFetcher = require('../dist/metadata-fetcher.js');
-    let metadata = require('./metadata-fetcher-fixture.json');
+    let metadata = require('./fixtures/metadata-fetcher-fixture.json');
 
     let expected = {
         Module1: {
@@ -117,7 +117,7 @@ describe('Metadata Fetcher', () => {
 
         it('should retrieve metadata from the server', function*() {
             let metadata = yield MetadataHandler.getRequiredFields('Module1');
-            expect(metadata).eql(expected.Module1.fields);
+            expect(metadata).to.eql(expected.Module1.fields);
         });
     });
 });

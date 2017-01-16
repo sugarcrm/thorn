@@ -1,0 +1,11 @@
+{
+  "TestModule": {
+    "fields": {
+      "test_user": {
+        "name": "test_user",
+        "type": "username",
+        "required": true
+      }
+    }
+  }
+}
