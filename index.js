@@ -164,9 +164,7 @@ let Fixtures = {
         let url = utils.constructUrl(VERSION, 'bulk');
         let params = {headers: this._headers};
 
-        return this._processModels(models, options)
-        .then((bulkRecordCreateDef) => {
-
+        return this._processModels(models, options).then((bulkRecordCreateDef) => {
             let bulkRecordLinkDef;
             let createdRecords;
 
@@ -332,8 +330,7 @@ let Fixtures = {
             getRequiredFieldsPromises.push(getRequiredFieldPromise);
         });
 
-        return Promise.all(getRequiredFieldsPromises)
-        .then(() => {
+        return Promise.all(getRequiredFieldsPromises).then(() => {
             return bulkRecordCreateDef;
         });
     },
