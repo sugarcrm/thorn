@@ -108,24 +108,25 @@ let fixturesMap = new WeakMap();
  */
 let Fixtures = {
     /**
-     * @property {number} _sessionAttempt Number of attempts made to login as
-     *   admin.
+     * Number of attempts made to login as admin.
      *
+     * @type {number}
      * @private
      */
     _sessionAttempt: 0,
 
     /**
-     * @property {number} _maxSessionAttempts Maximum number of login attempts
-     *   allowed.
+     * Maximum number of login attempts allowed.
      *
+     * @type {number}
      * @private
      */
     _maxSessionAttempts: 3,
 
     /**
-     * @property {object} _headers Default HTTP headers.
+     * Default HTTP headers.
      *
+     * @type {Object}
      * @private
      */
     _headers: {
