@@ -1,10 +1,10 @@
 describe('Metadata Handler', () => {
-    let _, Meta, expect; 
+    let _, expect, Meta; 
 
     before(() => {
         _ = require('lodash');
-        Meta = require('../dist/metadata-handler.js');
         expect = require('chakram').expect;
+        Meta = require('../dist/metadata-handler.js');
     });
 
     after(() => {

@@ -6,12 +6,11 @@ describe('Utils', () => {
 
     before(() => {
         _ = require('lodash');
-        utils = require('../dist/utils.js');
-        _ = require('lodash');
         sinon = require('sinon');
         let chai = require('chai');
         chai.use(require('chai-sinon'));
         expect = require('chai').expect;
+        utils = require('../dist/utils.js');
     });
 
     after(() => {
