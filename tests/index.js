@@ -98,7 +98,7 @@ describe('Thorn', () => {
                 }];
             });
 
-            it('should create a fixture', () => {
+            it('should create a fixture', function*() {
                 nock(serverUrl)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
@@ -122,10 +122,10 @@ describe('Thorn', () => {
 
                 expect(isPromise(createPromise)).to.be.true;
 
-                return createPromise;
+                yield createPromise;
             });
 
-            it('should create a fixture using options.module', () => {
+            it('should create a fixture using options.module', function*() {
                 let fixtureWithoutModule = _.clone(myFixture);
                 delete fixtureWithoutModule[0].module;
                 nock(serverUrl)
@@ -151,7 +151,7 @@ describe('Thorn', () => {
 
                 expect(isPromise(createPromise)).to.be.true;
 
-                return createPromise;
+                yield createPromise;
             });
 
             it('should create a fixture and find it', function*() {
@@ -181,7 +181,7 @@ describe('Thorn', () => {
                 expect(lookup1 == lookup3).to.be.true;
             });
 
-            it('should retry fixture creation on 401\'s', () => {
+            it('should retry fixture creation on 401\'s', function*() {
                 let originalRequestBody;
 
                 nock(serverUrl)
@@ -208,10 +208,10 @@ describe('Thorn', () => {
                         });
                     });
 
-                return Fixtures.create(myFixture);
+                yield Fixtures.create(myFixture);
             });
 
-            it('should retry fixture creation until maximum login attempts are reached', () => {
+            it('should retry fixture creation until maximum login attempts are reached', function*() {
                 nock(serverUrl)
                     .post(isTokenReq)
                     .reply(401)
@@ -220,7 +220,7 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(401);
 
-                return Fixtures.create(myFixture).catch((e) => {
+                yield Fixtures.create(myFixture).catch((e) => {
                     return expect(e.message).to.equal('Max number of login attempts exceeded!');
                 });
             });
@@ -312,9 +312,9 @@ describe('Thorn', () => {
                 testField2: 'TestField2data2',
             };
 
-            it('should create fixtures and link them', () => {});
+            it('should create fixtures and link them', function*() {});
 
-            it('should retry fixture creation and linking on 401\'s', () => {});
+            it('should retry fixture creation and linking on 401\'s', function*() {});
 
             describe('with pre-existing records', () => {
                 let records, left, right;
@@ -325,7 +325,7 @@ describe('Thorn', () => {
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk)
-                        .reply(200, function() {
+                        .reply(200, () => {
                             return constructBulkResponse([
                                 contents1,
                                 contents2,
@@ -338,7 +338,7 @@ describe('Thorn', () => {
                     right = records.TestModule2[0];
                 });
 
-                it('should link fixtures', () => {
+                it('should link fixtures', function*() {
                     nock(serverUrl)
                         .post(linkTestId1Regex)
                         .reply(200, function(uri, requestBody) {
@@ -352,10 +352,10 @@ describe('Thorn', () => {
                             };
                         });
 
-                    return Fixtures.link(left, 'leftToRight', right);
+                    yield Fixtures.link(left, 'leftToRight', right);
                 });
 
-                it('should retry linking fixtures on 401\'s', () => {
+                it('should retry linking fixtures on 401\'s', function*() {
                     let originalRequestBody;
 
                     nock(serverUrl)
@@ -377,13 +377,13 @@ describe('Thorn', () => {
                             };
                         });
 
-                    return Fixtures.link(left, 'leftToRight', right);
+                    yield Fixtures.link(left, 'leftToRight', right);
                 });
             });
         });
 
         describe('cleanup', () => {
-            it('should retry clean up until maximum login attempts are reached', () => {
+            it('should retry clean up until maximum login attempts are reached', function*() {
                 nock(serverUrl)
                     .post(isTokenReq)
                     .reply(401)
@@ -392,7 +392,7 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(401);
 
-                return Fixtures.cleanup().catch((e) => {
+                yield Fixtures.cleanup().catch((e) => {
                     return expect(e.message).to.equal('Max number of login attempts exceeded!');
                 });
             });
@@ -425,7 +425,7 @@ describe('Thorn', () => {
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk)
-                        .reply(200, function() {
+                        .reply(200, () => {
                             return constructBulkResponse([
                                 {
                                     _module: 'TestModule1',
@@ -467,7 +467,7 @@ describe('Thorn', () => {
 
                             return requestBody;
                         })
-                        .reply(200, function() {
+                        .reply(200, () => {
                             return constructBulkResponse([
                                 {id: 'TestId1'},
                                 {id: 'TestId2'},
@@ -479,7 +479,7 @@ describe('Thorn', () => {
                     expect(Fixtures.lookup).to.throw('No cached records are currently available!');
                 });
 
-                it('should retry clean up on 401\'s', () => {
+                it('should retry clean up on 401\'s', function*() {
                     let originalRequestBody;
 
                     nock(serverUrl)
@@ -494,7 +494,7 @@ describe('Thorn', () => {
                             expect(requestBody).to.eql(originalRequestBody);
                             return true;
                         })
-                        .reply(200, function() {
+                        .reply(200, () => {
                             return constructBulkResponse([
                                 {id: 'TestId1'},
                                 {id: 'TestId2'},
@@ -502,7 +502,7 @@ describe('Thorn', () => {
                             ]);
                         });
 
-                    return Fixtures.cleanup();
+                    yield Fixtures.cleanup();
                 });
             });
         });
@@ -559,7 +559,7 @@ describe('Thorn', () => {
                 myAgent = Agent.as(process.env.ADMIN_USERNAME);
             });
 
-            it('should send GET request', () => {
+            it('should send GET request', function*() {
                 nock(serverUrl)
                     .get(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
@@ -570,10 +570,10 @@ describe('Thorn', () => {
 
                 expect(isPromise(getRequest)).to.be.true;
 
-                return getRequest;
+                yield getRequest;
             });
 
-            it('should send POST request', () => {
+            it('should send POST request', function*() {
                 let data = {
                     myField: 'myValue',
                 };
@@ -589,10 +589,10 @@ describe('Thorn', () => {
 
                 expect(isPromise(postRequest)).to.be.true;
 
-                return postRequest;
+                yield postRequest;
             });
 
-            it('should send PUT request', () => {
+            it('should send PUT request', function*() {
                 let data = {
                     myField: 'myUpdatedValue',
                 };
@@ -608,10 +608,10 @@ describe('Thorn', () => {
 
                 expect(isPromise(putRequest)).to.be.true;
 
-                return putRequest;
+                yield putRequest;
             });
 
-            it('should send DELETE request', () => {
+            it('should send DELETE request', function*() {
                 let data = {
                     myField: 'myValue',
                 };
@@ -627,7 +627,7 @@ describe('Thorn', () => {
 
                 expect(isPromise(deleteRequest)).to.be.true;
 
-                return deleteRequest;
+                yield deleteRequest;
             });
         });
     });

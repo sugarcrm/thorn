@@ -74,7 +74,7 @@ describe('Metadata Fetcher', () => {
     });
 
     describe('when two fetches are in progress', () => {
-        it('should only trigger a single server request', () => {
+        it('should only trigger a single server request', function*() {
             nock(process.env.API_URL)
                 .post((url) => {
                     return url.indexOf('oauth2/token') >= 0;
@@ -92,10 +92,8 @@ describe('Metadata Fetcher', () => {
                     return true;
                 })
                 .reply(200);
-            return Promise.all([
-                MetadataFetcher.fetch(),
-                MetadataFetcher.fetch(),
-            ]);
+            yield MetadataFetcher.fetch();
+            yield MetadataFetcher.fetch();
         });
     });
 
