@@ -17,6 +17,98 @@ describe('Utils', () => {
         });
     });
 
+    describe('login', () => {
+        let nock;
+        before(() => {
+            nock = require('nock');
+            nock.disableNetConnect();
+            nock.emitter.on('no match', (req, fullReq, reqData) => {
+                if (fullReq) {
+                    throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+                }
+
+                throw new Error('No handler remaining.');
+            });
+        });
+
+        afterEach(() => {
+            nock.cleanAll();
+        });
+
+        it('should post to the login endpoint with the right params', function*() {
+            let options = {
+                username: 'TestUser',
+                password: 'TestPass',
+                version: 'TestVersion',
+                xthorn: 'TestHeader',
+            };
+
+            let serverRequestMade = false;
+
+            nock(process.env.API_URL)
+                .post('/rest/TestVersion/oauth2/token')
+                .reply(200, function(uri, requestBody) {
+                    serverRequestMade = true;
+                    expect(requestBody.username).to.equal('TestUser');
+                    expect(requestBody.password).to.equal('TestPass');
+                    expect(requestBody.grant_type).to.equal('password');
+                    expect(requestBody.client_id).to.equal('sugar');
+                    expect(requestBody.client_secret).to.equal('');
+                    expect(this.req.headers['x-thorn']).to.equal('TestHeader');
+                });
+
+            yield utils.login(options);
+            expect(serverRequestMade).to.be.true;
+        });
+    });
+
+    describe('refresh', () => {
+        let nock;
+        before(() => {
+            nock = require('nock');
+            nock.disableNetConnect();
+            nock.emitter.on('no match', (req, fullReq, reqData) => {
+                if (fullReq) {
+                    throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+                }
+
+                throw new Error('No handler remaining.');
+            });
+        });
+
+        afterEach(() => {
+            nock.cleanAll();
+        });
+
+        it('should post to the refresh endpoint with the right params', function*() {
+            let options = {
+                version: 'TestVersion',
+                token: 'TestToken',
+                xthorn: 'TestHeader',
+            };
+
+            let serverRequestMade = false;
+
+            nock(process.env.API_URL)
+                .post('/rest/TestVersion/oauth2/token')
+                .reply(200, function(uri, requestBody) {
+                    serverRequestMade = true;
+                    expect(requestBody.grant_type).to.equal('refresh_token');
+                    expect(requestBody.refresh_token).to.equal('TestToken');
+                    expect(requestBody.client_id).to.equal('sugar');
+                    expect(requestBody.client_secret).to.equal('');
+                    expect(this.req.headers['x-thorn']).to.equal('TestHeader');
+                });
+
+            yield utils.refresh(options);
+            expect(serverRequestMade).to.be.true;
+        });
+    });
+
+    describe('wrapRequest', () => {
+        // FIXME TBD based on pull #83
+    });
+
     describe('constructUrl', () => {
         it('should return a URL relative to API_URL', () => {
             let url = utils.constructUrl('location');
@@ -27,6 +119,11 @@ describe('Utils', () => {
             let url = utils.constructUrl('test', 'url', 'directories');
             expect(url).to.match(/\/test\/url\/directories/);
         });
+
+        it('should construct the URL with \'rest\' in the appropriate location', () => {
+            let url = utils.constructUrl('test');
+            expect(url).to.match(/\/rest\/test/);
+        }); 
     });
 
     describe('wrapRequest', () => {
