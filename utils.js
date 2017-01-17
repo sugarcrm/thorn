@@ -101,12 +101,12 @@ var utils = {
                 throw new Error('Invalid response received!');
             }
 
-            if (response.response.statusCode === 500) {
-                throw new Error('Internal server error!');
+            if (response.response.statusCode === 200) {
+                return response;
             }
 
             if (response.response.statusCode !== 401) {
-                return response;
+                throw new Error(response.response.statusMessage);
             }
 
             return utils.refresh({
