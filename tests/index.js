@@ -26,12 +26,14 @@ describe('Thorn', () => {
         // Some of our required files (Thorn, metadata-handler, etc)
         // contain state information. This ensures that changes to
         // our required objects are not shared across tests.
+        // This cleanup should happen at the end of each test suite for Thorn.
         _.each(_.keys(require.cache), (key) => {
             delete require.cache[key];
         });
     });
 
-    // The only way to reset the state of thorn & thorn.fixtures is to do the below.
+    // The only way to reset the state of Thorn & Thorn.fixtures is to do the below.
+    // Each test assumes a clean version of Thorn, which is why we need to reset between tests.
     // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
     beforeEach(() => {
         thorn = require(thornFile);
@@ -189,7 +191,7 @@ describe('Thorn', () => {
 
             it('should retry fixture creation on 401\'s', function*() {
                 let originalRequestBody;
-                let requestsMade = false;
+                let requestMade = false;
 
                 nock(serverUrl)
                     .post(isTokenReq)
@@ -203,10 +205,10 @@ describe('Thorn', () => {
                     .reply(200, ACCESS)
                     .post(isBulk, function(requestBody) {
                         expect(requestBody).to.eql(originalRequestBody);
+                        requestMade = true;
                         return true;
                     })
                     .reply(200, function(uri, requestBody) {
-                        requestsMade = true;
                         return constructBulkResponse({
                             _module: 'TestModule1',
                             id: 'TestId1',
@@ -217,7 +219,7 @@ describe('Thorn', () => {
                     });
 
                 yield Fixtures.create(myFixture);
-                expect(requestsMade).to.be.true;
+                expect(requestMade).to.be.true;
             });
 
             it('should retry fixture creation until maximum login attempts are reached', function*() {
@@ -236,7 +238,6 @@ describe('Thorn', () => {
         });
 
         it('should create multiple fixtures', function*() {
-            let requestMade = false;
             let record1 = {
                 attributes: {
                     name: 'TestRecord1',
@@ -259,12 +260,12 @@ describe('Thorn', () => {
                 name: 'TestRecord2',
                 testField1: 'TestField1data2',
             };
+            let requestMade = false;
             nock(serverUrl)
                 .post(isTokenReq)
                 .reply(200, ACCESS)
                 .post(isBulk)
                 .reply(200, function(uri, requestBody) {
-                    requestMade = true;
                     let requests = requestBody.requests;
                     let request1 = requests[0];
                     expect(request1.url).to.contain('/TestModule1');
@@ -277,6 +278,7 @@ describe('Thorn', () => {
                     expect(request2.data).to.eql(record2.attributes);
 
                     expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                    requestMade = true;
 
                     return constructBulkResponse([
                         contents1,
@@ -324,9 +326,9 @@ describe('Thorn', () => {
                 testField2: 'TestField2data2',
             };
 
-            it('should create fixtures and link them', function*() {});
+            it('should create fixtures and link them', () => {});
 
-            it('should retry fixture creation and linking on 401\'s', function*() {});
+            it('should retry fixture creation and linking on 401\'s', () => {});
 
             describe('with pre-existing records', () => {
                 let records, left, right;
@@ -384,10 +386,10 @@ describe('Thorn', () => {
                         .reply(200, ACCESS)
                         .post(linkTestId1Regex, function(requestBody) {
                             expect(requestBody).to.eql(originalRequestBody);
+                            requestMade = true;
                             return true;
                         })
                         .reply(200, function(uri, requestBody) {
-                            requestMade = true;
                             return {
                                 record: contents1,
                                 relatedRecords: [contents2],
