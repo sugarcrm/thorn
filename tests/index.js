@@ -99,6 +99,7 @@ describe('Thorn', () => {
             });
 
             it('should create a fixture', function*() {
+                let requestMade = false;
                 nock(serverUrl)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
@@ -110,6 +111,7 @@ describe('Thorn', () => {
                         expect(requestBody.requests[0].data.name).to.equal('TestRecord1');
                         expect(requestBody.requests[0].data.testField1).to.equal('TestField1data');
                         expect(requestBody.requests[0].data.testField2).to.equal('TestField2data');
+                        requestMade = true;
                         return constructBulkResponse({
                             _module: 'TestModule1',
                             id: 'TestId1',
@@ -123,10 +125,12 @@ describe('Thorn', () => {
                 expect(isPromise(createPromise)).to.be.true;
 
                 yield createPromise;
+                expect(requestMade).to.be.true;
             });
 
             it('should create a fixture using options.module', function*() {
                 let fixtureWithoutModule = _.clone(myFixture);
+                let requestMade = false;
                 delete fixtureWithoutModule[0].module;
                 nock(serverUrl)
                     .post(isTokenReq)
@@ -139,6 +143,7 @@ describe('Thorn', () => {
                         expect(requestBody.requests[0].data.name).to.equal('TestRecord1');
                         expect(requestBody.requests[0].data.testField1).to.equal('TestField1data');
                         expect(requestBody.requests[0].data.testField2).to.equal('TestField2data');
+                        requestMade = true;
                         return constructBulkResponse({
                             _module: 'TestModule1',
                             id: 'TestId1',
@@ -152,6 +157,7 @@ describe('Thorn', () => {
                 expect(isPromise(createPromise)).to.be.true;
 
                 yield createPromise;
+                expect(requestMade).to.be.true;
             });
 
             it('should create a fixture and find it', function*() {
@@ -183,6 +189,7 @@ describe('Thorn', () => {
 
             it('should retry fixture creation on 401\'s', function*() {
                 let originalRequestBody;
+                let requestsMade = false;
 
                 nock(serverUrl)
                     .post(isTokenReq)
@@ -199,6 +206,7 @@ describe('Thorn', () => {
                         return true;
                     })
                     .reply(200, function(uri, requestBody) {
+                        requestsMade = true;
                         return constructBulkResponse({
                             _module: 'TestModule1',
                             id: 'TestId1',
@@ -209,6 +217,7 @@ describe('Thorn', () => {
                     });
 
                 yield Fixtures.create(myFixture);
+                expect(requestsMade).to.be.true;
             });
 
             it('should retry fixture creation until maximum login attempts are reached', function*() {
@@ -227,6 +236,7 @@ describe('Thorn', () => {
         });
 
         it('should create multiple fixtures', function*() {
+            let requestMade = false;
             let record1 = {
                 attributes: {
                     name: 'TestRecord1',
@@ -254,6 +264,7 @@ describe('Thorn', () => {
                 .reply(200, ACCESS)
                 .post(isBulk)
                 .reply(200, function(uri, requestBody) {
+                    requestMade = true;
                     let requests = requestBody.requests;
                     let request1 = requests[0];
                     expect(request1.url).to.contain('/TestModule1');
@@ -278,6 +289,7 @@ describe('Thorn', () => {
             expect(testModuleRecords.length).to.equal(2);
             expect(testModuleRecords[0]).to.eql(contents1);
             expect(testModuleRecords[1]).to.eql(contents2);
+            expect(requestMade).to.be.true;
         });
 
         describe('linking', () => {
@@ -339,6 +351,7 @@ describe('Thorn', () => {
                 });
 
                 it('should link fixtures', function*() {
+                    let requestMade = false;
                     nock(serverUrl)
                         .post(linkTestId1Regex)
                         .reply(200, function(uri, requestBody) {
@@ -346,6 +359,7 @@ describe('Thorn', () => {
                             expect(requestBody.link_name).to.equal('leftToRight');
                             expect(requestBody.ids.length).to.equal(1);
                             expect(requestBody.ids[0]).to.equal('TestId2');
+                            requestMade = true;
                             return {
                                 record: contents1,
                                 relatedRecords: [contents2],
@@ -353,10 +367,12 @@ describe('Thorn', () => {
                         });
 
                     yield Fixtures.link(left, 'leftToRight', right);
+                    expect(requestMade).to.be.true;
                 });
 
                 it('should retry linking fixtures on 401\'s', function*() {
                     let originalRequestBody;
+                    let requestMade = true;
 
                     nock(serverUrl)
                         .post(linkTestId1Regex, function(requestBody) {
@@ -371,6 +387,7 @@ describe('Thorn', () => {
                             return true;
                         })
                         .reply(200, function(uri, requestBody) {
+                            requestMade = true;
                             return {
                                 record: contents1,
                                 relatedRecords: [contents2],
@@ -378,6 +395,7 @@ describe('Thorn', () => {
                         });
 
                     yield Fixtures.link(left, 'leftToRight', right);
+                    expect(requestMade).to.be.true;
                 });
             });
         });
@@ -452,6 +470,7 @@ describe('Thorn', () => {
                 });
 
                 it('should clean up after itself when you call cleanup', function*() {
+                    let requestMade = false;
                     nock(serverUrl)
                         .post(isBulk, function(requestBody) {
                             let requests = requestBody.requests;
@@ -464,7 +483,7 @@ describe('Thorn', () => {
 
                             expect(requests[2].url).to.contain('TestModule2/TestId3');
                             expect(requests[2].method).to.equal('DELETE');
-
+                            requestMade = true;
                             return requestBody;
                         })
                         .reply(200, () => {
@@ -477,10 +496,12 @@ describe('Thorn', () => {
 
                     yield Fixtures.cleanup();
                     expect(Fixtures.lookup).to.throw('No cached records are currently available!');
+                    expect(requestMade).to.be.true;
                 });
 
                 it('should retry clean up on 401\'s', function*() {
                     let originalRequestBody;
+                    let requestMade = false;
 
                     nock(serverUrl)
                         .post(isBulk, function(requestBody) {
@@ -492,6 +513,7 @@ describe('Thorn', () => {
                         .reply(200, ACCESS)
                         .post(isBulk, function(requestBody) {
                             expect(requestBody).to.eql(originalRequestBody);
+                            requestMade = true;
                             return true;
                         })
                         .reply(200, () => {
@@ -503,6 +525,7 @@ describe('Thorn', () => {
                         });
 
                     yield Fixtures.cleanup();
+                    expect(requestMade).to.be.true;
                 });
             });
         });
@@ -560,10 +583,12 @@ describe('Thorn', () => {
             });
 
             it('should send GET request', function*() {
+                let requestMade = false;
                 nock(serverUrl)
                     .get(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
+                        requestMade = true;
                         return [];
                     });
                 let getRequest = myAgent.get(endpoint);
@@ -571,17 +596,20 @@ describe('Thorn', () => {
                 expect(isPromise(getRequest)).to.be.true;
 
                 yield getRequest;
+                expect(requestMade).to.be.true;
             });
 
             it('should send POST request', function*() {
                 let data = {
                     myField: 'myValue',
                 };
+                let requestMade = false;
                 nock(serverUrl)
                     .post(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
                         expect(requestBody).to.eql(data);
+                        requestMade = true;
 
                         return [];
                     });
@@ -590,17 +618,20 @@ describe('Thorn', () => {
                 expect(isPromise(postRequest)).to.be.true;
 
                 yield postRequest;
+                expect(requestMade).to.be.true;
             });
 
             it('should send PUT request', function*() {
                 let data = {
                     myField: 'myUpdatedValue',
                 };
+                let requestMade = false;
                 nock(serverUrl)
                     .put(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
                         expect(requestBody).to.eql(data);
+                        requestMade = true;
 
                         return [];
                     });
@@ -609,17 +640,20 @@ describe('Thorn', () => {
                 expect(isPromise(putRequest)).to.be.true;
 
                 yield putRequest;
+                expect(requestMade).to.be.true;
             });
 
             it('should send DELETE request', function*() {
                 let data = {
                     myField: 'myValue',
                 };
+                let requestMade = false;
                 nock(serverUrl)
                     .delete(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
                         expect(requestBody).to.eql(data);
+                        requestMade = true;
 
                         return [];
                     });
@@ -628,6 +662,7 @@ describe('Thorn', () => {
                 expect(isPromise(deleteRequest)).to.be.true;
 
                 yield deleteRequest;
+                expect(requestMade).to.be.true;
             });
         });
     });

@@ -92,8 +92,7 @@ describe('Metadata Fetcher', () => {
                     return true;
                 })
                 .reply(200);
-            yield MetadataFetcher.fetch();
-            yield MetadataFetcher.fetch();
+            yield Promise.all([MetadataFetcher.fetch(), MetadataFetcher.fetch()]);
         });
     });
 
