@@ -1,15 +1,12 @@
 describe('Metadata Fetcher', () => {
-    let nock, expect, fail, MetadataHandler, MetadataFetcher, metadata, expected;
+    let _, nock, expect, fail, MetadataHandler, MetadataFetcher, metadata, expected;
     before(() => {
-        let metadataHandlerFile = '../dist/metadata-handler.js';
-
+        _ = require('lodash');
         nock = require('nock');
         expect = require('chai').expect;
         fail = require('chai').fail;
 
-        delete require.cache[require.resolve(metadataHandlerFile)];
-
-        MetadataHandler = require(metadataHandlerFile);
+        MetadataHandler = require('../dist/metadata-handler.js');
         MetadataFetcher = require('../dist/metadata-fetcher.js');
         metadata = require('./fixtures/metadata-fetcher-fixture.json');
 
@@ -40,6 +37,12 @@ describe('Metadata Fetcher', () => {
                 throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
             }
             throw new Error('No handler remaining.');
+        });
+    });
+
+    after(() => {
+        _.each(_.keys(require.cache), (key) => {
+            delete require.cache[key];
         });
     });
 

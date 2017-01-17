@@ -7,6 +7,12 @@ describe('Metadata Handler', () => {
         expect = require('chakram').expect;
     });
 
+    after(() => {
+        _.each(_.keys(require.cache), (key) => {
+            delete require.cache[key];
+        });
+    });
+
     describe('generateFieldValue', () => {
         describe('unsupported types', () => {
             it('should throw an error', () => {

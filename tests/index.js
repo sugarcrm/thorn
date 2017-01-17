@@ -21,6 +21,16 @@ describe('Thorn', () => {
         });
     });
 
+    after(() => {
+        // After the test suite is done, clean up the require cache.
+        // Some of our required files (Thorn, metadata-handler, etc)
+        // contain state information. This ensures that changes to
+        // our required objects are not shared across tests.
+        _.each(_.keys(require.cache), (key) => {
+            delete require.cache[key];
+        });
+    });
+
     // The only way to reset the state of thorn & thorn.fixtures is to do the below.
     // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
     beforeEach(() => {

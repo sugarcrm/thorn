@@ -5,12 +5,19 @@ describe('Utils', () => {
     let _, sinon, expect, utils;
 
     before(() => {
+        _ = require('lodash');
         utils = require('../dist/utils.js');
         _ = require('lodash');
         sinon = require('sinon');
         let chai = require('chai');
         chai.use(require('chai-sinon'));
         expect = require('chai').expect;
+    });
+
+    after(() => {
+        _.each(_.keys(require.cache), (key) => {
+            delete require.cache[key];
+        });
     });
 
     describe('constructUrl', () => {
