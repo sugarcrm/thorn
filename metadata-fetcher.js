@@ -36,7 +36,7 @@ var MetadataFetcher = {
         // Log into server as admin
         this.currentRequest = utils.login(loginOptions)
             .then((response) => {
-                authToken = response.access_token;
+                authToken = response.body.access_token;
 
                 let url = utils.constructUrl(VERSION, 'metadata') + '?modules';
                 let metadataOptions = {
