@@ -26,6 +26,7 @@ var utils = {
     constructUrl: function constructUrl(...pathParts) {
         return _.flatten([
             ROOT_URL,
+            'rest',
             pathParts,
         ]).join('/');
     },

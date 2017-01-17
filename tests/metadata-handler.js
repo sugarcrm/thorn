@@ -1,9 +1,11 @@
-require('babel-polyfill');
-require('co-mocha');
 describe('Metadata Handler', () => {
-    let _ = require('lodash');
-    let Meta = require('../dist/metadata-handler.js');
-    let expect = require('chakram').expect;
+    let _, Meta, expect; 
+
+    before(() => {
+        _ = require('lodash');
+        Meta = require('../dist/metadata-handler.js');
+        expect = require('chakram').expect;
+    });
 
     describe('generateFieldValue', () => {
         describe('unsupported types', () => {
@@ -198,7 +200,6 @@ describe('Metadata Handler', () => {
     });
 
     describe('Getting Users fields', () => {
-        let Meta = require('../dist/metadata-handler.js');
         afterEach(() => {
             Meta.clearCachedMetadata();
         });
@@ -241,3 +242,4 @@ describe('Metadata Handler', () => {
         });
     });
 });
+

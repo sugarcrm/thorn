@@ -1,19 +1,12 @@
-require('babel-polyfill');
-require('co-mocha');
 describe('Thorn', () => {
-    let _ = require('lodash');
-    let nock = require('nock');
-    let serverUrl;
-    let thorn;
-    let Fixtures;
-    let Agent;
-    let expect = require('chakram').expect;
-    let thornFile = '../dist/index.js';
+    let _, nock, serverUrl, thorn, Fixtures, Agent, expect, thornFile;
 
     before(() => {
-        process.env.ADMIN_USERNAME = 'foo';
-        process.env.ADMIN_PASSWORD = 'bar';
-        process.env.API_URL = 'http://thisisnotarealserver.localdev';
+        _ = require('lodash');
+        nock = require('nock');
+        expect = require('chakram').expect;
+        thornFile = '../dist/index.js';
+
         process.env.METADATA_FILE = '../metadata.json';
         // TODO Put in correct server
         serverUrl = process.env.API_URL;
@@ -26,6 +19,19 @@ describe('Thorn', () => {
 
             throw new Error('No handler remaining.');
         });
+    });
+
+    // The only way to reset the state of thorn & thorn.fixtures is to do the below.
+    // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
+    beforeEach(() => {
+        thorn = require(thornFile);
+        Agent = thorn.Agent;
+        Fixtures = thorn.Fixtures;
+    });
+
+    afterEach(() => {
+        delete require.cache[require.resolve(thornFile)];
+        nock.cleanAll();
     });
 
     // expect the result to be a promise
@@ -67,19 +73,6 @@ describe('Thorn', () => {
 
         return bulkResponseWrapper;
     }
-
-    // The only way to reset the state of thorn & thorn.fixtures is to do the below.
-    // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
-    beforeEach(() => {
-        thorn = require(thornFile);
-        Agent = thorn.Agent;
-        Fixtures = thorn.Fixtures;
-    });
-
-    afterEach(() => {
-        delete require.cache[require.resolve(thornFile)];
-        nock.cleanAll();
-    });
 
     describe('Fixtures', () => {
         describe('creating one record', () => {
@@ -629,3 +622,4 @@ describe('Thorn', () => {
         });
     });
 });
+

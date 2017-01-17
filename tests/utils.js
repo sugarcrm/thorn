@@ -1,17 +1,16 @@
 require('babel-polyfill');
 require('co-mocha');
 
-let expect = require('chai').expect;
-let sinon = require('sinon');
-let _ = require('lodash');
-
 describe('Utils', () => {
-    let utils;
+    let _, sinon, expect, utils;
 
     before(() => {
         utils = require('../dist/utils.js');
+        _ = require('lodash');
+        sinon = require('sinon');
         let chai = require('chai');
         chai.use(require('chai-sinon'));
+        expect = require('chai').expect;
     });
 
     describe('constructUrl', () => {
@@ -133,3 +132,4 @@ describe('Utils', () => {
         });
     });
 });
+

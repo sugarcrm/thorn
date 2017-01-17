@@ -1,40 +1,37 @@
-require('co-mocha');
-require('babel-polyfill');
 describe('Metadata Fetcher', () => {
-    process.env.ADMIN_USERNAME = 'foo';
-    process.env.ADMIN_PASSWORD = 'bar';
-    process.env.API_URL = 'http://thisisnotarealserver.localdev';
-    let nock = require('nock');
-    let expect = require('chai').expect;
-    let fail = require('chai').fail;
-    let metadataHandlerFile = '../dist/metadata-handler.js';
-
-    delete require.cache[require.resolve(metadataHandlerFile)];
-
-    let MetadataHandler = require(metadataHandlerFile);
-    let MetadataFetcher = require('../dist/metadata-fetcher.js');
-    let metadata = require('./fixtures/metadata-fetcher-fixture.json');
-
-    let expected = {
-        Module1: {
-            fields: {
-                'field1.1': {
-                    name: 'field1.1',
-                    required: true,
-                },
-            },
-        },
-        Module2: {
-            fields: {
-                'field2.1': {
-                    name: 'field2.1',
-                    required: true,
-                },
-            },
-        },
-    };
-
+    let nock, expect, fail, MetadataHandler, MetadataFetcher, metadata, expected;
     before(() => {
+        let metadataHandlerFile = '../dist/metadata-handler.js';
+
+        nock = require('nock');
+        expect = require('chai').expect;
+        fail = require('chai').fail;
+
+        delete require.cache[require.resolve(metadataHandlerFile)];
+
+        MetadataHandler = require(metadataHandlerFile);
+        MetadataFetcher = require('../dist/metadata-fetcher.js');
+        metadata = require('./fixtures/metadata-fetcher-fixture.json');
+
+        expected = {
+            Module1: {
+                fields: {
+                    'field1.1': {
+                        name: 'field1.1',
+                        required: true,
+                    },
+                },
+            },
+            Module2: {
+                fields: {
+                    'field2.1': {
+                        name: 'field2.1',
+                        required: true,
+                    },
+                },
+            },
+        };
+
         process.env.METADATA_FILE = '';
 
         nock.disableNetConnect();
@@ -68,8 +65,8 @@ describe('Metadata Fetcher', () => {
         });
 
         it('should return formatted metadata retrieved from the server', function*() {
-            let metadata = yield MetadataFetcher.fetch();
-            expect(metadata).to.eql(expected);
+            let returnMeta = yield MetadataFetcher.fetch();
+            expect(returnMeta).to.eql(expected);
         });
     });
 
@@ -116,8 +113,9 @@ describe('Metadata Fetcher', () => {
         });
 
         it('should retrieve metadata from the server', function*() {
-            let metadata = yield MetadataHandler.getRequiredFields('Module1');
-            expect(metadata).to.eql(expected.Module1.fields);
+            let returnMeta = yield MetadataHandler.getRequiredFields('Module1');
+            expect(returnMeta).to.eql(expected.Module1.fields);
         });
     });
 });
+
