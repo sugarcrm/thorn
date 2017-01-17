@@ -171,7 +171,7 @@ let Fixtures = {
             let createdRecords;
 
             // return Promise
-            return utils.wrap401(chakram.post, [url, bulkRecordCreateDef, params], {
+            return utils.wrapRequest(chakram.post, [url, bulkRecordCreateDef, params], {
                 refreshToken: this._refreshToken,
                 afterRefresh: _.bind(this._afterRefresh, this),
                 xthorn: 'Fixtures',
@@ -374,7 +374,7 @@ let Fixtures = {
         });
 
         // Create promise for record deletion
-        return utils.wrap401(chakram.post, [url, bulkRecordDeleteDef, params], {
+        return utils.wrapRequest(chakram.post, [url, bulkRecordDeleteDef, params], {
             refreshToken: this._refreshToken,
             afterRefresh: _.bind(this._afterRefresh, this),
             xthorn: 'Fixtures',
@@ -423,7 +423,7 @@ let Fixtures = {
             ids: [right.id],
         };
 
-        return utils.wrap401(
+        return utils.wrapRequest(
             chakram.post,
             [url, linkDef, params],
             {
@@ -606,7 +606,7 @@ class UserAgent {
             args[paramIndex].headers = {};
             _.extend(args[paramIndex].headers, this._getState('headers'));
 
-            return utils.wrap401(chakramMethod, args, {
+            return utils.wrapRequest(chakramMethod, args, {
                 refreshToken: this._getState('refreshToken'),
                 afterRefresh: _.bind(this._updateAuthState, this),
                 xthorn: 'Agent',
