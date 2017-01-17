@@ -29,8 +29,6 @@ describe('Metadata Fetcher', () => {
             },
         };
 
-        process.env.METADATA_FILE = '';
-
         nock.disableNetConnect();
         nock.emitter.on('no match', function(req, fullReq, reqData) {
             if (fullReq) {

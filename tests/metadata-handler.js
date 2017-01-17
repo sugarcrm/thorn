@@ -219,6 +219,7 @@ describe('Metadata Handler', () => {
                     type: 'password',
                 };
                 expect(metadata.user_hash).to.eql(expected);
+                delete process.env.METADATA_FILE;
             });
 
             it('should preserve a pre-existing Users.user_hash field definition', function*() {
@@ -231,6 +232,7 @@ describe('Metadata Handler', () => {
                     test: 'abc123',
                 };
                 expect(metadata.user_hash).to.eql(expected);
+                delete process.env.METADATA_FILE;
             });
         });
 
@@ -244,6 +246,7 @@ describe('Metadata Handler', () => {
                     errorMsg = e.message;
                 }
                 expect(errorMsg).to.eql('Unrecognized module: Users');
+                delete process.env.METADATA_FILE;
             });
         });
     });

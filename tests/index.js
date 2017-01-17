@@ -30,6 +30,7 @@ describe('Thorn', () => {
         _.each(_.keys(require.cache), (key) => {
             delete require.cache[key];
         });
+        delete process.env.METADATA_FILE;
     });
 
     // The only way to reset the state of Thorn & Thorn.fixtures is to do the below.
