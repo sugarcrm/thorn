@@ -119,10 +119,11 @@ var utils = {
                 // FIXME Currently, we have to update the HTTP parameters after the refresh
                 // to include the OAuth Token.
                 // Ideally, we would not have to mess with the parameters.
-                let paramIndex = args.length - 1;
-                args[paramIndex].headers['OAuth-Token'] = response.body.access_token;
+                let updatedArgs = _.cloneDeep(args);
+                let paramIndex = updatedArgs.length - 1;
+                updatedArgs[paramIndex].headers['OAuth-Token'] = response.body.access_token;
 
-                return chakramMethod.apply(chakram, args);
+                return chakramMethod.apply(chakram, updatedArgs);
             });
         });
     },
