@@ -86,7 +86,7 @@ function _insertCredentials(username, userhash) {
 function _restore() {
     cachedRecords = {};
     credentials = {
-        [process.env.ADMIN_USERNAME]: process.env.ADMIN_PASSWORD,
+        [process.env.THORN_ADMIN_USERNAME]: process.env.THORN_ADMIN_PASSWORD,
     };
 }
 
@@ -458,8 +458,8 @@ let Fixtures = {
      */
     _adminLogin() {
         return utils.login({
-            username: process.env.ADMIN_USERNAME,
-            password: process.env.ADMIN_PASSWORD,
+            username: process.env.THORN_ADMIN_USERNAME,
+            password: process.env.THORN_ADMIN_PASSWORD,
             version: VERSION,
             xthorn: 'Fixtures',
         }).then((response) => {
@@ -522,7 +522,7 @@ var Agent = {
         return agent;
     },
 
-    ADMIN: process.env.ADMIN_USERNAME,
+    ADMIN: process.env.THORN_ADMIN_USERNAME,
 };
 
 Object.freeze(Agent);

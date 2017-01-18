@@ -153,8 +153,8 @@ var MetadataHandler = {
             return Promise.resolve(this._metadata[module].fields);
         }
 
-        if (process.env.METADATA_FILE) {
-            let fileMetadata = require(process.env.METADATA_FILE);
+        if (process.env.THORN_METADATA_FILE) {
+            let fileMetadata = require(process.env.THORN_METADATA_FILE);
             fileMetadata = this._patchMetadata(fileMetadata);
             
             this._metadata = fileMetadata;

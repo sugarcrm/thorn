@@ -44,7 +44,7 @@ describe('Utils', () => {
                 xthorn: 'TestHeader',
             };
 
-            let server = nock(process.env.API_URL)
+            let server = nock(process.env.THORN_SERVER_URL)
                 .post('/rest/' + options.version + '/oauth2/token')
                 .reply(200, function(uri, requestBody) {
                     expect(requestBody.username).to.equal(options.username);
@@ -86,7 +86,7 @@ describe('Utils', () => {
                 xthorn: 'TestHeader',
             };
 
-            let server = nock(process.env.API_URL)
+            let server = nock(process.env.THORN_SERVER_URL)
                 .post('/rest/' + options.version + '/oauth2/token')
                 .reply(200, function(uri, requestBody) {
                     expect(requestBody.grant_type).to.equal('refresh_token');
@@ -102,9 +102,9 @@ describe('Utils', () => {
     });
 
     describe('constructUrl', () => {
-        it('should return a URL relative to API_URL', () => {
+        it('should return a URL relative to THORN_SERVER_URL', () => {
             let url = utils.constructUrl('location');
-            expect(url.startsWith(process.env.API_URL)).to.be.true;
+            expect(url.startsWith(process.env.THORN_SERVER_URL)).to.be.true;
         });
 
         it('should join arguments in order with slashes', () => {

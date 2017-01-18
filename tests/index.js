@@ -11,7 +11,7 @@ describe('Thorn', () => {
         nock = require('nock');
         thornFile = '../dist/index.js';
 
-        process.env.METADATA_FILE = '../metadata.json';
+        process.env.THORN_METADATA_FILE = '../metadata.json';
 
         nock.disableNetConnect();
         nock.emitter.on('no match', function(req, fullReq, reqData) {
@@ -32,7 +32,7 @@ describe('Thorn', () => {
         _.each(_.keys(require.cache), (key) => {
             delete require.cache[key];
         });
-        delete process.env.METADATA_FILE;
+        delete process.env.THORN_METADATA_FILE;
     });
 
     // The only way to reset the state of Thorn & Thorn.fixtures is to do the below.
@@ -106,7 +106,7 @@ describe('Thorn', () => {
             });
 
             it('should create a fixture', function*() {
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
@@ -136,7 +136,7 @@ describe('Thorn', () => {
             it('should create a fixture using options.module', function*() {
                 let fixtureWithoutModule = _.clone(myFixture);
                 delete fixtureWithoutModule[0].module;
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
@@ -164,7 +164,7 @@ describe('Thorn', () => {
             });
 
             it('should create a fixture and find it', function*() {
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
@@ -194,7 +194,7 @@ describe('Thorn', () => {
             it('should retry fixture creation on 401\'s', function*() {
                 let originalRequestBody;
 
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk, function(requestBody) {
@@ -223,7 +223,7 @@ describe('Thorn', () => {
             });
 
             it('should retry fixture creation until maximum login attempts are reached', function*() {
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(401)
                     .post(isTokenReq)
@@ -261,7 +261,7 @@ describe('Thorn', () => {
                 name: 'TestRecord2',
                 testField1: 'TestField1data2',
             };
-            let server = nock(process.env.API_URL)
+            let server = nock(process.env.THORN_SERVER_URL)
                 .post(isTokenReq)
                 .reply(200, ACCESS)
                 .post(isBulk)
@@ -334,7 +334,7 @@ describe('Thorn', () => {
                 let linkTestId1Regex = /TestId1\/link$/;
 
                 beforeEach(function*() {
-                    nock(process.env.API_URL)
+                    nock(process.env.THORN_SERVER_URL)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk)
@@ -352,7 +352,7 @@ describe('Thorn', () => {
                 });
 
                 it('should link fixtures', function*() {
-                    let server = nock(process.env.API_URL)
+                    let server = nock(process.env.THORN_SERVER_URL)
                         .post(linkTestId1Regex)
                         .reply(200, function(uri, requestBody) {
                             expect(this.req.headers['x-thorn']).to.equal('Fixtures');
@@ -372,7 +372,7 @@ describe('Thorn', () => {
                 it('should retry linking fixtures on 401\'s', function*() {
                     let originalRequestBody;
 
-                    let server = nock(process.env.API_URL)
+                    let server = nock(process.env.THORN_SERVER_URL)
                         .post(linkTestId1Regex, function(requestBody) {
                             originalRequestBody = requestBody;
                             return true;
@@ -399,7 +399,7 @@ describe('Thorn', () => {
 
         describe('cleanup', () => {
             it('should retry clean up until maximum login attempts are reached', function*() {
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(401)
                     .post(isTokenReq)
@@ -437,7 +437,7 @@ describe('Thorn', () => {
                         },
                     };
                     let bigFixture = [record1, record2, record3];
-                    nock(process.env.API_URL)
+                    nock(process.env.THORN_SERVER_URL)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk)
@@ -468,7 +468,7 @@ describe('Thorn', () => {
                 });
 
                 it('should clean up after itself when you call cleanup', function*() {
-                    let server = nock(process.env.API_URL)
+                    let server = nock(process.env.THORN_SERVER_URL)
                         .post(isBulk, function(requestBody) {
                             let requests = requestBody.requests;
 
@@ -498,7 +498,7 @@ describe('Thorn', () => {
                 it('should retry clean up on 401\'s', function*() {
                     let originalRequestBody;
 
-                    let server = nock(process.env.API_URL)
+                    let server = nock(process.env.THORN_SERVER_URL)
                         .post(isBulk, function(requestBody) {
                             originalRequestBody = requestBody;
                             return true;
@@ -527,17 +527,17 @@ describe('Thorn', () => {
 
     describe('Agent', () => {
         beforeEach(() => {
-            nock(process.env.API_URL)
+            nock(process.env.THORN_SERVER_URL)
                 .post(isTokenReq)
                 .reply(200, ACCESS);
         });
 
         describe('as', () => {
             it('should return an Agent with cached username and password', () => {
-                let myAgent = Agent.as(process.env.ADMIN_USERNAME);
+                let myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
 
-                expect(myAgent.username).to.equal(process.env.ADMIN_USERNAME);
-                expect(myAgent.password).to.equal(process.env.ADMIN_PASSWORD);
+                expect(myAgent.username).to.equal(process.env.THORN_ADMIN_USERNAME);
+                expect(myAgent.password).to.equal(process.env.THORN_ADMIN_PASSWORD);
             });
         });
 
@@ -545,7 +545,7 @@ describe('Thorn', () => {
             let myAgent;
 
             beforeEach(() => {
-                myAgent = Agent.as(process.env.ADMIN_USERNAME);
+                myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
             });
 
             it('should return the original agent if version is unchanged', () => {
@@ -573,11 +573,11 @@ describe('Thorn', () => {
             }
 
             beforeEach(() => {
-                myAgent = Agent.as(process.env.ADMIN_USERNAME);
+                myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
             });
 
             it('should send GET request', function*() {
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .get(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
@@ -595,7 +595,7 @@ describe('Thorn', () => {
                 let data = {
                     myField: 'myValue',
                 };
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .post(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
@@ -615,7 +615,7 @@ describe('Thorn', () => {
                 let data = {
                     myField: 'myUpdatedValue',
                 };
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .put(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
@@ -635,7 +635,7 @@ describe('Thorn', () => {
                 let data = {
                     myField: 'myValue',
                 };
-                let server = nock(process.env.API_URL)
+                let server = nock(process.env.THORN_SERVER_URL)
                     .delete(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
