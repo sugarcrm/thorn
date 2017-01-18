@@ -24,7 +24,7 @@ describe('Utils', () => {
         });
     });
 
-    describe.only('wrapRequest', () => {
+    describe('wrapRequest', () => {
         let sandbox;
 
         beforeEach(() => {
@@ -97,7 +97,7 @@ describe('Utils', () => {
             ];
 
             let wrappedMethod = sandbox.stub();
-            wrappedMethod.onCall(0).returns(Promise.resolve(wrappedResponses[0]))
+            wrappedMethod.onCall(0).returns(Promise.resolve(wrappedResponses[0]));
             wrappedMethod.onCall(1).returns(Promise.resolve(wrappedResponses[1]));
             let wrappedArgs = ['', {}, {headers: {'OAuth-Token': 'Token-1'}}];
             let wrappedOptions = {
