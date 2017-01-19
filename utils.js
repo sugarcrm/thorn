@@ -106,7 +106,7 @@ var utils = {
             }
 
             if (response.response.statusCode !== 401) {
-                throw new Error(response.response.statusMessage);
+                throw response;
             }
 
             return utils.refresh({
