@@ -78,7 +78,7 @@ var utils = {
 
     /**
      * Tries a request. If it fails because of HTTP 401, do a refresh and then
-     * try again. If it fails because of HTTP 500, throw an error.
+     * try again. If it fails because of some other HTTP status code, throw an exception.
      *
      * @param {function} chakramMethod Chakram request method to call.
      * @param {array} args Arguments to call the chakram request method with.
