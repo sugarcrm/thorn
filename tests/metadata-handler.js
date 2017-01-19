@@ -1,9 +1,17 @@
-require('babel-polyfill');
-require('co-mocha');
 describe('Metadata Handler', () => {
-    let _ = require('lodash');
-    let Meta = require('../dist/metadata-handler.js');
-    let expect = require('chakram').expect;
+    let _, expect, Meta; 
+
+    before(() => {
+        _ = require('lodash');
+        expect = require('chakram').expect;
+        Meta = require('../dist/metadata-handler.js');
+    });
+
+    after(() => {
+        _.each(_.keys(require.cache), (key) => {
+            delete require.cache[key];
+        });
+    });
 
     describe('generateFieldValue', () => {
         describe('unsupported types', () => {
@@ -198,7 +206,6 @@ describe('Metadata Handler', () => {
     });
 
     describe('Getting Users fields', () => {
-        let Meta = require('../dist/metadata-handler.js');
         afterEach(() => {
             Meta.clearCachedMetadata();
         });
@@ -212,6 +219,7 @@ describe('Metadata Handler', () => {
                     type: 'password',
                 };
                 expect(metadata.user_hash).to.eql(expected);
+                delete process.env.METADATA_FILE;
             });
 
             it('should preserve a pre-existing Users.user_hash field definition', function*() {
@@ -224,6 +232,7 @@ describe('Metadata Handler', () => {
                     test: 'abc123',
                 };
                 expect(metadata.user_hash).to.eql(expected);
+                delete process.env.METADATA_FILE;
             });
         });
 
@@ -237,7 +246,9 @@ describe('Metadata Handler', () => {
                     errorMsg = e.message;
                 }
                 expect(errorMsg).to.eql('Unrecognized module: Users');
+                delete process.env.METADATA_FILE;
             });
         });
     });
 });
+

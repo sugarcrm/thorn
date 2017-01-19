@@ -1,41 +1,32 @@
-require('co-mocha');
-require('babel-polyfill');
 describe('Metadata Fetcher', () => {
-    process.env.ADMIN_USERNAME = 'foo';
-    process.env.ADMIN_PASSWORD = 'bar';
-    process.env.API_URL = 'http://thisisnotarealserver.localdev';
-    let nock = require('nock');
-    let expect = require('chai').expect;
-    let fail = require('chai').fail;
-    let metadataHandlerFile = '../dist/metadata-handler.js';
-
-    delete require.cache[require.resolve(metadataHandlerFile)];
-
-    let MetadataHandler = require(metadataHandlerFile);
-    let MetadataFetcher = require('../dist/metadata-fetcher.js');
-    let metadata = require('./fixtures/metadata-fetcher-fixture.json');
-
-    let expected = {
-        Module1: {
-            fields: {
-                'field1.1': {
-                    name: 'field1.1',
-                    required: true,
-                },
-            },
-        },
-        Module2: {
-            fields: {
-                'field2.1': {
-                    name: 'field2.1',
-                    required: true,
-                },
-            },
-        },
-    };
-
+    let _, expect, nock, MetadataHandler, MetadataFetcher, metadata, expected;
     before(() => {
-        process.env.METADATA_FILE = '';
+        _ = require('lodash');
+        expect = require('chai').expect;
+        nock = require('nock');
+
+        MetadataHandler = require('../dist/metadata-handler.js');
+        MetadataFetcher = require('../dist/metadata-fetcher.js');
+        metadata = require('./fixtures/metadata-fetcher-fixture.json');
+
+        expected = {
+            Module1: {
+                fields: {
+                    'field1.1': {
+                        name: 'field1.1',
+                        required: true,
+                    },
+                },
+            },
+            Module2: {
+                fields: {
+                    'field2.1': {
+                        name: 'field2.1',
+                        required: true,
+                    },
+                },
+            },
+        };
 
         nock.disableNetConnect();
         nock.emitter.on('no match', function(req, fullReq, reqData) {
@@ -43,6 +34,12 @@ describe('Metadata Fetcher', () => {
                 throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
             }
             throw new Error('No handler remaining.');
+        });
+    });
+
+    after(() => {
+        _.each(_.keys(require.cache), (key) => {
+            delete require.cache[key];
         });
     });
 
@@ -68,14 +65,14 @@ describe('Metadata Fetcher', () => {
         });
 
         it('should return formatted metadata retrieved from the server', function*() {
-            let metadata = yield MetadataFetcher.fetch();
-            expect(metadata).to.eql(expected);
+            let returnMeta = yield MetadataFetcher.fetch();
+            expect(returnMeta).to.eql(expected);
         });
     });
 
     describe('when two fetches are in progress', () => {
-        it('should only trigger a single server request', () => {
-            nock(process.env.API_URL)
+        it('should only trigger a single server request', function*() {
+            let server = nock(process.env.API_URL)
                 .post((url) => {
                     return url.indexOf('oauth2/token') >= 0;
                 })
@@ -86,16 +83,10 @@ describe('Metadata Fetcher', () => {
                     return url.indexOf('metadata') >= 0;
                 })
                 .delay(0)
-                .reply(200, metadata)
-                .post((url) => {
-                    fail('two requests', 'one request');
-                    return true;
-                })
-                .reply(200);
-            return Promise.all([
-                MetadataFetcher.fetch(),
-                MetadataFetcher.fetch(),
-            ]);
+                .reply(200, metadata);
+
+            yield Promise.all([MetadataFetcher.fetch(), MetadataFetcher.fetch()]);
+            expect(server.isDone()).to.be.true;
         });
     });
 
@@ -116,8 +107,9 @@ describe('Metadata Fetcher', () => {
         });
 
         it('should retrieve metadata from the server', function*() {
-            let metadata = yield MetadataHandler.getRequiredFields('Module1');
-            expect(metadata).to.eql(expected.Module1.fields);
+            let returnMeta = yield MetadataHandler.getRequiredFields('Module1');
+            expect(returnMeta).to.eql(expected.Module1.fields);
         });
     });
 });
+

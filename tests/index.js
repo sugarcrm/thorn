@@ -1,22 +1,17 @@
-require('babel-polyfill');
-require('co-mocha');
 describe('Thorn', () => {
-    let _ = require('lodash');
-    let nock = require('nock');
-    let serverUrl;
-    let thorn;
-    let Fixtures;
-    let Agent;
-    let expect = require('chakram').expect;
-    let thornFile = '../dist/index.js';
+    // These are set once for the test suite
+    let _, expect, nock, thornFile;
+
+    // These are set up for each individual test
+    let thorn, Fixtures, Agent;
 
     before(() => {
-        process.env.ADMIN_USERNAME = 'foo';
-        process.env.ADMIN_PASSWORD = 'bar';
-        process.env.API_URL = 'http://thisisnotarealserver.localdev';
+        _ = require('lodash');
+        expect = require('chakram').expect;
+        nock = require('nock');
+        thornFile = '../dist/index.js';
+
         process.env.METADATA_FILE = '../metadata.json';
-        // TODO Put in correct server
-        serverUrl = process.env.API_URL;
 
         nock.disableNetConnect();
         nock.emitter.on('no match', function(req, fullReq, reqData) {
@@ -26,6 +21,34 @@ describe('Thorn', () => {
 
             throw new Error('No handler remaining.');
         });
+    });
+
+    after(() => {
+        // After the test suite is done, clean up the require cache.
+        // Some of our required files (Thorn, metadata-handler, etc)
+        // contain state information. This ensures that changes to
+        // our required objects are not shared across tests.
+        // This cleanup should happen at the end of each test suite for Thorn.
+        _.each(_.keys(require.cache), (key) => {
+            delete require.cache[key];
+        });
+        delete process.env.METADATA_FILE;
+    });
+
+    // The only way to reset the state of Thorn & Thorn.fixtures is to do the below.
+    // Each test assumes a clean version of Thorn, which is why we need to reset between tests.
+    // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
+    beforeEach(() => {
+        thorn = require(thornFile);
+        Agent = thorn.Agent;
+        Fixtures = thorn.Fixtures;
+    });
+
+    afterEach(() => {
+        delete require.cache[require.resolve(thornFile)];
+        nock.cleanAll();
+        Agent = null;
+        Fixtures = null;
     });
 
     // expect the result to be a promise
@@ -68,19 +91,6 @@ describe('Thorn', () => {
         return bulkResponseWrapper;
     }
 
-    // The only way to reset the state of thorn & thorn.fixtures is to do the below.
-    // See https://nodejs.org/api/globals.html#globals_require_cache for more info.
-    beforeEach(() => {
-        thorn = require(thornFile);
-        Agent = thorn.Agent;
-        Fixtures = thorn.Fixtures;
-    });
-
-    afterEach(() => {
-        delete require.cache[require.resolve(thornFile)];
-        nock.cleanAll();
-    });
-
     describe('Fixtures', () => {
         describe('creating one record', () => {
             let myFixture;
@@ -95,8 +105,8 @@ describe('Thorn', () => {
                 }];
             });
 
-            it('should create a fixture', () => {
-                nock(serverUrl)
+            it('should create a fixture', function*() {
+                let server = nock(process.env.API_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
@@ -119,13 +129,14 @@ describe('Thorn', () => {
 
                 expect(isPromise(createPromise)).to.be.true;
 
-                return createPromise;
+                yield createPromise;
+                expect(server.isDone()).to.be.true;
             });
 
-            it('should create a fixture using options.module', () => {
+            it('should create a fixture using options.module', function*() {
                 let fixtureWithoutModule = _.clone(myFixture);
                 delete fixtureWithoutModule[0].module;
-                nock(serverUrl)
+                let server = nock(process.env.API_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
@@ -148,11 +159,12 @@ describe('Thorn', () => {
 
                 expect(isPromise(createPromise)).to.be.true;
 
-                return createPromise;
+                yield createPromise;
+                expect(server.isDone()).to.be.true;
             });
 
             it('should create a fixture and find it', function*() {
-                nock(serverUrl)
+                let server = nock(process.env.API_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
@@ -176,12 +188,13 @@ describe('Thorn', () => {
                 let lookup3 = Fixtures.lookup('TestModule1', {testField2: 'TestField2data'});
                 expect(lookup1 == lookup2).to.be.true;
                 expect(lookup1 == lookup3).to.be.true;
+                expect(server.isDone()).to.be.true;
             });
 
-            it('should retry fixture creation on 401\'s', () => {
+            it('should retry fixture creation on 401\'s', function*() {
                 let originalRequestBody;
 
-                nock(serverUrl)
+                let server = nock(process.env.API_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk, function(requestBody) {
@@ -205,11 +218,12 @@ describe('Thorn', () => {
                         });
                     });
 
-                return Fixtures.create(myFixture);
+                yield Fixtures.create(myFixture);
+                expect(server.isDone()).to.be.true;
             });
 
-            it('should retry fixture creation until maximum login attempts are reached', () => {
-                nock(serverUrl)
+            it('should retry fixture creation until maximum login attempts are reached', function*() {
+                let server = nock(process.env.API_URL)
                     .post(isTokenReq)
                     .reply(401)
                     .post(isTokenReq)
@@ -217,9 +231,10 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(401);
 
-                return Fixtures.create(myFixture).catch((e) => {
-                    return expect(e.message).to.equal('Max number of login attempts exceeded!');
+                yield Fixtures.create(myFixture).catch((e) => {
+                    expect(e.message).to.equal('Max number of login attempts exceeded!');
                 });
+                expect(server.isDone()).to.be.true;
             });
         });
 
@@ -246,7 +261,7 @@ describe('Thorn', () => {
                 name: 'TestRecord2',
                 testField1: 'TestField1data2',
             };
-            nock(serverUrl)
+            let server = nock(process.env.API_URL)
                 .post(isTokenReq)
                 .reply(200, ACCESS)
                 .post(isBulk)
@@ -275,6 +290,7 @@ describe('Thorn', () => {
             expect(testModuleRecords.length).to.equal(2);
             expect(testModuleRecords[0]).to.eql(contents1);
             expect(testModuleRecords[1]).to.eql(contents2);
+            expect(server.isDone()).to.be.true;
         });
 
         describe('linking', () => {
@@ -318,11 +334,11 @@ describe('Thorn', () => {
                 let linkTestId1Regex = /TestId1\/link$/;
 
                 beforeEach(function*() {
-                    nock(serverUrl)
+                    nock(process.env.API_URL)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk)
-                        .reply(200, function() {
+                        .reply(200, () => {
                             return constructBulkResponse([
                                 contents1,
                                 contents2,
@@ -335,8 +351,8 @@ describe('Thorn', () => {
                     right = records.TestModule2[0];
                 });
 
-                it('should link fixtures', () => {
-                    nock(serverUrl)
+                it('should link fixtures', function*() {
+                    let server = nock(process.env.API_URL)
                         .post(linkTestId1Regex)
                         .reply(200, function(uri, requestBody) {
                             expect(this.req.headers['x-thorn']).to.equal('Fixtures');
@@ -349,13 +365,14 @@ describe('Thorn', () => {
                             };
                         });
 
-                    return Fixtures.link(left, 'leftToRight', right);
+                    yield Fixtures.link(left, 'leftToRight', right);
+                    expect(server.isDone()).to.be.true;
                 });
 
-                it('should retry linking fixtures on 401\'s', () => {
+                it('should retry linking fixtures on 401\'s', function*() {
                     let originalRequestBody;
 
-                    nock(serverUrl)
+                    let server = nock(process.env.API_URL)
                         .post(linkTestId1Regex, function(requestBody) {
                             originalRequestBody = requestBody;
                             return true;
@@ -374,14 +391,15 @@ describe('Thorn', () => {
                             };
                         });
 
-                    return Fixtures.link(left, 'leftToRight', right);
+                    yield Fixtures.link(left, 'leftToRight', right);
+                    expect(server.isDone()).to.be.true;
                 });
             });
         });
 
         describe('cleanup', () => {
-            it('should retry clean up until maximum login attempts are reached', () => {
-                nock(serverUrl)
+            it('should retry clean up until maximum login attempts are reached', function*() {
+                let server = nock(process.env.API_URL)
                     .post(isTokenReq)
                     .reply(401)
                     .post(isTokenReq)
@@ -389,13 +407,14 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(401);
 
-                return Fixtures.cleanup().catch((e) => {
-                    return expect(e.message).to.equal('Max number of login attempts exceeded!');
+                yield Fixtures.cleanup().catch((e) => {
+                    expect(e.message).to.equal('Max number of login attempts exceeded!');
                 });
+                expect(server.isDone()).to.be.true;
             });
 
             describe('with pre-existing records', () => {
-                beforeEach(() => {
+                beforeEach(function*() {
                     let record1 = {
                         module: 'TestModule1',
                         attributes: {
@@ -418,11 +437,11 @@ describe('Thorn', () => {
                         },
                     };
                     let bigFixture = [record1, record2, record3];
-                    nock(serverUrl)
+                    nock(process.env.API_URL)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk)
-                        .reply(200, function() {
+                        .reply(200, () => {
                             return constructBulkResponse([
                                 {
                                     _module: 'TestModule1',
@@ -445,11 +464,11 @@ describe('Thorn', () => {
                             ]);
                         });
 
-                    return Fixtures.create(bigFixture);
+                    yield Fixtures.create(bigFixture);
                 });
 
                 it('should clean up after itself when you call cleanup', function*() {
-                    nock(serverUrl)
+                    let server = nock(process.env.API_URL)
                         .post(isBulk, function(requestBody) {
                             let requests = requestBody.requests;
 
@@ -461,10 +480,9 @@ describe('Thorn', () => {
 
                             expect(requests[2].url).to.contain('TestModule2/TestId3');
                             expect(requests[2].method).to.equal('DELETE');
-
                             return requestBody;
                         })
-                        .reply(200, function() {
+                        .reply(200, () => {
                             return constructBulkResponse([
                                 {id: 'TestId1'},
                                 {id: 'TestId2'},
@@ -474,12 +492,13 @@ describe('Thorn', () => {
 
                     yield Fixtures.cleanup();
                     expect(Fixtures.lookup).to.throw('No cached records are currently available!');
+                    expect(server.isDone()).to.be.true;
                 });
 
-                it('should retry clean up on 401\'s', () => {
+                it('should retry clean up on 401\'s', function*() {
                     let originalRequestBody;
 
-                    nock(serverUrl)
+                    let server = nock(process.env.API_URL)
                         .post(isBulk, function(requestBody) {
                             originalRequestBody = requestBody;
                             return true;
@@ -491,7 +510,7 @@ describe('Thorn', () => {
                             expect(requestBody).to.eql(originalRequestBody);
                             return true;
                         })
-                        .reply(200, function() {
+                        .reply(200, () => {
                             return constructBulkResponse([
                                 {id: 'TestId1'},
                                 {id: 'TestId2'},
@@ -499,7 +518,8 @@ describe('Thorn', () => {
                             ]);
                         });
 
-                    return Fixtures.cleanup();
+                    yield Fixtures.cleanup();
+                    expect(server.isDone()).to.be.true;
                 });
             });
         });
@@ -507,7 +527,7 @@ describe('Thorn', () => {
 
     describe('Agent', () => {
         beforeEach(() => {
-            nock(serverUrl)
+            nock(process.env.API_URL)
                 .post(isTokenReq)
                 .reply(200, ACCESS);
         });
@@ -552,12 +572,12 @@ describe('Thorn', () => {
                 return uri.indexOf(endpoint) >= 0;
             }
 
-            before(() => {
+            beforeEach(() => {
                 myAgent = Agent.as(process.env.ADMIN_USERNAME);
             });
 
-            it('should send GET request', () => {
-                nock(serverUrl)
+            it('should send GET request', function*() {
+                let server = nock(process.env.API_URL)
                     .get(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
@@ -567,14 +587,15 @@ describe('Thorn', () => {
 
                 expect(isPromise(getRequest)).to.be.true;
 
-                return getRequest;
+                yield getRequest;
+                expect(server.isDone()).to.be.true;
             });
 
-            it('should send POST request', () => {
+            it('should send POST request', function*() {
                 let data = {
                     myField: 'myValue',
                 };
-                nock(serverUrl)
+                let server = nock(process.env.API_URL)
                     .post(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
@@ -586,14 +607,15 @@ describe('Thorn', () => {
 
                 expect(isPromise(postRequest)).to.be.true;
 
-                return postRequest;
+                yield postRequest;
+                expect(server.isDone()).to.be.true;
             });
 
-            it('should send PUT request', () => {
+            it('should send PUT request', function*() {
                 let data = {
                     myField: 'myUpdatedValue',
                 };
-                nock(serverUrl)
+                let server = nock(process.env.API_URL)
                     .put(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
@@ -605,14 +627,15 @@ describe('Thorn', () => {
 
                 expect(isPromise(putRequest)).to.be.true;
 
-                return putRequest;
+                yield putRequest;
+                expect(server.isDone()).to.be.true;
             });
 
-            it('should send DELETE request', () => {
+            it('should send DELETE request', function*() {
                 let data = {
                     myField: 'myValue',
                 };
-                nock(serverUrl)
+                let server = nock(process.env.API_URL)
                     .delete(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Agent');
@@ -624,8 +647,10 @@ describe('Thorn', () => {
 
                 expect(isPromise(deleteRequest)).to.be.true;
 
-                return deleteRequest;
+                yield deleteRequest;
+                expect(server.isDone()).to.be.true;
             });
         });
     });
 });
+
