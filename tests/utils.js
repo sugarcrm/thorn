@@ -76,18 +76,18 @@ describe('Utils', () => {
             let wrappedMethod = sandbox.stub().returns(Promise.resolve(wrappedResponse));
             let wrappedArgs = ['a'];
             let wrappedOptions = {'k': 'v'};
-            let errorMsg;
+            let error;
 
             try {
                 yield utils.wrapRequest(wrappedMethod, wrappedArgs, wrappedOptions);
 
             } catch(e) {
-                errorMsg = e.message;
+                error = e;
             }
 
             expect(wrappedMethod.calledOnce).to.be.true;
             expect(wrappedMethod.calledWithExactly(wrappedArgs));
-            expect(errorMsg).to.equal('Internal server error!');
+            expect(error).to.eql(wrappedResponse);
         });
 
         it('should perform token refresh on 401\'s and re-execute given method', function*() {
