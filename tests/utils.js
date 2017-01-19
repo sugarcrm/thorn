@@ -123,11 +123,11 @@ describe('Utils', () => {
             let response = yield utils.wrapRequest(wrappedMethod, wrappedArgs, wrappedOptions);
 
             expect(wrappedMethod.calledTwice).to.be.true;
-            expect(wrappedMethod.firstCall).to.be.calledWith('', {}, {headers: {'OAuth-Token': 'Token-1'}});
-            expect(wrappedMethod.secondCall).to.be.calledWith('', {}, {headers: {'OAuth-Token': 'Token-2'}});
+            expect(wrappedMethod.firstCall).to.be.calledWithExactly('', {}, {headers: {'OAuth-Token': 'Token-1'}});
+            expect(wrappedMethod.secondCall).to.be.calledWithExactly('', {}, {headers: {'OAuth-Token': 'Token-2'}});
 
             expect(utils.refresh).to.be.calledOnce;
-            expect(utils.refresh).to.be.calledWith(expectedRefreshOptions);
+            expect(utils.refresh).to.be.calledWithExactly(expectedRefreshOptions);
 
             expect(response).to.eql(wrappedResponses[1]);
         });
