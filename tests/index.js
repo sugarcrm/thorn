@@ -47,6 +47,8 @@ describe('Thorn', () => {
     afterEach(() => {
         delete require.cache[require.resolve(thornFile)];
         nock.cleanAll();
+        Agent = null;
+        Fixtures = null;
     });
 
     // expect the result to be a promise
@@ -583,7 +585,7 @@ describe('Thorn', () => {
                 return uri.indexOf(endpoint) >= 0;
             }
 
-            before(() => {
+            beforeEach(() => {
                 myAgent = Agent.as(process.env.ADMIN_USERNAME);
             });
 
