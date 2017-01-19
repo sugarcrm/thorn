@@ -10,6 +10,8 @@ describe('Utils', () => {
 
     before(() => {
         utils = require('../dist/utils.js');
+        let chai = require('chai');
+        chai.use(require('chai-sinon'));
     });
 
     describe('constructUrl', () => {
@@ -43,8 +45,8 @@ describe('Utils', () => {
 
             let response = yield utils.wrapRequest(wrappedMethod, wrappedArgs, wrappedOptions);
 
-            expect(wrappedMethod.calledOnce).to.be.true;
-            expect(wrappedMethod.calledWithExactly(wrappedArgs));
+            expect(wrappedMethod).to.be.calledOnce;
+            expect(wrappedMethod).calledWithExactly('a');
             expect(response).to.equal(wrappedResponse);
         });
 
@@ -61,8 +63,8 @@ describe('Utils', () => {
                 errorMsg = e.message;
             }
 
-            expect(wrappedMethod.calledOnce).to.be.true;
-            expect(wrappedMethod.calledWithExactly(wrappedArgs));
+            expect(wrappedMethod).to.be.calledOnce;
+            expect(wrappedMethod).to.be.calledWithExactly('a');
             expect(errorMsg).to.equal('Invalid response received!');
         });
 
@@ -85,8 +87,8 @@ describe('Utils', () => {
                 error = e;
             }
 
-            expect(wrappedMethod.calledOnce).to.be.true;
-            expect(wrappedMethod.calledWithExactly(wrappedArgs));
+            expect(wrappedMethod).to.be.calledOnce;
+            expect(wrappedMethod).to.be.calledWithExactly('a');
             expect(error).to.eql(wrappedResponse);
         });
 
@@ -121,11 +123,11 @@ describe('Utils', () => {
             let response = yield utils.wrapRequest(wrappedMethod, wrappedArgs, wrappedOptions);
 
             expect(wrappedMethod.calledTwice).to.be.true;
-            expect(wrappedMethod.getCall(0).args).to.eql(wrappedArgs);
-            expect(wrappedMethod.getCall(1).args).to.eql(expectedWrappedArgs);
+            expect(wrappedMethod.firstCall).to.be.calledWith('', {}, {headers: {'OAuth-Token': 'Token-1'}});
+            expect(wrappedMethod.secondCall).to.be.calledWith('', {}, {headers: {'OAuth-Token': 'Token-2'}});
 
-            expect(utils.refresh.calledOnce).to.be.true;
-            expect(utils.refresh.calledWith(expectedRefreshOptions)).to.be.true;
+            expect(utils.refresh).to.be.calledOnce;
+            expect(utils.refresh).to.be.calledWith(expectedRefreshOptions);
 
             expect(response).to.eql(wrappedResponses[1]);
         });
