@@ -105,10 +105,6 @@ describe('Utils', () => {
         });
     });
 
-    describe('wrapRequest', () => {
-        // FIXME TBD based on pull #83
-    });
-
     describe('constructUrl', () => {
         it('should return a URL relative to API_URL', () => {
             let url = utils.constructUrl('location');
