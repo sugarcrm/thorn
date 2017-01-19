@@ -1,9 +1,8 @@
 describe('Metadata Fetcher', () => {
-    let _, expect, fail, nock, MetadataHandler, MetadataFetcher, metadata, expected;
+    let _, expect, nock, MetadataHandler, MetadataFetcher, metadata, expected;
     before(() => {
         _ = require('lodash');
         expect = require('chai').expect;
-        fail = require('chai').fail;
         nock = require('nock');
 
         MetadataHandler = require('../dist/metadata-handler.js');
@@ -73,7 +72,7 @@ describe('Metadata Fetcher', () => {
 
     describe('when two fetches are in progress', () => {
         it('should only trigger a single server request', function*() {
-            nock(process.env.API_URL)
+            let server = nock(process.env.API_URL)
                 .post((url) => {
                     return url.indexOf('oauth2/token') >= 0;
                 })
@@ -84,13 +83,10 @@ describe('Metadata Fetcher', () => {
                     return url.indexOf('metadata') >= 0;
                 })
                 .delay(0)
-                .reply(200, metadata)
-                .post((url) => {
-                    fail('two requests', 'one request');
-                    return true;
-                })
-                .reply(200);
+                .reply(200, metadata);
+
             yield Promise.all([MetadataFetcher.fetch(), MetadataFetcher.fetch()]);
+            expect(server.isDone()).to.be.true;
         });
     });
 
