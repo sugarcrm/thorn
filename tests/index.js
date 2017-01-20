@@ -264,10 +264,10 @@ describe('Thorn', () => {
         });
 
         describe('lookup', () => {
-            let record;
+            let fixture;
 
             beforeEach(() => {
-                record = {
+                fixture = {
                     module: 'TestModule1',
                     attributes: {
                         name: 'TestRecord1',
@@ -278,7 +278,7 @@ describe('Thorn', () => {
             });
 
             it('should throw an error if no records have been created', () => {
-                expect(() => Fixtures.lookup(record.module, {name: record.attributes.name})).to.throw('No cached records are currently available!');
+                expect(() => Fixtures.lookup(fixture.module, {name: fixture.attributes.name})).to.throw('No cached records are currently available!');
             });
 
             describe('with pre-existing records', () => {
@@ -288,24 +288,24 @@ describe('Thorn', () => {
                         .reply(200, ACCESS)
                         .post(isBulk)
                         .reply(200, constructBulkResponse({
-                            _module: 'TestModule1',
+                            _module: fixture.module,
                             id: 'TestId1',
-                            name: 'TestRecord1',
-                            testField1: 'TestField1data',
-                            testField2: 'TestField2data',
+                            name: fixture.attributes.name,
+                            testField1: fixture.attributes.testField1,
+                            testField2: fixture.attributes.testField2,
                         }));
 
-                    yield Fixtures.create(record);
+                    yield Fixtures.create(fixture);
                 });
 
                 it('should be able to find previously created records', () => {
-                    let lookup1 = Fixtures.lookup(record.module, {name: record.attributes.name});
-                    expect(lookup1.name).to.equal(record.attributes.name);
-                    expect(lookup1.testField1).to.equal(record.attributes.testField1);
-                    expect(lookup1.testField2).to.equal(record.attributes.testField2);
+                    let lookup1 = Fixtures.lookup(fixture.module, {name: fixture.attributes.name});
+                    expect(lookup1.name).to.equal(fixture.attributes.name);
+                    expect(lookup1.testField1).to.equal(fixture.attributes.testField1);
+                    expect(lookup1.testField2).to.equal(fixture.attributes.testField2);
 
-                    let lookup2 = Fixtures.lookup(record.module, {testField1: record.attributes.testField1});
-                    let lookup3 = Fixtures.lookup(record.module, {testField2: record.attributes.testField2});
+                    let lookup2 = Fixtures.lookup(fixture.module, {testField1: fixture.attributes.testField1});
+                    let lookup3 = Fixtures.lookup(fixture.module, {testField2: fixture.attributes.testField2});
                     expect(lookup1 == lookup2).to.be.true;
                     expect(lookup1 == lookup3).to.be.true;
                 });
