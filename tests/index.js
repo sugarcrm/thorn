@@ -238,6 +238,60 @@ describe('Thorn', () => {
             });
         });
 
+        describe('lookup', () => {
+            let record;
+
+            beforeEach(() => {
+                record = {
+                    module: 'TestModule1',
+                    attributes: {
+                        name: 'TestRecord1',
+                        testField1: 'TestField1data',
+                        testField2: 'TestField2data',
+                    },
+                };
+            });
+
+            it('should throw an error if no records have been created', () => {
+                expect(() => Fixtures.lookup(record.module, {name: record.attributes.name})).to.throw('No cached records are currently available!');
+            });
+
+            describe('with pre-existing records', () => {
+                beforeEach(function*() {
+                    nock(process.env.THORN_SERVER_URL)
+                        .post(isTokenReq)
+                        .reply(200, ACCESS)
+                        .post(isBulk)
+                        .reply(200, constructBulkResponse({
+                            _module: 'TestModule1',
+                            id: 'TestId1',
+                            name: 'TestRecord1',
+                            testField1: 'TestField1data',
+                            testField2: 'TestField2data',
+                        }));
+
+                    yield Fixtures.create(record);
+                });
+
+                it('should be able to find previously created records', () => {
+                    let lookup1 = Fixtures.lookup(record.module, {name: record.attributes.name});
+                    expect(lookup1.name).to.equal(record.attributes.name);
+                    expect(lookup1.testField1).to.equal(record.attributes.testField1);
+                    expect(lookup1.testField2).to.equal(record.attributes.testField2);
+
+                    let lookup2 = Fixtures.lookup(record.module, {testField1: record.attributes.testField1});
+                    let lookup3 = Fixtures.lookup(record.module, {testField2: record.attributes.testField2});
+                    expect(lookup1 == lookup2).to.be.true;
+                    expect(lookup1 == lookup3).to.be.true;
+                });
+
+                it('should throw an error if no records have been created for given module', () => {
+                    let module = 'TestModule2';
+                    expect(() => Fixtures.lookup(module, {name: 'TestRecord2'})).to.throw('No cached records found for module: ' + module);
+                });
+            });
+        });
+
         describe('linking', () => {
             let record1 = {
                 module: 'TestModule1',
