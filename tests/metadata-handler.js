@@ -212,18 +212,18 @@ describe('Metadata Handler', () => {
 
         describe('when the Users module is defined', () => {
             it('should generate a missing Users.user_hash field definition', function*() {
-                process.env.METADATA_FILE = __dirname + '/fixtures/metadata-handler/users-module-only-without-user-hash.json';
+                process.env.THORN_METADATA_FILE = __dirname + '/fixtures/metadata-handler/users-module-only-without-user-hash.json';
                 let metadata = yield Meta.getRequiredFields('Users');
                 let expected = {
                     name: 'user_hash',
                     type: 'password',
                 };
                 expect(metadata.user_hash).to.eql(expected);
-                delete process.env.METADATA_FILE;
+                delete process.env.THORN_METADATA_FILE;
             });
 
             it('should preserve a pre-existing Users.user_hash field definition', function*() {
-                process.env.METADATA_FILE = __dirname + '/fixtures/metadata-handler/users-module-only-with-user-hash.json';
+                process.env.THORN_METADATA_FILE = __dirname + '/fixtures/metadata-handler/users-module-only-with-user-hash.json';
                 let metadata = yield Meta.getRequiredFields('Users');
                 let expected = {
                     name: 'user_hash',
@@ -232,13 +232,13 @@ describe('Metadata Handler', () => {
                     test: 'abc123',
                 };
                 expect(metadata.user_hash).to.eql(expected);
-                delete process.env.METADATA_FILE;
+                delete process.env.THORN_METADATA_FILE;
             });
         });
 
         describe('when the Users module is not defined', () => {
             it('should not create metadata for a Users module', function*() {
-                process.env.METADATA_FILE = __dirname + '/fixtures/metadata-handler/random-module.json';
+                process.env.THORN_METADATA_FILE = __dirname + '/fixtures/metadata-handler/random-module.json';
                 let errorMsg;
                 try {
                     yield Meta.getRequiredFields('Users');
@@ -246,7 +246,7 @@ describe('Metadata Handler', () => {
                     errorMsg = e.message;
                 }
                 expect(errorMsg).to.eql('Unrecognized module: Users');
-                delete process.env.METADATA_FILE;
+                delete process.env.THORN_METADATA_FILE;
             });
         });
     });

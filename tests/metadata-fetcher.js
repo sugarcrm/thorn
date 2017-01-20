@@ -50,7 +50,7 @@ describe('Metadata Fetcher', () => {
 
     describe('metadata retrieval', () => {
         beforeEach(() => {
-            nock(process.env.API_URL)
+            nock(process.env.THORN_SERVER_URL)
                 .post((url) => {
                     return url.indexOf('oauth2/token') >= 0;
                 })
@@ -72,7 +72,7 @@ describe('Metadata Fetcher', () => {
 
     describe('when two fetches are in progress', () => {
         it('should only trigger a single server request', function*() {
-            let server = nock(process.env.API_URL)
+            let server = nock(process.env.THORN_SERVER_URL)
                 .post((url) => {
                     return url.indexOf('oauth2/token') >= 0;
                 })
@@ -92,7 +92,7 @@ describe('Metadata Fetcher', () => {
 
     describe('integration with metadata-helper', () => {
         beforeEach(() => {
-            nock(process.env.API_URL)
+            nock(process.env.THORN_SERVER_URL)
                 .post((url) => {
                     return url.indexOf('oauth2/token') >= 0;
                 })

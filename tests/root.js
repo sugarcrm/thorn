@@ -3,9 +3,9 @@
 
 // Set up the test environment.
 before(() => {
-    process.env.ADMIN_USERNAME = 'foo';
-    process.env.ADMIN_PASSWORD = 'bar';
-    process.env.API_URL = 'http://thisisnotarealserver.localdev';
+    process.env.THORN_ADMIN_USERNAME = 'foo';
+    process.env.THORN_ADMIN_PASSWORD = 'bar';
+    process.env.THORN_SERVER_URL = 'http://thisisnotarealserver.localdev';
 
     require('babel-polyfill');
     require('co-mocha');

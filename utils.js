@@ -3,9 +3,9 @@
  * @type {string}
  * @private
  */
-const ROOT_URL = process.env.API_URL;
+const ROOT_URL = process.env.THORN_SERVER_URL;
 if (!ROOT_URL) {
-    throw new Error('Please set process.env.API_URL!');
+    throw new Error('Please set process.env.THORN_SERVER_URL!');
 }
 
 let _ = require('lodash');

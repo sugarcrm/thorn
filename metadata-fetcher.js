@@ -26,8 +26,8 @@ var MetadataFetcher = {
         let authToken;
 
         let loginOptions = {
-            username: process.env.ADMIN_USERNAME,
-            password: process.env.ADMIN_PASSWORD,
+            username: process.env.THORN_ADMIN_USERNAME,
+            password: process.env.THORN_ADMIN_PASSWORD,
             version: VERSION,
             xthorn: 'MetadataFetcher',
         };
