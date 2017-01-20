@@ -318,37 +318,41 @@ describe('Thorn', () => {
         });
 
         describe('linking', () => {
-            let record1 = {
-                module: 'TestModule1',
-                attributes: {
-                    name: 'TestRecord1',
-                    testField1: 'TestField1data1',
-                    testField2: 'TestField2data1',
-                },
-            };
-            let record2 = {
-                module: 'TestModule2',
-                attributes: {
-                    name: 'TestRecord2',
-                    testField1: 'TestField1data2',
-                    testField2: 'TestField2data2',
-                },
-            };
-            let contents1 = {
-                _module: 'TestModule1',
-                id: 'TestId1',
-                name: 'TestRecord1',
-                testField1: 'TestField1data1',
-                testField2: 'TestField2data1',
-            };
-            let contents2 = {
-                _module: 'TestModule2',
-                id: 'TestId2',
-                name: 'TestRecord2',
-                testField1: 'TestField1data2',
-                testField2: 'TestField2data2',
-            };
-            let link = 'link-to-testmodule2';
+            let fixture1, fixture2, contents1, contents2, link;
+
+            beforeEach(() => {
+                fixture1 = {
+                    module: 'TestModule1',
+                    attributes: {
+                        name: 'TestRecord1',
+                        testField1: 'TestField1data1',
+                        testField2: 'TestField2data1',
+                    },
+                };
+                fixture2 = {
+                    module: 'TestModule2',
+                    attributes: {
+                        name: 'TestRecord2',
+                        testField1: 'TestField1data2',
+                        testField2: 'TestField2data2',
+                    },
+                };
+                contents1 = {
+                    _module: fixture1.module,
+                    id: 'TestId1',
+                    name: fixture1.attributes.name,
+                    testField1: fixture1.attributes.testField1,
+                    testField2: fixture1.attributes.testField2,
+                };
+                contents2 = {
+                    _module: fixture2.module,
+                    id: 'TestId2',
+                    name: fixture2.attributes.name,
+                    testField1: fixture2.attributes.testField1,
+                    testField2: fixture2.attributes.testField2,
+                };
+                link = 'link-to-testmodule2';
+            });
 
             it('should create fixtures and link them', function*() {
                 let record1WithLinks = _.clone(record1);
@@ -427,8 +431,7 @@ describe('Thorn', () => {
             });
 
             describe('with pre-existing records', () => {
-                let records, left, right;
-                let linkTestId1Regex = /TestId1\/link$/;
+                let left, right, linkTestId1Regex;
 
                 beforeEach(function*() {
                     nock(process.env.THORN_SERVER_URL)
@@ -440,19 +443,21 @@ describe('Thorn', () => {
                             contents2,
                         ]));
 
-                    let response = yield Fixtures.create([record1, record2]);
-                    records = response;
+                    let records = yield Fixtures.create([fixture1, fixture2]);
+
                     left = records.TestModule1[0];
                     right = records.TestModule2[0];
+                    linkTestId1Regex = /TestId1\/link$/;
                 });
 
-                it('should link fixtures', function*() {
+                it('should link records', function*() {
                     let server = nock(process.env.THORN_SERVER_URL)
                         .post(linkTestId1Regex)
                         .reply(200, function(uri, requestBody) {
                             expect(this.req.headers['x-thorn']).to.equal('Fixtures');
                             expect(requestBody.link_name).to.equal(link);
                             expect(requestBody.ids).to.eql([contents2.id]);
+
                             return {
                                 record: contents1,
                                 related_records: [contents2],
@@ -463,7 +468,7 @@ describe('Thorn', () => {
                     expect(server.isDone()).to.be.true;
                 });
 
-                it('should retry linking fixtures on 401\'s', function*() {
+                it('should retry linking records on 401\'s', function*() {
                     let originalRequestBody;
 
                     let server = nock(process.env.THORN_SERVER_URL)
