@@ -511,50 +511,56 @@ describe('Thorn', () => {
             });
 
             describe('with pre-existing records', () => {
+                let fixture1, fixture2, fixture3, contents1, contents2, contents3;
+
                 beforeEach(function*() {
-                    let record1 = {
+                    fixture1 = {
                         module: 'TestModule1',
                         attributes: {
                             name: 'TestRecord1',
                             testField1: 'TestField1data1',
                         },
                     };
-                    let record2 = {
+                    fixture2 = {
                         module: 'TestModule1',
                         attributes: {
                             name: 'TestRecord2',
                             testField1: 'TestField1data2',
                         },
                     };
-                    let record3 = {
+                    fixture3 = {
                         module: 'TestModule2',
                         attributes: {
                             name: 'TestRecord3',
                             testField2: 'TestField2data',
                         },
                     };
+                    contents1 = {
+                        _module: fixture1.module,
+                        id: 'TestId1',
+                        name: fixture1.attributes.name,
+                        testField1: fixture1.attributes.testField1,
+                    };
+                    contents2 = {
+                        _module: fixture2.module,
+                        id: 'TestId2',
+                        name: fixture2.attributes.name,
+                        testField1: fixture2.attributes.testField1,
+                    };
+                    contents3 = {
+                        _module: fixture3.module,
+                        id: 'TestId3',
+                        name: fixture3.attributes.name,
+                        testField2: fixture3.attributes.testField2,
+                    };
+
                     nock(process.env.THORN_SERVER_URL)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk)
-                        .reply(200, constructBulkResponse([{
-                            _module: 'TestModule1',
-                            name: 'TestRecord1',
-                            testField1: 'TestField1data1',
-                            id: 'TestId1',
-                        }, {
-                            _module: 'TestModule1',
-                            name: 'TestRecord2',
-                            testField1: 'TestField1data2',
-                            id: 'TestId2',
-                        }, {
-                            _module: 'TestModule2',
-                            name: 'TestRecord3',
-                            testField2: 'TestField2data',
-                            id: 'TestId3',
-                        }]));
+                        .reply(200, constructBulkResponse([contents1, contents2, contents3]));
 
-                    yield Fixtures.create([record1, record2, record3]);
+                    yield Fixtures.create([fixture1, fixture2, fixture3]);
                 });
 
                 it('should clean up after itself when you call cleanup', function*() {
@@ -562,24 +568,24 @@ describe('Thorn', () => {
                         .post(isBulk, (requestBody) => {
                             let requests = requestBody.requests;
 
-                            expect(requests[0].url).to.contain('TestModule1/TestId1');
+                            expect(requests[0].url).to.contain(fixture1.module + '/' + contents1.id);
                             expect(requests[0].method).to.equal('DELETE');
 
-                            expect(requests[1].url).to.contain('TestModule1/TestId2');
+                            expect(requests[1].url).to.contain(fixture2.module + '/' + contents2.id);
                             expect(requests[1].method).to.equal('DELETE');
 
-                            expect(requests[2].url).to.contain('TestModule2/TestId3');
+                            expect(requests[2].url).to.contain(fixture3.module + '/' + contents3.id);
                             expect(requests[2].method).to.equal('DELETE');
+
                             return requestBody;
                         })
                         .reply(200, constructBulkResponse([
-                            {id: 'TestId1'},
-                            {id: 'TestId2'},
-                            {id: 'TestId3'},
+                            {id: contents1.id},
+                            {id: contents2.id},
+                            {id: contents3.id},
                         ]));
 
                     yield Fixtures.cleanup();
-                    expect(Fixtures.lookup).to.throw('No cached records are currently available!');
                     expect(server.isDone()).to.be.true;
                 });
 
@@ -599,9 +605,9 @@ describe('Thorn', () => {
                             return true;
                         })
                         .reply(200, constructBulkResponse([
-                            {id: 'TestId1'},
-                            {id: 'TestId2'},
-                            {id: 'TestId3'},
+                            {id: contents1.id},
+                            {id: contents2.id},
+                            {id: contents3.id},
                         ]));
 
                     yield Fixtures.cleanup();
