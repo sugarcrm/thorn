@@ -92,7 +92,7 @@ describe('Thorn', () => {
     }
 
     describe('Fixtures', () => {
-        describe('creating one record', () => {
+        describe('creation', () => {
             let myFixture;
             beforeEach(() => {
                 myFixture = [{
@@ -159,29 +159,37 @@ describe('Thorn', () => {
                 expect(server.isDone()).to.be.true;
             });
 
+<<<<<<< HEAD
             it('should create a fixture and find it', function*() {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
-                    .reply(200, constructBulkResponse({
-                        _module: 'TestModule1',
-                        id: 'TestId1',
-                        name: 'TestRecord1',
-                        testField1: 'TestField1data',
-                        testField2: 'TestField2data',
-                    }));
+                    .reply(200, function(uri, requestBody) {
+                        let requests = requestBody.requests;
+                        let request1 = requests[0];
+                        expect(request1.url).to.contain('/TestModule1');
+                        expect(request1.method).to.equal('POST');
+                        expect(request1.data).to.eql(record1.attributes);
 
-                yield Fixtures.create(myFixture);
-                let lookup1 = Fixtures.lookup('TestModule1', {name: 'TestRecord1'});
-                expect(lookup1.name).to.equal('TestRecord1');
-                expect(lookup1.testField1).to.equal('TestField1data');
-                expect(lookup1.testField2).to.equal('TestField2data');
+                        let request2 = requests[1];
+                        expect(request2.url).to.contain('/TestModule1');
+                        expect(request2.method).to.equal('POST');
+                        expect(request2.data).to.eql(record2.attributes);
 
-                let lookup2 = Fixtures.lookup('TestModule1', {testField1: 'TestField1data'});
-                let lookup3 = Fixtures.lookup('TestModule1', {testField2: 'TestField2data'});
-                expect(lookup1 == lookup2).to.be.true;
-                expect(lookup1 == lookup3).to.be.true;
+                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+
+                        return constructBulkResponse([
+                            contents1,
+                            contents2,
+                        ]);
+                    });
+                let myFixture = [record1, record2];
+                let records = yield Fixtures.create(myFixture, {module: 'TestModule1'});
+                let testModuleRecords = records.TestModule1;
+                expect(testModuleRecords.length).to.equal(2);
+                expect(testModuleRecords[0]).to.eql(contents1);
+                expect(testModuleRecords[1]).to.eql(contents2);
                 expect(server.isDone()).to.be.true;
             });
 
@@ -228,61 +236,6 @@ describe('Thorn', () => {
                 });
                 expect(server.isDone()).to.be.true;
             });
-        });
-
-        it('should create multiple fixtures', function*() {
-            let record1 = {
-                attributes: {
-                    name: 'TestRecord1',
-                    testField1: 'TestField1data1',
-                },
-            };
-            let record2 = {
-                attributes: {
-                    name: 'TestRecord2',
-                    testField1: 'TestField1data2',
-                },
-            };
-            let contents1 = {
-                _module: 'TestModule1',
-                name: 'TestRecord1',
-                testField1: 'TestField1data1',
-            };
-            let contents2 = {
-                _module: 'TestModule1',
-                name: 'TestRecord2',
-                testField1: 'TestField1data2',
-            };
-            let server = nock(process.env.THORN_SERVER_URL)
-                .post(isTokenReq)
-                .reply(200, ACCESS)
-                .post(isBulk)
-                .reply(200, function(uri, requestBody) {
-                    let requests = requestBody.requests;
-                    let request1 = requests[0];
-                    expect(request1.url).to.contain('/TestModule1');
-                    expect(request1.method).to.equal('POST');
-                    expect(request1.data).to.eql(record1.attributes);
-
-                    let request2 = requests[1];
-                    expect(request2.url).to.contain('/TestModule1');
-                    expect(request2.method).to.equal('POST');
-                    expect(request2.data).to.eql(record2.attributes);
-
-                    expect(this.req.headers['x-thorn']).to.equal('Fixtures');
-
-                    return constructBulkResponse([
-                        contents1,
-                        contents2,
-                    ]);
-                });
-            let myFixture = [record1, record2];
-            let records = yield Fixtures.create(myFixture, {module: 'TestModule1'});
-            let testModuleRecords = records.TestModule1;
-            expect(testModuleRecords.length).to.equal(2);
-            expect(testModuleRecords[0]).to.eql(contents1);
-            expect(testModuleRecords[1]).to.eql(contents2);
-            expect(server.isDone()).to.be.true;
         });
 
         describe('linking', () => {
