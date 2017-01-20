@@ -170,7 +170,6 @@ let Fixtures = {
             let bulkRecordLinkDef;
             let createdRecords;
 
-            // return Promise
             return utils.wrapRequest(chakram.post, [url, bulkRecordCreateDef, params], {
                 refreshToken: this._refreshToken,
                 afterRefresh: _.bind(this._afterRefresh, this),
@@ -178,12 +177,18 @@ let Fixtures = {
                 retryVersion: VERSION,
             }).then((response) => {
                 createdRecords = this._cacheResponse(response, models);
+
                 bulkRecordLinkDef = this._processLinks(response, models);
-                if (bulkRecordLinkDef.requests.length) {
-                    return chakram.post(url, bulkRecordLinkDef, params);
+                if (!bulkRecordLinkDef.requests.length) {
+                    return createdRecords;
                 }
 
-                return response;
+                return utils.wrapRequest(chakram.post, [url, bulkRecordLinkDef, params], {
+                    refreshToken: this._refreshToken,
+                    afterRefresh: _.bind(this._afterRefresh, this),
+                    xthorn: 'Fixtures',
+                    retryVersion: VERSION,
+                });
             }).then(() => {
                 return createdRecords;
             });

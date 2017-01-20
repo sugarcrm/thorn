@@ -325,9 +325,81 @@ describe('Thorn', () => {
                 testField2: 'TestField2data2',
             };
 
-            it('should create fixtures and link them', () => {});
+            it('should create fixtures and link them', function*() {
+                let record1WithLinks = _.clone(record1);
+                record1WithLinks.links = {'link-to-testmodule2': [record2]};
 
-            it('should retry fixture creation and linking on 401\'s', () => {});
+                let server = nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .post(isBulk)
+                    .reply(200, () => {
+                        return constructBulkResponse([contents1, contents2]);
+                    })
+                    .post(isBulk)
+                    .reply(200, function(uri, requestBody) {
+                        let request = requestBody.requests[0];
+
+                        expect(request.url).to.contain('TestModule1/TestId1/link');
+                        expect(request.method).to.equal('POST');
+                        expect(request.data.link_name).to.equal('link-to-testmodule2');
+                        expect(request.data.ids).to.eql(['TestId2']);
+
+                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+
+                        return constructBulkResponse({
+                            record: record1,
+                            related_records: [contents1, contents2],
+                        });
+                    });
+
+                yield Fixtures.create([record1WithLinks, record2]);
+                expect(server.isDone()).to.be.true;
+            });
+
+            it('should retry fixture creation and linking on 401\'s', function*() {
+                let record1WithLinks = _.clone(record1);
+                record1WithLinks.links = {'link-to-testmodule2': [record2]};
+
+                let originalRequestBody;
+
+                let server = nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .post(isBulk)
+                    .reply(200, () => {
+                        return constructBulkResponse([contents1, contents2]);
+                    })
+                    .post(isBulk, (requestBody) => {
+                        originalRequestBody = requestBody;
+                        return true;
+                    })
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .post(isBulk, (requestBody) => {
+                        expect(requestBody).to.eql(originalRequestBody);
+                        return true;
+                    })
+                    .reply(200, function(uri, requestBody) {
+                        let request = requestBody.requests[0];
+
+                        expect(request.url).to.contain('TestModule1/TestId1/link');
+                        expect(request.method).to.equal('POST');
+                        expect(request.data.link_name).to.equal('link-to-testmodule2');
+                        expect(request.data.ids).to.eql(['TestId2']);
+
+                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+
+                        return constructBulkResponse({
+                            record: record1,
+                            related_records: [contents1, contents2],
+                        });
+                    });
+
+                yield Fixtures.create([record1WithLinks, record2]);
+                expect(server.isDone()).to.be.true;
+            });
 
             describe('with pre-existing records', () => {
                 let records, left, right;
@@ -357,11 +429,10 @@ describe('Thorn', () => {
                         .reply(200, function(uri, requestBody) {
                             expect(this.req.headers['x-thorn']).to.equal('Fixtures');
                             expect(requestBody.link_name).to.equal('leftToRight');
-                            expect(requestBody.ids.length).to.equal(1);
-                            expect(requestBody.ids[0]).to.equal('TestId2');
+                            expect(requestBody.ids).to.eql(['TestId2']);
                             return {
                                 record: contents1,
-                                relatedRecords: [contents2],
+                                related_records: [contents2],
                             };
                         });
 
@@ -387,7 +458,7 @@ describe('Thorn', () => {
                         .reply(200, function(uri, requestBody) {
                             return {
                                 record: contents1,
-                                relatedRecords: [contents2],
+                                related_records: [contents2],
                             };
                         });
 
