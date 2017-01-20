@@ -187,9 +187,7 @@ describe('Thorn', () => {
                 let myFixture = [record1, record2];
                 let records = yield Fixtures.create(myFixture, {module: 'TestModule1'});
                 let testModuleRecords = records.TestModule1;
-                expect(testModuleRecords.length).to.equal(2);
-                expect(testModuleRecords[0]).to.eql(contents1);
-                expect(testModuleRecords[1]).to.eql(contents2);
+                expect(testModuleRecords).to.eql([contents1, contents2]);
                 expect(server.isDone()).to.be.true;
             });
 
