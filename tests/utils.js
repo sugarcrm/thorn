@@ -47,7 +47,6 @@ describe('Utils', () => {
             let server = nock(process.env.API_URL)
                 .post('/rest/' + options.version + '/oauth2/token')
                 .reply(200, function(uri, requestBody) {
-                    serverRequestMade = true;
                     expect(requestBody.username).to.equal(options.username);
                     expect(requestBody.password).to.equal(options.password);
                     expect(requestBody.grant_type).to.equal('password');
