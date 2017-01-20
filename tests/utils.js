@@ -19,6 +19,7 @@ describe('Utils', () => {
 
     describe('login', () => {
         let nock;
+
         before(() => {
             nock = require('nock');
             nock.disableNetConnect();
@@ -43,27 +44,26 @@ describe('Utils', () => {
                 xthorn: 'TestHeader',
             };
 
-            let serverRequestMade = false;
-
-            nock(process.env.API_URL)
-                .post('/rest/TestVersion/oauth2/token')
+            let server = nock(process.env.API_URL)
+                .post('/rest/' + options.version + '/oauth2/token')
                 .reply(200, function(uri, requestBody) {
                     serverRequestMade = true;
-                    expect(requestBody.username).to.equal('TestUser');
-                    expect(requestBody.password).to.equal('TestPass');
+                    expect(requestBody.username).to.equal(options.username);
+                    expect(requestBody.password).to.equal(options.password);
                     expect(requestBody.grant_type).to.equal('password');
                     expect(requestBody.client_id).to.equal('sugar');
                     expect(requestBody.client_secret).to.equal('');
-                    expect(this.req.headers['x-thorn']).to.equal('TestHeader');
+                    expect(this.req.headers['x-thorn']).to.equal(options.xthorn);
                 });
 
             yield utils.login(options);
-            expect(serverRequestMade).to.be.true;
+            expect(server.isDone()).to.be.true;
         });
     });
 
     describe('refresh', () => {
         let nock;
+
         before(() => {
             nock = require('nock');
             nock.disableNetConnect();
@@ -87,21 +87,18 @@ describe('Utils', () => {
                 xthorn: 'TestHeader',
             };
 
-            let serverRequestMade = false;
-
-            nock(process.env.API_URL)
-                .post('/rest/TestVersion/oauth2/token')
+            let server = nock(process.env.API_URL)
+                .post('/rest/' + options.version + '/oauth2/token')
                 .reply(200, function(uri, requestBody) {
-                    serverRequestMade = true;
                     expect(requestBody.grant_type).to.equal('refresh_token');
-                    expect(requestBody.refresh_token).to.equal('TestToken');
+                    expect(requestBody.refresh_token).to.equal(options.token);
                     expect(requestBody.client_id).to.equal('sugar');
                     expect(requestBody.client_secret).to.equal('');
-                    expect(this.req.headers['x-thorn']).to.equal('TestHeader');
+                    expect(this.req.headers['x-thorn']).to.equal(options.xthorn);
                 });
 
             yield utils.refresh(options);
-            expect(serverRequestMade).to.be.true;
+            expect(server.isDone()).to.be.true;
         });
     });
 
