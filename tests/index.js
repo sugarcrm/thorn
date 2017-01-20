@@ -357,11 +357,10 @@ describe('Thorn', () => {
                         .reply(200, function(uri, requestBody) {
                             expect(this.req.headers['x-thorn']).to.equal('Fixtures');
                             expect(requestBody.link_name).to.equal('leftToRight');
-                            expect(requestBody.ids.length).to.equal(1);
-                            expect(requestBody.ids[0]).to.equal('TestId2');
+                            expect(requestBody.ids).to.eql(['TestId2']);
                             return {
                                 record: contents1,
-                                relatedRecords: [contents2],
+                                related_records: [contents2],
                             };
                         });
 
@@ -387,7 +386,7 @@ describe('Thorn', () => {
                         .reply(200, function(uri, requestBody) {
                             return {
                                 record: contents1,
-                                relatedRecords: [contents2],
+                                related_records: [contents2],
                             };
                         });
 
