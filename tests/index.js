@@ -93,16 +93,17 @@ describe('Thorn', () => {
 
     describe('Fixtures', () => {
         describe('creation', () => {
-            let myFixture;
+            let fixture;
+
             beforeEach(() => {
-                myFixture = [{
+                fixture = {
                     module: 'TestModule1',
                     attributes: {
-                        name: 'TestRecord1',
+                        name: 'Testfixture1',
                         testField1: 'TestField1data',
                         testField2: 'TestField2data',
                     },
-                }];
+                };
             });
 
             it('should create a fixture', function*() {
@@ -112,18 +113,18 @@ describe('Thorn', () => {
                     .post(isBulk)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Fixtures');
-                        expect(requestBody.requests[0].url).to.contain('TestModule1');
+                        expect(requestBody.requests[0].url).to.contain(fixture.module);
                         expect(requestBody.requests[0].method).to.equal('POST');
-                        expect(requestBody.requests[0].data).to.eql(myFixture[0].attributes);
+                        expect(requestBody.requests[0].data).to.eql(fixture.attributes);
                         return constructBulkResponse({
-                            _module: 'TestModule1',
+                            _module: fixture.module,
                             id: 'TestId1',
-                            name: 'TestRecord1',
-                            testField1: 'TestField1data',
-                            testField2: 'TestField2data',
+                            name: fixture.attributes.name,
+                            testField1: fixture.testField1,
+                            testField2: fixture.testField2,
                         });
                     });
-                let createPromise = Fixtures.create(myFixture);
+                let createPromise = Fixtures.create(fixture);
 
                 expect(isPromise(createPromise)).to.be.true;
 
@@ -132,26 +133,28 @@ describe('Thorn', () => {
             });
 
             it('should create a fixture using options.module', function*() {
-                let fixtureWithoutModule = _.clone(myFixture);
-                delete fixtureWithoutModule[0].module;
+                let module = 'TestModule2';
+                let fixtureWithoutModule = _.clone(fixture);
+                delete fixtureWithoutModule.module;
+
                 let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
                     .reply(200, function(uri, requestBody) {
                         expect(this.req.headers['x-thorn']).to.equal('Fixtures');
-                        expect(requestBody.requests[0].url).to.contain('TestModule2');
+                        expect(requestBody.requests[0].url).to.contain(module);
                         expect(requestBody.requests[0].method).to.equal('POST');
-                        expect(requestBody.requests[0].data).to.eql(myFixture[0].attributes);
+                        expect(requestBody.requests[0].data).to.eql(fixtureWithoutModule.attributes);
                         return constructBulkResponse({
-                            _module: 'TestModule1',
+                            _module: module,
                             id: 'TestId1',
-                            name: 'TestRecord1',
-                            testField1: 'TestField1data',
-                            testField2: 'TestField2data',
+                            name: fixtureWithoutModule.name,
+                            testField1: fixtureWithoutModule.testField1,
+                            testField2: fixtureWithoutModule.testField2,
                         });
                     });
-                let createPromise = Fixtures.create(fixtureWithoutModule, {module: 'TestModule2'});
+                let createPromise = Fixtures.create(fixtureWithoutModule, {module: module});
 
                 expect(isPromise(createPromise)).to.be.true;
 
@@ -159,23 +162,47 @@ describe('Thorn', () => {
                 expect(server.isDone()).to.be.true;
             });
 
-<<<<<<< HEAD
-            it('should create a fixture and find it', function*() {
+            it('should create multiple fixtures', function*() {
+                let module = 'TestModule1';
+                let fixture1 = {
+                    attributes: {
+                        name: 'TestRecord1',
+                        testField1: 'TestField1data1',
+                    },
+                };
+                let fixture2 = {
+                    attributes: {
+                        name: 'TestRecord2',
+                        testField1: 'TestField1data2',
+                    },
+                };
+                let contents1 = {
+                    _module: 'TestModule1',
+                    name: 'TestRecord1',
+                    testField1: 'TestField1data1',
+                };
+                let contents2 = {
+                    _module: 'TestModule1',
+                    name: 'TestRecord2',
+                    testField1: 'TestField1data2',
+                };
+
                 let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
                     .reply(200, function(uri, requestBody) {
                         let requests = requestBody.requests;
+
                         let request1 = requests[0];
-                        expect(request1.url).to.contain('/TestModule1');
+                        expect(request1.url).to.contain(module);
                         expect(request1.method).to.equal('POST');
-                        expect(request1.data).to.eql(record1.attributes);
+                        expect(request1.data).to.eql(fixture1.attributes);
 
                         let request2 = requests[1];
-                        expect(request2.url).to.contain('/TestModule1');
+                        expect(request2.url).to.contain(module);
                         expect(request2.method).to.equal('POST');
-                        expect(request2.data).to.eql(record2.attributes);
+                        expect(request2.data).to.eql(fixture2.attributes);
 
                         expect(this.req.headers['x-thorn']).to.equal('Fixtures');
 
@@ -184,9 +211,9 @@ describe('Thorn', () => {
                             contents2,
                         ]);
                     });
-                let myFixture = [record1, record2];
-                let records = yield Fixtures.create(myFixture, {module: 'TestModule1'});
-                let testModuleRecords = records.TestModule1;
+
+                let records = yield Fixtures.create([fixture1, fixture2], {module: module});
+                let testModuleRecords = records[module];
                 expect(testModuleRecords).to.eql([contents1, contents2]);
                 expect(server.isDone()).to.be.true;
             });
@@ -209,14 +236,14 @@ describe('Thorn', () => {
                         return true;
                     })
                     .reply(200, constructBulkResponse({
-                        _module: 'TestModule1',
+                        _module: fixture.module,
                         id: 'TestId1',
-                        name: 'TestRecord1',
-                        testField1: 'TestField1data',
-                        testField2: 'TestField2data',
+                        name: fixture.attributes.name,
+                        testField1: fixture.testField1,
+                        testField2: fixture.testField2,
                     }));
 
-                yield Fixtures.create(myFixture);
+                yield Fixtures.create(fixture);
                 expect(server.isDone()).to.be.true;
             });
 
@@ -229,7 +256,7 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(401);
 
-                yield Fixtures.create(myFixture).catch((e) => {
+                yield Fixtures.create(fixture).catch((e) => {
                     expect(e.message).to.equal('Max number of login attempts exceeded!');
                 });
                 expect(server.isDone()).to.be.true;
