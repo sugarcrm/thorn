@@ -114,9 +114,7 @@ describe('Thorn', () => {
                         expect(this.req.headers['x-thorn']).to.equal('Fixtures');
                         expect(requestBody.requests[0].url).to.contain('TestModule1');
                         expect(requestBody.requests[0].method).to.equal('POST');
-                        expect(requestBody.requests[0].data.name).to.equal('TestRecord1');
-                        expect(requestBody.requests[0].data.testField1).to.equal('TestField1data');
-                        expect(requestBody.requests[0].data.testField2).to.equal('TestField2data');
+                        expect(requestBody.requests[0].data).to.eql(myFixture[0].attributes);
                         return constructBulkResponse({
                             _module: 'TestModule1',
                             id: 'TestId1',
@@ -144,9 +142,7 @@ describe('Thorn', () => {
                         expect(this.req.headers['x-thorn']).to.equal('Fixtures');
                         expect(requestBody.requests[0].url).to.contain('TestModule2');
                         expect(requestBody.requests[0].method).to.equal('POST');
-                        expect(requestBody.requests[0].data.name).to.equal('TestRecord1');
-                        expect(requestBody.requests[0].data.testField1).to.equal('TestField1data');
-                        expect(requestBody.requests[0].data.testField2).to.equal('TestField2data');
+                        expect(requestBody.requests[0].data).to.eql(myFixture[0].attributes);
                         return constructBulkResponse({
                             _module: 'TestModule1',
                             id: 'TestId1',
@@ -168,15 +164,13 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
-                    .reply(200, function(uri, requestBody) {
-                        return constructBulkResponse({
-                            _module: 'TestModule1',
-                            id: 'TestId1',
-                            name: 'TestRecord1',
-                            testField1: 'TestField1data',
-                            testField2: 'TestField2data',
-                        });
-                    });
+                    .reply(200, constructBulkResponse({
+                        _module: 'TestModule1',
+                        id: 'TestId1',
+                        name: 'TestRecord1',
+                        testField1: 'TestField1data',
+                        testField2: 'TestField2data',
+                    }));
 
                 yield Fixtures.create(myFixture);
                 let lookup1 = Fixtures.lookup('TestModule1', {name: 'TestRecord1'});
@@ -197,26 +191,24 @@ describe('Thorn', () => {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
-                    .post(isBulk, function(requestBody) {
+                    .post(isBulk, (requestBody) => {
                         originalRequestBody = requestBody;
                         return true;
                     })
                     .reply(401)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
-                    .post(isBulk, function(requestBody) {
+                    .post(isBulk, (requestBody) => {
                         expect(requestBody).to.eql(originalRequestBody);
                         return true;
                     })
-                    .reply(200, function(uri, requestBody) {
-                        return constructBulkResponse({
-                            _module: 'TestModule1',
-                            id: 'TestId1',
-                            name: 'TestRecord1',
-                            testField1: 'TestField1data',
-                            testField2: 'TestField2data',
-                        });
-                    });
+                    .reply(200, constructBulkResponse({
+                        _module: 'TestModule1',
+                        id: 'TestId1',
+                        name: 'TestRecord1',
+                        testField1: 'TestField1data',
+                        testField2: 'TestField2data',
+                    }));
 
                 yield Fixtures.create(myFixture);
                 expect(server.isDone()).to.be.true;
@@ -324,6 +316,7 @@ describe('Thorn', () => {
                 testField1: 'TestField1data2',
                 testField2: 'TestField2data2',
             };
+            let link = 'link-to-testmodule2';
 
             it('should create fixtures and link them', function*() {
                 let record1WithLinks = _.clone(record1);
@@ -410,12 +403,10 @@ describe('Thorn', () => {
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk)
-                        .reply(200, () => {
-                            return constructBulkResponse([
-                                contents1,
-                                contents2,
-                            ]);
-                        });
+                        .reply(200, constructBulkResponse([
+                            contents1,
+                            contents2,
+                        ]));
 
                     let response = yield Fixtures.create([record1, record2]);
                     records = response;
@@ -428,15 +419,15 @@ describe('Thorn', () => {
                         .post(linkTestId1Regex)
                         .reply(200, function(uri, requestBody) {
                             expect(this.req.headers['x-thorn']).to.equal('Fixtures');
-                            expect(requestBody.link_name).to.equal('leftToRight');
-                            expect(requestBody.ids).to.eql(['TestId2']);
+                            expect(requestBody.link_name).to.equal(link);
+                            expect(requestBody.ids).to.eql([contents2.id]);
                             return {
                                 record: contents1,
                                 related_records: [contents2],
                             };
                         });
 
-                    yield Fixtures.link(left, 'leftToRight', right);
+                    yield Fixtures.link(left, link, right);
                     expect(server.isDone()).to.be.true;
                 });
 
@@ -444,25 +435,23 @@ describe('Thorn', () => {
                     let originalRequestBody;
 
                     let server = nock(process.env.THORN_SERVER_URL)
-                        .post(linkTestId1Regex, function(requestBody) {
+                        .post(linkTestId1Regex, (requestBody) => {
                             originalRequestBody = requestBody;
                             return true;
                         })
                         .reply(401)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
-                        .post(linkTestId1Regex, function(requestBody) {
+                        .post(linkTestId1Regex, (requestBody) => {
                             expect(requestBody).to.eql(originalRequestBody);
                             return true;
                         })
-                        .reply(200, function(uri, requestBody) {
-                            return {
-                                record: contents1,
+                        .reply(200, {
+                            record: contents1,
                                 related_records: [contents2],
-                            };
                         });
 
-                    yield Fixtures.link(left, 'leftToRight', right);
+                    yield Fixtures.link(left, link, right);
                     expect(server.isDone()).to.be.true;
                 });
             });
@@ -507,40 +496,33 @@ describe('Thorn', () => {
                             testField2: 'TestField2data',
                         },
                     };
-                    let bigFixture = [record1, record2, record3];
                     nock(process.env.THORN_SERVER_URL)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
                         .post(isBulk)
-                        .reply(200, () => {
-                            return constructBulkResponse([
-                                {
-                                    _module: 'TestModule1',
-                                    name: 'TestRecord1',
-                                    testField1: 'TestField1data1',
-                                    id: 'TestId1',
-                                },
-                                {
-                                    _module: 'TestModule1',
-                                    name: 'TestRecord2',
-                                    testField1: 'TestField1data2',
-                                    id: 'TestId2',
-                                },
-                                {
-                                    _module: 'TestModule2',
-                                    name: 'TestRecord3',
-                                    testField2: 'TestField2data',
-                                    id: 'TestId3',
-                                },
-                            ]);
-                        });
+                        .reply(200, constructBulkResponse([{
+                            _module: 'TestModule1',
+                            name: 'TestRecord1',
+                            testField1: 'TestField1data1',
+                            id: 'TestId1',
+                        }, {
+                            _module: 'TestModule1',
+                            name: 'TestRecord2',
+                            testField1: 'TestField1data2',
+                            id: 'TestId2',
+                        }, {
+                            _module: 'TestModule2',
+                            name: 'TestRecord3',
+                            testField2: 'TestField2data',
+                            id: 'TestId3',
+                        }]));
 
-                    yield Fixtures.create(bigFixture);
+                    yield Fixtures.create([record1, record2, record3]);
                 });
 
                 it('should clean up after itself when you call cleanup', function*() {
                     let server = nock(process.env.THORN_SERVER_URL)
-                        .post(isBulk, function(requestBody) {
+                        .post(isBulk, (requestBody) => {
                             let requests = requestBody.requests;
 
                             expect(requests[0].url).to.contain('TestModule1/TestId1');
@@ -553,13 +535,11 @@ describe('Thorn', () => {
                             expect(requests[2].method).to.equal('DELETE');
                             return requestBody;
                         })
-                        .reply(200, () => {
-                            return constructBulkResponse([
-                                {id: 'TestId1'},
-                                {id: 'TestId2'},
-                                {id: 'TestId3'},
-                            ]);
-                        });
+                        .reply(200, constructBulkResponse([
+                            {id: 'TestId1'},
+                            {id: 'TestId2'},
+                            {id: 'TestId3'},
+                        ]));
 
                     yield Fixtures.cleanup();
                     expect(Fixtures.lookup).to.throw('No cached records are currently available!');
@@ -570,24 +550,22 @@ describe('Thorn', () => {
                     let originalRequestBody;
 
                     let server = nock(process.env.THORN_SERVER_URL)
-                        .post(isBulk, function(requestBody) {
+                        .post(isBulk, (requestBody) => {
                             originalRequestBody = requestBody;
                             return true;
                         })
                         .reply(401)
                         .post(isTokenReq)
                         .reply(200, ACCESS)
-                        .post(isBulk, function(requestBody) {
+                        .post(isBulk, (requestBody) => {
                             expect(requestBody).to.eql(originalRequestBody);
                             return true;
                         })
-                        .reply(200, () => {
-                            return constructBulkResponse([
-                                {id: 'TestId1'},
-                                {id: 'TestId2'},
-                                {id: 'TestId3'},
-                            ]);
-                        });
+                        .reply(200, constructBulkResponse([
+                            {id: 'TestId1'},
+                            {id: 'TestId2'},
+                            {id: 'TestId3'},
+                        ]));
 
                     yield Fixtures.cleanup();
                     expect(server.isDone()).to.be.true;
@@ -724,4 +702,3 @@ describe('Thorn', () => {
         });
     });
 });
-
