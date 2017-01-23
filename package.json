@@ -1,6 +1,6 @@
 {
   "name": "@sugarcrm/thorn",
-  "version": "0.1.0",
+  "version": "0.1.0-beta.1",
   "description": "Framework for REST API testing SugarCRM with chakram",
   "main": "dist/index.js",
   "repository": "https://github.com/sugarcrm/thorn",
@@ -39,7 +39,6 @@
     "test": "gulp test",
     "prepublish": "gulp"
   },
-  "private": true,
   "engines": {
     "node": ">=6.0.0",
     "npm": ">=3.0.0"
