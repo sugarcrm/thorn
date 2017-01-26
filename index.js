@@ -736,6 +736,6 @@ class UserAgent {
  * @namespace
  * @see {@link https://dareid.github.io/chakram/jsdoc/module-chakram-expectation.html}
  */
-let Expect = chakram.expect;
+let expect = chakram.expect;
 
-export {Fixtures, Agent, Expect};
+export {Fixtures, Agent, expect};
