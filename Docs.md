@@ -10,19 +10,12 @@ You should be familiar with [mocha][mocha], [expect][expect], and [JavaScript Pr
 ## Setup
 
 ```javascript
-const thorn = require('@sugarcrm/thorn');
-const expect = thorn.expect;
+const { Agent, expect, Fixtures } = require('@sugarcrm/thorn');
 ```
 
 ## Thorn.Fixtures
 
 `Thorn.Fixtures` is an object that handles the setup and cleanup process for test sets. It provides methods for creating records, record-relationships, and deleting records in the database.
-
-### Setup
-
-```javascript
-const Fixtures = thorn.Fixtures;
-```
 
 ### Methods
 
@@ -231,12 +224,6 @@ record creations such that dependencies are met before `Fixtures` tries to make 
 Thorn provides an Agent class that simulates a REST API user agent.
 You should use this class for all of your Thorn tests except those which test the Users API directly (in which case you should use the [chakram API](chakram) directly).
 
-### Setup
-
-```javascript
-const Agent = thorn.Agent;
-```
-
 ### Creating Agents
 
 An Agent corresponds directly to a user that exists in the SugarCRM instance you are testing. That user *must* exist in the database before you attempt to create a user agent for it. You can use the [Thorn Fixtures API](#thorn::fixtures) to create any needed users.
@@ -372,7 +359,7 @@ let response = yield john.get('Notifications')
 
 ## Thorn.expect
 
-Thorn.expect makes [Chakram assertions][expect] easily accessible.
+`Thorn.expect` makes [Chakram assertions][expect] easily accessible.
 
 ## Best Practices
 
