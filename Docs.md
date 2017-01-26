@@ -11,8 +11,7 @@ You should be familiar with [mocha][mocha], [expect][expect], and [JavaScript Pr
 
 ```javascript
 const thorn = require('@sugarcrm/thorn');
-const chakram = require('chakram');
-const expect = chakram.expect;
+const expect = thorn.expect;
 ```
 
 ## Thorn.Fixtures
@@ -371,9 +370,9 @@ let response = yield john.get('Notifications')
 ...
 ```
 
-## Thorn.Expect
+## Thorn.expect
 
-Thorn.Expect makes [Chakram assertions][expect] easily accessible.
+Thorn.expect makes [Chakram assertions][expect] easily accessible.
 
 ## Best Practices
 
