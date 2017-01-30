@@ -10,7 +10,7 @@ You should be familiar with [mocha][mocha], [expect][expect], and [JavaScript Pr
 ## Setup
 
 ```javascript
-const { Agent, expect, Fixtures } = require('@sugarcrm/thorn');
+const { Agent, Fixtures } = require('@sugarcrm/thorn');
 ```
 
 ## Thorn.Fixtures
