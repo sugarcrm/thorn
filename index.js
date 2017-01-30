@@ -731,11 +731,4 @@ class UserAgent {
 
 // ********************************************************************************************************************
 
-/**
- * Assertions for Thorn tests.
- * @namespace
- * @see {@link https://dareid.github.io/chakram/jsdoc/module-chakram-expectation.html}
- */
-let expect = chakram.expect;
-
-export {Fixtures, Agent, expect};
+export {Fixtures, Agent};

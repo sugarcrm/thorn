@@ -5,12 +5,12 @@ setting up a SugarCRM's REST API testing environment and interacting with it.
 
 ## Prerequisites
 
-You should be familiar with [mocha][mocha], [expect][expect], and [JavaScript Promises][google-js-promises].
+You should be familiar with [mocha][mocha] and [JavaScript Promises][google-js-promises].
 
 ## Setup
 
 ```javascript
-const { Agent, expect, Fixtures } = require('@sugarcrm/thorn');
+const { Agent, Fixtures } = require('@sugarcrm/thorn');
 ```
 
 ## Thorn.Fixtures
@@ -356,10 +356,6 @@ Note that the original Agent remains valid and can continue to make requests aga
 let response = yield john.get('Notifications')
 ...
 ```
-
-## Thorn.expect
-
-`Thorn.expect` makes [Chakram assertions][expect] easily accessible.
 
 ## Best Practices
 
