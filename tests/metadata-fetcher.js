@@ -2,7 +2,7 @@ describe('Metadata Fetcher', () => {
     let _, expect, nock, MetadataHandler, MetadataFetcher, metadata, expected;
     before(() => {
         _ = require('lodash');
-        expect = require('chai').expect;
+        expect = require('chakram').expect;
         nock = require('nock');
 
         MetadataHandler = require('../dist/metadata-handler.js');
