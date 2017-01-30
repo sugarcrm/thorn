@@ -357,10 +357,6 @@ let response = yield john.get('Notifications')
 ...
 ```
 
-## Thorn.expect
-
-`Thorn.expect` makes [Chakram assertions][expect] easily accessible.
-
 ## Best Practices
 
 * Every test file should be wrapped in a `describe` block to protect against cross-test contamination.
@@ -377,7 +373,8 @@ Users of Thorn seeking to debug their tests should set `THORN_VERBOSE=1`.
 `THORN_VERBOSE=2` is intended for those developing Thorn itself and is not intended for users.
 
 Before commiting tests, **please ensure you run them with THORN_VERBOSE=1** so you can be sure you are making the
-HTTP requests and getting the responses back that you expect.
+HTTP requests and getting the responses back that you 
+.
 
 [chakram]: http://dareid.github.io/chakram/
 [chakram API]: https://dareid.github.io/chakram/jsdoc/module-chakram.html
