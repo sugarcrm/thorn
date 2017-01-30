@@ -5,7 +5,7 @@ setting up a SugarCRM's REST API testing environment and interacting with it.
 
 ## Prerequisites
 
-You should be familiar with [mocha][mocha], [expect][expect], and [JavaScript Promises][google-js-promises].
+You should be familiar with [mocha][mocha] and [JavaScript Promises][google-js-promises].
 
 ## Setup
 
