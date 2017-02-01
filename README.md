@@ -10,4 +10,4 @@ $ npm install --save-dev '@sugarcrm/thorn'
 
 ## Documentation
 
-See [Docs.md](https://github.com/sugarcrm/thorn/blob/master/Docs.md).
+See [the Thorn website](http://sugarcrm.github.io/thorn).
