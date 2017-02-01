@@ -166,11 +166,16 @@ var MetadataHandler = {
 
         return MetadataFetcher.fetch()
             .then((metadata) => {
-                metadata = this._patchMetadata(metadata);
-                self._metadata = metadata;
+                // If metadata has been cached already it means it has been
+                // patched already too, thus there's no need to re-patch metadata again
+                if (!self._metadata) {
+                    self._metadata = self._patchMetadata(metadata);
+                }
+
                 if (!self._metadata[module]) {
                     throw new Error('Unrecognized module: ' + module);
                 }
+
                 return self._metadata[module].fields;
             });
     },
