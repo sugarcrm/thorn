@@ -221,6 +221,7 @@ let Fixtures = {
      * @private
      */
     _cacheResponse(response, models) {
+        utils.assertSaneResponse(response);
         let createdRecords = {};
         let records = response.response.body;
         let modelIndex = 0;
@@ -449,6 +450,7 @@ let Fixtures = {
                 xthorn: 'Fixtures',
             }
         ).then((response) => {
+            utils.assertSaneResponse(response);
             return response.response.body;
         });
     },
@@ -479,6 +481,7 @@ let Fixtures = {
             version: VERSION,
             xthorn: 'Fixtures',
         }).then((response) => {
+            utils.assertSaneResponse(response);
             if (response.response.statusCode === 200) {
                 this._storeAuth(response);
             }
