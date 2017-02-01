@@ -107,6 +107,20 @@ describe('Utils', () => {
         });
     });
 
+    describe('assertSaneResponse', () => {
+        it('should throw on falsy response', () => {
+            expect(() => { utils.assertSaneResponse(undefined); }).to.throw('Falsy response received!');
+        });
+
+        it('should throw if response.response does not exist', () => {
+            expect(() => {
+                utils.assertSaneResponse({
+                    notResponse: {},
+                });
+            }).to.throw('Invalid response received! response: {"notResponse":{}}');
+        });
+    });
+
     describe('constructUrl', () => {
         it('should return a URL relative to THORN_SERVER_URL', () => {
             let url = utils.constructUrl('location');
@@ -162,7 +176,7 @@ describe('Utils', () => {
 
             expect(wrappedMethod).to.be.calledOnce;
             expect(wrappedMethod).to.be.calledWithExactly('a');
-            expect(errorMsg).to.equal('Invalid response received!');
+            expect(errorMsg).to.equal('Falsy response received!');
         });
 
         it('should throw an error on unsuccessful requests', function*() {

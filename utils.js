@@ -21,6 +21,21 @@ let chakram = require('chakram');
  */
 let utils = {
     /**
+     * Ensure that a Chakram response object is sane before using it.
+     * Throws if the response is unreasonable.
+     *
+     * @param {ChakramResponse} response Object to check.
+     */
+    assertSaneResponse: function assertSaneResponse(response) {
+        if (!response) {
+            throw new Error('Falsy response received!');
+        }
+        if (!response.response) {
+            throw new Error(`Invalid response received! response: ${JSON.stringify(response)}`);
+        }
+    },
+
+    /**
      * Construct a URL relative to the base URL.
      * Each argument is joined with a `/`.
      *
@@ -102,9 +117,7 @@ let utils = {
     wrapRequest: function wrapRequest(chakramMethod, args, options) {
         let retryVersion = options.retryVersion;
         return chakramMethod.apply(chakram, args).then((response) => {
-            if (!response || !response.response) {
-                throw new Error('Invalid response received!');
-            }
+            utils.assertSaneResponse(response);
 
             if (response.response.statusCode === 200) {
                 return response;
@@ -150,6 +163,9 @@ let utils = {
             headers: {
                 'X-Thorn': options.xthorn,
             },
+        }).then((response) => {
+            utils.assertSaneResponse(response);
+            return response;
         });
     },
 };
