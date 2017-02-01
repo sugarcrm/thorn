@@ -172,7 +172,7 @@ with `Fixtures.create`.
 
 | Type      | Description |
 | --------- |:------------|
-| {Promise} | A `Promise` which resolves to `undefined`. |
+| {Promise} | A `Promise` which resolves to the server response to the delete request(s).
 
 <br/>
 
