@@ -654,6 +654,10 @@ describe('Thorn', () => {
                 expect(myAgent.username).to.equal(process.env.THORN_ADMIN_USERNAME);
                 expect(myAgent.password).to.equal(process.env.THORN_ADMIN_PASSWORD);
             });
+
+            it('should throw an error if no username given', () => {
+                expect(() => Agent.as('')).to.throw('Tried to create a user agent with no username!');
+            });
         });
 
         describe('on', () => {
