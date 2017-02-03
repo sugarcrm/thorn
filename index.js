@@ -79,12 +79,14 @@ function _insertCredentials(username, userhash) {
 }
 
 /**
- * Restores `cachedRecords` and `credentials` to their initial states.
+ * Restores `cachedRecords`, `cachedAgents` and `credentials` to their initial
+ * states.
  *
  * @private
  */
 function _restore() {
     cachedRecords = {};
+    cachedAgents = {};
     credentials = {
         [process.env.THORN_ADMIN_USERNAME]: process.env.THORN_ADMIN_PASSWORD,
     };

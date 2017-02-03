@@ -601,6 +601,15 @@ describe('Thorn', () => {
 
                     yield Fixtures.cleanup();
                     expect(server.isDone()).to.be.true;
+
+                    //FIXME: We need an integration test making sure the
+                    //`cachedRecords` and the `cachedAgents` are emptied.
+                    //The test could be:
+                    // 1) Create a User fixture and set it as an agent.
+                    // 2) clean up the fixtures
+                    // 3) Create a User fixture with the same username and set
+                    //    it as an agent
+                    // 4) Do a request with this user and make sure you get a 200.
                 });
 
                 it('should retry clean up on 401\'s', function*() {
