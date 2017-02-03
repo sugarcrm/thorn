@@ -115,7 +115,7 @@ describe('Utils', () => {
         it('should construct the URL with \'rest\' in the appropriate location', () => {
             let url = utils.constructUrl('test');
             expect(url).to.match(/\/rest\/test/);
-        }); 
+        });
     });
 
     describe('wrapRequest', () => {
