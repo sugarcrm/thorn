@@ -658,6 +658,10 @@ describe('Thorn', () => {
             it('should throw an error if no username given', () => {
                 expect(() => Agent.as('')).to.throw('Tried to create a user agent with no username!');
             });
+
+            it('should throw an error if given username is not found', () => {
+                expect(() => Agent.as('nonexistent')).to.throw('No credentials available for user: nonexistent');
+            });
         });
 
         describe('on', () => {
