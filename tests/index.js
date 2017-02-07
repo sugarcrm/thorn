@@ -641,14 +641,12 @@ describe('Thorn', () => {
     });
 
     describe('Agent', () => {
-        beforeEach(() => {
-            nock(process.env.THORN_SERVER_URL)
-                .post(isTokenReq)
-                .reply(200, ACCESS);
-        });
-
         describe('as', () => {
             it('should return an Agent with cached username and password', () => {
+                nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS);
+
                 let myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
 
                 expect(myAgent.username).to.equal(process.env.THORN_ADMIN_USERNAME);
@@ -656,6 +654,10 @@ describe('Thorn', () => {
             });
 
             it('should return the same agent if called twice with the same username', () => {
+                nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS);
+
                 let agent1 = Agent.as(process.env.THORN_ADMIN_USERNAME);
                 let agent2 = Agent.as(process.env.THORN_ADMIN_USERNAME);
 
@@ -669,12 +671,73 @@ describe('Thorn', () => {
             it('should throw an error if given username is not found', () => {
                 expect(() => Agent.as('nonexistent')).to.throw('No credentials available for user: nonexistent');
             });
+
+            it('should retry login 2 times', function*() {
+                let server = nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .get(/not\/real\/endpoint/)
+                    .reply(200, { fake: 'data' });
+
+                let myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
+
+                // note: Agent.as does not expose a Promise, so have to wait on an arbitrary request
+                yield myAgent.get('not/real/endpoint');
+
+                expect(server.isDone()).to.be.true;
+            });
+
+            it('should give up after 3 login attempts', function*() {
+                nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(401);
+
+                let myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
+
+                // note: Agent.as does not expose a Promise, so have to wait on an arbitrary request
+                yield myAgent.get('not/real/endpoint').catch((e) => {
+                    let msg = 'Max number of login attempts exceeded for user: ' + process.env.THORN_ADMIN_USERNAME;
+                    expect(e.message).to.equal(msg);
+                });
+            });
+
+            // Apache sometimes sends 200 responses with empty bodies on thread death,
+            // which is interpreted by Chakram as ECONNRESET and results in an empty
+            // response.response object. Ensure this scenario is handled appropriately.
+            it('should retry login on empty response body', function*() {
+                let server = nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .get(/not\/real\/endpoint/)
+                    .reply(200, { fake: 'data' });
+
+                let myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
+
+                // note: Agent.as does not expose a Promise, so have to wait on an arbitrary request
+                yield myAgent.get('not/real/endpoint');
+
+                expect(server.isDone()).to.be.true;
+            });
         });
 
         describe('on', () => {
             let myAgent;
 
             beforeEach(() => {
+                nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS);
+
                 myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
             });
 
@@ -702,6 +765,10 @@ describe('Thorn', () => {
             }
 
             beforeEach(() => {
+                nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS);
+
                 myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
                 endpoint = 'not/real/endpoint';
             });

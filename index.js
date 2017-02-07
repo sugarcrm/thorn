@@ -550,6 +550,9 @@ class UserAgent {
         this.version = version;
 
         this._cacheMe();
+
+        this._maxSessionAttempts = 3;
+        this._setState('sessionAttempt', 0);
     }
 
     /**
@@ -575,19 +578,40 @@ class UserAgent {
 
     /**
      * Log this user agent in.
-     * After calling this function,
-     * `cachedAgents[this.username]._state.loginPromise` is set to a promise
-     * that, when resolved, will verify that the OAuth token is available.
+     * If the login is unsuccessful, it is retried a maximum of two additional
+     * times, after which it throws an error.
+     *
+     * @return {ChakramPromise} A promise resolving to the result of the login
+     *   request.
      *
      * @private
      */
     _login = () => {
-        this._setState('loginPromise', utils.login({
+        let loginPromise = this._getState('loginPromise');
+        if (loginPromise) {
+            return loginPromise;
+        }
+
+        let sessionAttempt = this._getState('sessionAttempt') + 1;
+        this._setState('sessionAttempt', sessionAttempt);
+        if (sessionAttempt > this._maxSessionAttempts) {
+            throw new Error('Max number of login attempts exceeded for user: ' + this.username);
+        }
+
+        loginPromise = utils.login({
             username: this.username,
             password: this.password,
             version: this.version,
             xthorn: 'Agent',
-        }).then(this._updateAuthState));
+        }).then((response) => {
+            this._updateAuthState(response);
+            this._setState('sessionAttempt', 0);
+        }).catch(() => {
+            this._setState('loginPromise', null);
+            return this._login();
+        });
+        this._setState('loginPromise', loginPromise);
+        return loginPromise;
     };
 
     /**
@@ -604,7 +628,7 @@ class UserAgent {
     _requestSkeleton = (chakramMethod, args) => {
         args[0] = utils.constructUrl(this.version, args[0]);
 
-        return this._getState('loginPromise').then(() => {
+        return this._login().then(() => {
             // must wait for login promise to resolve or else OAuth-Token may not be available
             let paramIndex = args.length - 1;
             // FIXME: eventually will want to support multiple types of headers
