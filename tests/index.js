@@ -655,6 +655,13 @@ describe('Thorn', () => {
                 expect(myAgent.password).to.equal(process.env.THORN_ADMIN_PASSWORD);
             });
 
+            it('should return the same agent if called twice with the same username', () => {
+                let agent1 = Agent.as(process.env.THORN_ADMIN_USERNAME);
+                let agent2 = Agent.as(process.env.THORN_ADMIN_USERNAME);
+
+                expect(agent1).to.equal(agent2);
+            });
+
             it('should throw an error if no username given', () => {
                 expect(() => Agent.as('')).to.throw('Tried to create a user agent with no username!');
             });
