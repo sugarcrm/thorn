@@ -67,6 +67,11 @@ let cachedRecords;
 let credentials;
 
 /**
+ * Maps between passed in user name and real user name
+ */
+let usernameMap;
+
+/**
  * Inserts username and userhash into `credentials`.
  *
  * @param {string} username Username of the user.
@@ -101,6 +106,9 @@ function _restore() {
     cachedAgents = {};
     credentials = {
         [process.env.THORN_ADMIN_USERNAME]: process.env.THORN_ADMIN_PASSWORD,
+    };
+    usernameMap = {
+        [process.env.THORN_ADMIN_USERNAME]: process.env.THORN_ADMIN_USERNAME,
     };
 }
 
@@ -146,6 +154,29 @@ let Fixtures = {
     _headers: {
         'Content-Type': 'application/json',
         'X-Thorn': 'Fixtures',
+    },
+
+    /**
+     * Create User
+     * @param {Object|Object[]} models An object or array of objects.
+     *   Each object contains a list of attributes for each new model.
+     * @param {Object} [options] Additional information about `models`.
+     *
+     * @return {Promise} The ChakramResponse from the creation of the records and/or links
+     */
+    createUsers(models, options = {}) {
+        _.each(models, function(model) {
+            let username = model.attributes.user_name;
+            if (!usernameMap[username]) {
+                model.attributes.user_name = `${username}${Date.now()}`;
+                usernameMap[username] = model.attributes.user_name;
+            } else {
+                // Throw an error, we're trying to recreate an existing user
+                throw new Error(`User ${username} already exists`);
+            }
+        });
+        options.module = 'Users';
+        return this.create(models, options);
     },
 
     /**
@@ -513,13 +544,14 @@ let Agent = {
         if (cachedAgent) {
             return cachedAgent[VERSION];
         }
+        let internalUsername = usernameMap[username];
 
-        let password = credentials[username];
+        let password = credentials[internalUsername];
         if (!password) {
             throw new Error(`No credentials available for user: ${username}`);
         }
 
-        let agent = new UserAgent(username, password, VERSION);
+        let agent = new UserAgent(internalUsername, password, VERSION);
         agent._login();
         return agent;
     },
