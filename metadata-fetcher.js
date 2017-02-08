@@ -51,7 +51,7 @@ var MetadataFetcher = {
                 // Format the metadata
                 let metadata = {};
                 var responseJson = response.body;
-                _.forEach(responseJson.modules, function(data, module) {
+                _.each(responseJson.modules, function(data, module) {
                     metadata[module] = self._filterByRequiredFields(data.fields);
                 });
 
@@ -75,7 +75,7 @@ var MetadataFetcher = {
      */
     _filterByRequiredFields(fields) {
         let filteredFields = {fields: {}};
-        _.forEach(fields, (field, fieldName) => {
+        _.each(fields, (field, fieldName) => {
             if (
                 !_.isUndefined(field.required) &&
                 field.required &&
