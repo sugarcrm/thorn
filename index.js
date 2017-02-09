@@ -157,29 +157,6 @@ let Fixtures = {
     },
 
     /**
-     * Create User
-     * @param {Object|Object[]} models An object or array of objects.
-     *   Each object contains a list of attributes for each new model.
-     * @param {Object} [options] Additional information about `models`.
-     *
-     * @return {Promise} The ChakramResponse from the creation of the records and/or links
-     */
-    createUsers(models, options = {}) {
-        _.each(models, function(model) {
-            let username = model.attributes.user_name;
-            if (!usernameMap[username]) {
-                model.attributes.user_name = `${username}${Date.now()}`;
-                usernameMap[username] = model.attributes.user_name;
-            } else {
-                // Throw an error, we're trying to recreate an existing user
-                throw new Error(`User ${username} already exists`);
-            }
-        });
-        options.module = 'Users';
-        return this.create(models, options);
-    },
-
-    /**
      * Using the supplied models, create records and links on the server
      * and cache those records locally.
      *
@@ -369,6 +346,14 @@ let Fixtures = {
 
                 // Populate the `credentials` object.
                 if (model.module === 'Users') {
+                    let username = request.data.user_name;
+                    if (!usernameMap[username]) {
+                        request.data.user_name = `${username}${Date.now()}`;
+                        usernameMap[username] = request.data.user_name;
+                    } else {
+                        // Throw an error, we're trying to recreate an existing user
+                        throw new Error(`User ${username} already exists`);
+                    }
                     _insertCredentials(request.data.user_name, request.data.user_hash);
                 }
 
