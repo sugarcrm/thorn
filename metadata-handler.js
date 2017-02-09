@@ -156,7 +156,7 @@ var MetadataHandler = {
         if (process.env.THORN_METADATA_FILE) {
             let fileMetadata = require(process.env.THORN_METADATA_FILE);
             fileMetadata = this._patchMetadata(fileMetadata);
-            
+
             this._metadata = fileMetadata;
             if (!this._metadata[module]) {
                 throw new Error('Unrecognized module: ' + module);

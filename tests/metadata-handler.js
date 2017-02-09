@@ -1,5 +1,5 @@
 describe('Metadata Handler', () => {
-    let _, expect, Meta; 
+    let _, expect, Meta;
 
     before(() => {
         _ = require('lodash');
