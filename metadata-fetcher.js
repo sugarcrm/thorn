@@ -8,7 +8,7 @@ let chakram = require('chakram');
 
 const VERSION = 'v10';
 
-var MetadataFetcher = {
+let MetadataFetcher = {
 
     /**
      * @property {string} currentRequest The current request to
@@ -42,7 +42,7 @@ var MetadataFetcher = {
             .then((response) => {
                 authToken = response.body.access_token;
 
-                let url = utils.constructUrl(VERSION, 'metadata') + '?modules';
+                let url = `${utils.constructUrl(VERSION, 'metadata')}?modules`;
                 let metadataOptions = {
                     headers: {
                         'X-Thorn': 'MetadataFetcher',
@@ -54,8 +54,8 @@ var MetadataFetcher = {
             }).then((response) => {
                 // Format the metadata
                 let metadata = {};
-                var responseJson = response.body;
-                _.each(responseJson.modules, function(data, module) {
+                let responseJson = response.body;
+                _.each(responseJson.modules, (data, module) => {
                     metadata[module] = self._filterByRequiredFields(data.fields);
                 });
 
@@ -78,7 +78,7 @@ var MetadataFetcher = {
      * @private
      */
     _filterByRequiredFields(fields) {
-        let filteredFields = {fields: {}};
+        let filteredFields = { fields: {} };
         _.each(fields, (field, fieldName) => {
             if (
                 !_.isUndefined(field.required) &&

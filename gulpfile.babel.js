@@ -1,19 +1,19 @@
-var _ = require('lodash');
-var gulp = require('gulp');
+const _ = require('lodash');
+const gulp = require('gulp');
 
-var sourceFiles = ['debug.js', 'index.js', 'metadata-handler.js', 'utils.js', 'metadata-fetcher.js'];
+const sourceFiles = ['debug.js', 'index.js', 'metadata-handler.js', 'utils.js', 'metadata-fetcher.js'];
 
 gulp.task('build', () => {
-    var babel = require('gulp-babel');
+    const babel = require('gulp-babel');
     return gulp.src(sourceFiles)
         .pipe(babel())
         .pipe(gulp.dest('dist'));
 });
 
 gulp.task('test', ['build'], () => {
-    var commander = require('commander');
-    var os = require('os');
-    var mocha = require('gulp-spawn-mocha');
+    const commander = require('commander');
+    const os = require('os');
+    const mocha = require('gulp-spawn-mocha');
 
     commander
         .option('--coverage', 'Enable code coverage')
@@ -21,31 +21,31 @@ gulp.task('test', ['build'], () => {
         .option('--path <path>', 'Set base output path')
         .parse(process.argv);
 
-    var path = commander.path || process.env.WORKSPACE || os.tmpdir();
+    let path = commander.path || process.env.WORKSPACE || os.tmpdir();
 
-    var options = {
+    let options = {
         timeout: '5000',
     };
     if (commander.ci) {
-        var testResultPath = path + '/test-results.xml';
+        let testResultPath = `${path}/test-results.xml`;
         options.reporter = 'mocha-junit-reporter';
-        options.reporterOptions = 'mochaFile=' + testResultPath;
-        process.stdout.write('Test reports will be generated to: ' + testResultPath + '\n');
+        options.reporterOptions = `mochaFile=${testResultPath}`;
+        process.stdout.write(`Test reports will be generated to: ${testResultPath}\n`);
     }
     if (commander.coverage) {
         options.istanbul = {
-            dir: path + '/coverage',
+            dir: `${path}/coverage`,
         };
     }
 
-    return gulp.src(['tests/**/*.js'], {read: false})
+    return gulp.src(['tests/**/*.js'], { read: false })
         .pipe(mocha(options));
 });
 
 gulp.task('doc', (cb) => {
-    var commander = require('commander');
-    var jsdoc = require('gulp-jsdoc3');
-    var jsdocConfig = require('./jsdoc.json');
+    const commander = require('commander');
+    const jsdoc = require('gulp-jsdoc3');
+    const jsdocConfig = require('./jsdoc.json');
 
     commander
         .option('-p, --private', 'Include private API documentation')
@@ -60,7 +60,7 @@ gulp.task('doc', (cb) => {
 });
 
 gulp.task('lint', () => {
-    var eslint = require('gulp-eslint');
+    const eslint = require('gulp-eslint');
     return gulp.src(_.union(sourceFiles, ['tests/**/*.js', 'gulpfile.babel.js']))
         .pipe(eslint())
         .pipe(eslint.format())
@@ -68,7 +68,7 @@ gulp.task('lint', () => {
 });
 
 gulp.task('watch', () => {
-    var watch = require('gulp-watch');
+    const watch = require('gulp-watch');
     watch(sourceFiles, () => {
         gulp.start('default');
     });
