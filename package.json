@@ -26,6 +26,7 @@
     "co-mocha": "^1.2.0",
     "commander": "^2.9.0",
     "coveralls": "^2.11.16",
+    "eslint-config-sugarcrm": "git+https://gist.github.com/a37975abf1704f2e248f27ed68ed9da6.git",  
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-eslint": "^3.0.1",

@@ -15,7 +15,7 @@ let _ = require('lodash');
 let utils = require('./utils.js');
 
 // Verbose mode support for debugging tests
-let verbosity = Number.parseInt(process.env.THORN_VERBOSE);
+let verbosity = Number.parseInt(process.env.THORN_VERBOSE, 10);
 if (verbosity) {
     const VERBOSE_FUNCTIONS = require('./debug.js').VERBOSE_FUNCTIONS;
     chakram.startDebug((type, data, r) => {
@@ -76,7 +76,7 @@ let credentials;
  */
 function _insertCredentials(username, userhash) {
     if (credentials[username]) {
-        throw new Error('Duplicate username: ' + username);
+        throw new Error(`Duplicate username: ${username}`);
     }
 
     credentials[username] = userhash;
@@ -165,12 +165,10 @@ let Fixtures = {
                 throw new Error('Max number of login attempts exceeded!');
             }
 
-            return this._adminLogin().then(() => {
-                return this.create(models, options);
-            });
+            return this._adminLogin().then(() => this.create(models, options));
         }
 
-        if (! _.isArray(models)) {
+        if (!_.isArray(models)) {
             models = [models];
         }
 
@@ -178,7 +176,7 @@ let Fixtures = {
         this._sessionAttempt = 0;
 
         let url = utils.constructUrl(VERSION, 'bulk');
-        let params = {headers: this._headers};
+        let params = { headers: this._headers };
 
         return this._processModels(models, options).then((bulkRecordCreateDef) => {
             let bulkRecordLinkDef;
@@ -203,9 +201,7 @@ let Fixtures = {
                     xthorn: 'Fixtures',
                     retryVersion: VERSION,
                 });
-            }).then(() => {
-                return createdRecords;
-            });
+            }).then(() => createdRecords);
         });
     },
 
@@ -229,9 +225,11 @@ let Fixtures = {
         _.each(records, (record) => {
             let contents = record.contents;
             let recordModule = contents._module;
+
             // Cache record into fixturesMap
             // The bulk response is in the same order as the supplied requests
             fixturesMap.set(models[modelIndex++], contents);
+
             // Cache record into createdRecords, indexed by supplied module
             if (createdRecords[recordModule]) {
                 createdRecords[recordModule].push(contents);
@@ -278,10 +276,10 @@ let Fixtures = {
                 _.each(moduleLinks, (link) => {
                     let cachedRecord = fixturesMap.get(link);
                     if (!cachedRecord) {
-                        throw new Error('Missing link! link: ' + link.toString());
+                        throw new Error(`Missing link! link: ${link.toString()}`);
                     }
                     let request = {
-                        url: '/' + VERSION + '/' + model.module + '/' + leftID + '/link',
+                        url: `/${VERSION}/${model.module}/${leftID}/link`,
                         method: 'POST',
                         data: {
                             link_name: linkToModule,
@@ -318,16 +316,16 @@ let Fixtures = {
         _.each(models, (model) => {
             model.module = model.module || options.module;
             let request = {
-                url: '/' + VERSION + '/' + model.module,
+                url: `/${VERSION}/${model.module}`,
                 method: 'POST',
                 data: model.attributes || {},
             };
 
             if (!model.module) {
-                throw new Error('Missing module name! model: ' + model.toString());
+                throw new Error(`Missing module name! model: ${model.toString()}`);
             }
             if (fixturesMap.has(model)) {
-                throw new Error('Record already exists! model: ' + model.toString());
+                throw new Error(`Record already exists! model: ${model.toString()}`);
             }
 
             let getRequiredFieldPromise = MetadataHandler.getRequiredFields(model.module)
@@ -349,9 +347,7 @@ let Fixtures = {
             getRequiredFieldsPromises.push(getRequiredFieldPromise);
         });
 
-        return Promise.all(getRequiredFieldsPromises).then(() => {
-            return bulkRecordCreateDef;
-        });
+        return Promise.all(getRequiredFieldsPromises).then(() => bulkRecordCreateDef);
     },
 
     /**
@@ -365,9 +361,7 @@ let Fixtures = {
                 throw new Error('Max number of login attempts exceeded!');
             }
 
-            return this._adminLogin().then(() => {
-                return this.cleanup();
-            });
+            return this._adminLogin().then(() => this.cleanup());
         }
 
         // reset `_sessionAttempt`
@@ -378,12 +372,12 @@ let Fixtures = {
         // Return promise
         let bulkRecordDeleteDef = { requests: [] };
         let url = utils.constructUrl(VERSION, 'bulk');
-        let params = {headers: this._headers};
+        let params = { headers: this._headers };
 
         _.each(cachedRecords, (moduleRecords, module) => {
             _.each(moduleRecords, (record) => {
                 bulkRecordDeleteDef.requests.push({
-                    url: '/' + VERSION + '/' + module + '/' + record.id,
+                    url: `/${VERSION}/${module}/${record.id}`,
                     method: 'DELETE',
                 });
             });
@@ -416,7 +410,7 @@ let Fixtures = {
 
         let records = cachedRecords[module];
         if (!records) {
-            throw new Error('No cached records found for module: ' + module);
+            throw new Error(`No cached records found for module: ${module}`);
         }
 
         return _.find(records, properties);
@@ -433,7 +427,7 @@ let Fixtures = {
      */
     link(left, linkName, right) {
         let url = utils.constructUrl(VERSION, left._module, left.id, 'link');
-        let params = {headers: this._headers};
+        let params = { headers: this._headers };
         let linkDef = {
             link_name: linkName,
             ids: [right.id],
@@ -448,9 +442,7 @@ let Fixtures = {
                 retryVersion: VERSION,
                 xthorn: 'Fixtures',
             }
-        ).then((response) => {
-            return response.response.body;
-        });
+        ).then(response => response.response.body);
     },
 
     /**
@@ -505,7 +497,7 @@ let Fixtures = {
  * @namespace
  * @property {string} ADMIN Username for the SugarCRM administrative user.
  */
-var Agent = {
+let Agent = {
     /**
      * Return a `UserAgent` with the given user name and log them in.
      *
@@ -524,7 +516,7 @@ var Agent = {
 
         let password = credentials[username];
         if (!password) {
-            throw new Error('No credentials available for user: ' + username);
+            throw new Error(`No credentials available for user: ${username}`);
         }
 
         let agent = new UserAgent(username, password, VERSION);
@@ -599,7 +591,7 @@ class UserAgent {
         let sessionAttempt = this._getState('sessionAttempt') + 1;
         this._setState('sessionAttempt', sessionAttempt);
         if (sessionAttempt > this._maxSessionAttempts) {
-            throw new Error('Max number of login attempts exceeded for user: ' + this.username);
+            throw new Error(`Max number of login attempts exceeded for user: ${this.username}`);
         }
 
         loginPromise = utils.login({
@@ -694,9 +686,7 @@ class UserAgent {
      *
      * @private
      */
-    _getState = (key) => {
-        return cachedAgents[this.username]._state[key];
-    };
+    _getState = key => cachedAgents[this.username]._state[key];
 
     /**
      * Set shared state for this UserAgent.
@@ -760,4 +750,4 @@ class UserAgent {
 
 // ********************************************************************************************************************
 
-export {Fixtures, Agent};
+export { Fixtures, Agent };
