@@ -79,6 +79,14 @@ function _insertCredentials(username, userhash) {
 }
 
 /**
+ * Map between usernames and agent instances.
+ *
+ * @type {Object}
+ * @private
+ */
+let cachedAgents;
+
+/**
  * Restores `cachedRecords`, `cachedAgents` and `credentials` to their initial
  * states.
  *
@@ -487,14 +495,6 @@ let Fixtures = {
 };
 
 // ********************************************************************************************************************
-
-/**
- * Map between usernames and agent instances.
- *
- * @type {Object}
- * @private
- */
-let cachedAgents = {};
 
 /**
  * Namespace for `UserAgent` access methods.
