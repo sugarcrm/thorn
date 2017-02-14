@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
+
 describe('Metadata Handler', () => {
     let _, expect, Meta;
 

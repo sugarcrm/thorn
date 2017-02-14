@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
+
 describe('Thorn', () => {
     // These are set once for the test suite
     let _, expect, nock, thornFile;
