@@ -9,12 +9,12 @@ Pull requests are accepted under the discretion of Thorn maintainer(s). Improve 
 
 ## Guidelines
 - Make sure your pull request contains quality code. We will certainly provide constructive feedback on works in progress but we will not merge incomplete pull requests.
-- Make sure your pull requests is properly tested and maintains current code coverage.
+- Make sure your pull requests are properly tested and maintain (or improve) the current code coverage.
 - Make sure your pull request is fully documented.
 - Reference related Github issues within commit messages and pull request comments where appropriate.
 
 ## Bugs
-- File bugs or feature requests using our []Github Issue Tracker](https://github.com/sugarcrm/thorn/issues).
+- File bugs or feature requests using our [Github Issue Tracker](https://github.com/sugarcrm/thorn/issues).
 
 ## Setup
 

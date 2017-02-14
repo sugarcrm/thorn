@@ -1,11 +1,11 @@
 # Thorn
 
-Thorn is composed of a set of helper abstractions built to ease the process of setting up a SugarCRM's REST API testing environment and interacting with it.
+Thorn is composed of a set of helper abstractions built to ease the process of setting up a SugarCRM instance's REST API testing environment and interacting with it.
 
 ## Installation
 
 ```bash
-$ npm install --save-dev '@sugarcrm/thorn'
+$ yarn add --dev '@sugarcrm/thorn'
 ```
 
 ## Documentation
