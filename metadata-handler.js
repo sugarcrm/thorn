@@ -5,7 +5,7 @@
 let MetadataFetcher = require('./metadata-fetcher.js');
 let faker = require('faker');
 
-var MetadataHandler = {
+let MetadataHandler = {
     /**
      * @property {Object} _metadata Metadata structure.
      *
@@ -21,97 +21,100 @@ var MetadataHandler = {
      * @return {string} Random field value according to type and module.
      */
     generateFieldValue(field) {
-        let val, maxLength, afterDecimal, beforeDecimal;
+        let val;
+        let maxLength;
+        let afterDecimal;
+        let beforeDecimal;
 
         switch (field.type) {
-        case 'bool':
-            val = faker.random.boolean();
-            break;
-        case 'char':
-        case 'password':
-        case 'varchar':
+            case 'bool':
+                val = faker.random.boolean();
+                break;
+            case 'char':
+            case 'password':
+            case 'varchar':
             // this is char in the SQL sense, not the C sense
-            maxLength = field.len || 30;
-            maxLength = maxLength > 30 ? 30 : maxLength;
-            val = faker.random.alphaNumeric(maxLength);
-            break;
-        case 'currency':
-        case 'decimal':
+                maxLength = field.len || 30;
+                maxLength = maxLength > 30 ? 30 : maxLength;
+                val = faker.random.alphaNumeric(maxLength);
+                break;
+            case 'currency':
+            case 'decimal':
             // faker.js has no support for decimal numbers
-            maxLength = field.len || '5,2';
-            [beforeDecimal, afterDecimal] = this._parsePrecision(maxLength);
+                maxLength = field.len || '5,2';
+                [beforeDecimal, afterDecimal] = this._parsePrecision(maxLength);
 
             // For sanity, set the max before decimal to 3 and after to 2
-            beforeDecimal = beforeDecimal > 3 ? 3 : beforeDecimal;
-            afterDecimal = afterDecimal > 2 ? 2 : afterDecimal;
+                beforeDecimal = beforeDecimal > 3 ? 3 : beforeDecimal;
+                afterDecimal = afterDecimal > 2 ? 2 : afterDecimal;
 
             // To avoid JS floating point issues, build string and cast as float
-            val = parseFloat(
-                faker.random.number({max: Math.pow(10, beforeDecimal)})
-                + '.' +
-                faker.random.number({max: Math.pow(10, afterDecimal)})
+                val = parseFloat(
+                `${faker.random.number({ max: Math.pow(10, beforeDecimal) })
+                 }.${
+                faker.random.number({ max: Math.pow(10, afterDecimal) })}`
             );
 
-            break;
-        case 'date':
-        case 'datetime':
-        case 'datetimecombo':
-            val = faker.date.recent(5);
-            break;
-        case 'email':
-            val = faker.internet.exampleEmail('Jack', 'Jackson');
+                break;
+            case 'date':
+            case 'datetime':
+            case 'datetimecombo':
+                val = faker.date.recent(5);
+                break;
+            case 'email':
+                val = faker.internet.exampleEmail('Jack', 'Jackson');
             // FIXME: support maximum lengths!
-            break;
-        case 'enum':
+                break;
+            case 'enum':
             // for now, we just return an arbitrary random string
-            val = faker.lorem.word();
-            break;
-        case 'int':
-            maxLength = field.len || 5;
+                val = faker.lorem.word();
+                break;
+            case 'int':
+                maxLength = field.len || 5;
 
             // For sanity, set the max number of digits to 5
-            maxLength = maxLength > 5 ? 5 : maxLength;
-            val = faker.random.number({max:Math.pow(10, maxLength)});
-            break;
-        case 'name':
-            val = faker.name.firstName();
-            break;
-        case 'phone':
+                maxLength = maxLength > 5 ? 5 : maxLength;
+                val = faker.random.number({ max: Math.pow(10, maxLength) });
+                break;
+            case 'name':
+                val = faker.name.firstName();
+                break;
+            case 'phone':
             // these are used with callto: URLs
-            val = faker.phone.phoneNumber().replace(/\D/g, '');
-            if (field.len) {
-                val = val.substring(0, field.len);
-            }
-            break;
-        case 'text':
-        case 'longtext':
-            val = faker.lorem.paragraph();
-            break;
-        case 'url':
-            val = faker.internet.url();
-            if (field.len) {
+                val = faker.phone.phoneNumber().replace(/\D/g, '');
+                if (field.len) {
+                    val = val.substring(0, field.len);
+                }
+                break;
+            case 'text':
+            case 'longtext':
+                val = faker.lorem.paragraph();
+                break;
+            case 'url':
+                val = faker.internet.url();
+                if (field.len) {
                 /* the minimum length of an HTTPS URL is 9 ("https://a").
                    Other protocols could obviously allow shorter ones,
                    but Faker only supports HTTP(S). So forbid any lengths
                    shorter than that. */
-                if (field.len < 9) {
-                    throw new Error('URLs with fewer than 9 characters are not supported.');
+                    if (field.len < 9) {
+                        throw new Error('URLs with fewer than 9 characters are not supported.');
+                    }
+                    val = val.substring(0, field.len);
                 }
-                val = val.substring(0, field.len);
-            }
-            break;
-        case 'assigned_user_name':
-        case 'file':
-        case 'id':
-        case 'image':
-        case 'json':
-        case 'link':
-        case 'relate':
-        case 'team_list':
-        case 'username':
-            throw new Error('Fields of type ' + field.type + ' are not supported. Please define them manually.');
-        default:
-            throw new Error('Field type ' + field.type + ' is not recognized.');
+                break;
+            case 'assigned_user_name':
+            case 'file':
+            case 'id':
+            case 'image':
+            case 'json':
+            case 'link':
+            case 'relate':
+            case 'team_list':
+            case 'username':
+                throw new Error(`Fields of type ${field.type} are not supported. Please define them manually.`);
+            default:
+                throw new Error(`Field type ${field.type} is not recognized.`);
         }
 
         return val;
@@ -131,8 +134,8 @@ var MetadataHandler = {
     _parsePrecision(prec) {
         let [precision, scale] = prec.split(',');
         if (scale) {
-            let afterDecimal = Number.parseInt(scale);
-            let beforeDecimal = Number.parseInt(precision) - afterDecimal;
+            let afterDecimal = Number.parseInt(scale, 10);
+            let beforeDecimal = Number.parseInt(precision, 10) - afterDecimal;
             return [beforeDecimal, afterDecimal];
         }
 
@@ -151,7 +154,7 @@ var MetadataHandler = {
         let self = this;
         if (this._metadata) {
             if (!this._metadata[module]) {
-                throw new Error('Unrecognized module: ' + module);
+                throw new Error(`Unrecognized module: ${module}`);
             }
 
             return Promise.resolve(this._metadata[module].fields);
@@ -163,7 +166,7 @@ var MetadataHandler = {
 
             this._metadata = fileMetadata;
             if (!this._metadata[module]) {
-                throw new Error('Unrecognized module: ' + module);
+                throw new Error(`Unrecognized module: ${module}`);
             }
             return Promise.resolve(this._metadata[module].fields);
         }
@@ -177,7 +180,7 @@ var MetadataHandler = {
                 }
 
                 if (!self._metadata[module]) {
-                    throw new Error('Unrecognized module: ' + module);
+                    throw new Error(`Unrecognized module: ${module}`);
                 }
 
                 return self._metadata[module].fields;

@@ -4,10 +4,15 @@
 
 describe('Thorn', () => {
     // These are set once for the test suite
-    let _, expect, nock, thornFile;
+    let _;
+    let expect;
+    let nock;
+    let thornFile;
 
     // These are set up for each individual test
-    let thorn, Fixtures, Agent;
+    let thorn;
+    let Fixtures;
+    let Agent;
 
     before(() => {
         _ = require('lodash');
@@ -18,9 +23,9 @@ describe('Thorn', () => {
         process.env.THORN_METADATA_FILE = '../metadata.json';
 
         nock.disableNetConnect();
-        nock.emitter.on('no match', function(req, fullReq, reqData) {
+        nock.emitter.on('no match', (req, fullReq, reqData) => {
             if (fullReq) {
-                throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+                throw new Error(`No handler remaining for ${fullReq.method} to ${fullReq.href}`);
             }
 
             throw new Error('No handler remaining.');
@@ -166,7 +171,7 @@ describe('Thorn', () => {
                             testField2: fixtureWithoutModule.attributes.testField2,
                         });
                     });
-                let createPromise = Fixtures.create(fixtureWithoutModule, {module: module});
+                let createPromise = Fixtures.create(fixtureWithoutModule, { module });
 
                 expect(isPromise(createPromise)).to.be.true;
 
@@ -224,7 +229,7 @@ describe('Thorn', () => {
                         ]);
                     });
 
-                let records = yield Fixtures.create([fixture1, fixture2], {module: module});
+                let records = yield Fixtures.create([fixture1, fixture2], { module });
                 let testModuleRecords = records[module];
                 expect(testModuleRecords).to.eql([contents1, contents2]);
                 expect(server.isDone()).to.be.true;
@@ -290,7 +295,8 @@ describe('Thorn', () => {
             });
 
             it('should throw an error if no records have been created', () => {
-                expect(() => Fixtures.lookup(fixture.module, {name: fixture.attributes.name})).to.throw('No cached records are currently available!');
+                let msg = 'No cached records are currently available!';
+                expect(() => Fixtures.lookup(fixture.module, { name: fixture.attributes.name })).to.throw(msg);
             });
 
             describe('with pre-existing records', () => {
@@ -311,26 +317,31 @@ describe('Thorn', () => {
                 });
 
                 it('should be able to find previously created records', () => {
-                    let lookup1 = Fixtures.lookup(fixture.module, {name: fixture.attributes.name});
+                    let lookup1 = Fixtures.lookup(fixture.module, { name: fixture.attributes.name });
                     expect(lookup1.name).to.equal(fixture.attributes.name);
                     expect(lookup1.testField1).to.equal(fixture.attributes.testField1);
                     expect(lookup1.testField2).to.equal(fixture.attributes.testField2);
 
-                    let lookup2 = Fixtures.lookup(fixture.module, {testField1: fixture.attributes.testField1});
-                    let lookup3 = Fixtures.lookup(fixture.module, {testField2: fixture.attributes.testField2});
-                    expect(lookup1 == lookup2).to.be.true;
-                    expect(lookup1 == lookup3).to.be.true;
+                    let lookup2 = Fixtures.lookup(fixture.module, { testField1: fixture.attributes.testField1 });
+                    let lookup3 = Fixtures.lookup(fixture.module, { testField2: fixture.attributes.testField2 });
+                    expect(lookup1).to.equal(lookup2);
+                    expect(lookup1).to.equal(lookup3);
                 });
 
                 it('should throw an error if no records have been created for given module', () => {
                     let module = 'TestModule2';
-                    expect(() => Fixtures.lookup(module, {name: 'TestRecord2'})).to.throw('No cached records found for module: ' + module);
+                    let msg = `No cached records found for module: ${module}`;
+                    expect(() => Fixtures.lookup(module, { name: 'TestRecord2' })).to.throw(msg);
                 });
             });
         });
 
         describe('linking', () => {
-            let fixture1, fixture2, contents1, contents2, link;
+            let fixture1;
+            let fixture2;
+            let contents1;
+            let contents2;
+            let link;
 
             beforeEach(() => {
                 fixture1 = {
@@ -375,14 +386,12 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
-                    .reply(200, () => {
-                        return constructBulkResponse([contents1, contents2]);
-                    })
+                    .reply(200, () => constructBulkResponse([contents1, contents2]))
                     .post(isBulk)
                     .reply(200, function(uri, requestBody) {
                         let request = requestBody.requests[0];
 
-                        expect(request.url).to.contain(fixture1.module + '/' + contents1.id + '/link');
+                        expect(request.url).to.contain(`${fixture1.module}/${contents1.id}/link`);
                         expect(request.method).to.equal('POST');
                         expect(request.data.link_name).to.equal(link);
                         expect(request.data.ids).to.eql([contents2.id]);
@@ -410,9 +419,7 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
-                    .reply(200, () => {
-                        return constructBulkResponse([contents1, contents2]);
-                    })
+                    .reply(200, () => constructBulkResponse([contents1, contents2]))
                     .post(isBulk, (requestBody) => {
                         originalRequestBody = requestBody;
                         return true;
@@ -427,7 +434,7 @@ describe('Thorn', () => {
                     .reply(200, function(uri, requestBody) {
                         let request = requestBody.requests[0];
 
-                        expect(request.url).to.contain(fixture1.module + '/' + contents1.id + '/link');
+                        expect(request.url).to.contain(`${fixture1.module}/${contents1.id}/link`);
                         expect(request.method).to.equal('POST');
                         expect(request.data.link_name).to.equal(link);
                         expect(request.data.ids).to.eql([contents2.id]);
@@ -445,7 +452,9 @@ describe('Thorn', () => {
             });
 
             describe('with pre-existing records', () => {
-                let left, right, linkTestId1Regex;
+                let left;
+                let right;
+                let linkTestId1Regex;
 
                 beforeEach(function*() {
                     nock(process.env.THORN_SERVER_URL)
@@ -526,7 +535,12 @@ describe('Thorn', () => {
             });
 
             describe('with pre-existing records', () => {
-                let fixture1, fixture2, fixture3, contents1, contents2, contents3;
+                let fixture1;
+                let fixture2;
+                let fixture3;
+                let contents1;
+                let contents2;
+                let contents3;
 
                 beforeEach(function*() {
                     fixture1 = {
@@ -584,31 +598,31 @@ describe('Thorn', () => {
                             let requests = requestBody.requests;
 
                             let request1 = requests[0];
-                            expect(request1.url).to.contain(fixture1.module + '/' + contents1.id);
+                            expect(request1.url).to.contain(`${fixture1.module}/${contents1.id}`);
                             expect(request1.method).to.equal('DELETE');
 
                             let request2 = requests[1];
-                            expect(request2.url).to.contain(fixture2.module + '/' + contents2.id);
+                            expect(request2.url).to.contain(`${fixture2.module}/${contents2.id}`);
                             expect(request2.method).to.equal('DELETE');
 
                             let request3 = requests[2];
-                            expect(request3.url).to.contain(fixture3.module + '/' + contents3.id);
+                            expect(request3.url).to.contain(`${fixture3.module}/${contents3.id}`);
                             expect(request3.method).to.equal('DELETE');
 
                             return requestBody;
                         })
                         .reply(200, constructBulkResponse([
-                            {id: contents1.id},
-                            {id: contents2.id},
-                            {id: contents3.id},
+                            { id: contents1.id },
+                            { id: contents2.id },
+                            { id: contents3.id },
                         ]));
 
                     yield Fixtures.cleanup();
                     expect(server.isDone()).to.be.true;
 
-                    //FIXME: We need an integration test making sure the
-                    //`cachedRecords` and the `cachedAgents` are emptied.
-                    //The test could be:
+                    // FIXME: We need an integration test making sure the
+                    // `cachedRecords` and the `cachedAgents` are emptied.
+                    // The test could be:
                     // 1) Create a User fixture and set it as an agent.
                     // 2) clean up the fixtures
                     // 3) Create a User fixture with the same username and set
@@ -632,9 +646,9 @@ describe('Thorn', () => {
                             return true;
                         })
                         .reply(200, constructBulkResponse([
-                            {id: contents1.id},
-                            {id: contents2.id},
-                            {id: contents3.id},
+                            { id: contents1.id },
+                            { id: contents2.id },
+                            { id: contents3.id },
                         ]));
 
                     yield Fixtures.cleanup();
@@ -708,7 +722,7 @@ describe('Thorn', () => {
 
                 // note: Agent.as does not expose a Promise, so have to wait on an arbitrary request
                 yield myAgent.get('not/real/endpoint').catch((e) => {
-                    let msg = 'Max number of login attempts exceeded for user: ' + process.env.THORN_ADMIN_USERNAME;
+                    let msg = `Max number of login attempts exceeded for user: ${process.env.THORN_ADMIN_USERNAME}`;
                     expect(e.message).to.equal(msg);
                 });
             });
@@ -762,7 +776,8 @@ describe('Thorn', () => {
         });
 
         describe('request methods', () => {
-            let myAgent, endpoint;
+            let myAgent;
+            let endpoint;
 
             function isNotRealEndpoint(uri) {
                 return uri.indexOf(endpoint) >= 0;
