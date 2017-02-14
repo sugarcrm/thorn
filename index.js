@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
+
 /**
  * Thorn Node.js module for REST API testing SugarCRM with Chakram.
  *
