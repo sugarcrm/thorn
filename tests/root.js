@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
+ */
+
 // This is the root test file. This contains no tests.
 // This only contains root level hooks.
 
