@@ -799,6 +799,36 @@ describe('Thorn', () => {
 
                 expect(server.isDone()).to.be.true;
             });
+
+            it('should use the internal username for server interactions', function*() {
+                let server = nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .post(isBulk)
+                    .reply(200, function(uri, requestBody) {
+                        let testUsername = requestBody.requests[0].data.user_name;
+                        return constructBulkResponse({
+                            _module: 'Users',
+                            user_name: testUsername,
+                        });
+                    })
+                    .post(isTokenReq)
+                    .reply(200, function(uri, requestBody) {
+                        // expect the request body to have username of TestUsername plus some extra stuff
+                    })
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .get(/not\/real\/endpoint/)
+                    .reply(200);
+
+                yield Fixtures.create({
+                    module: 'Users', 
+                    attributes: {user_name: 'TestUsername'},
+                });
+
+                yield Agent.as('TestUsername').get('not/real/endpoint');
+                expect(server.isDone()).to.be.true;
+            });
         });
 
         describe('on', () => {

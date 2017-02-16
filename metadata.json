@@ -20,5 +20,8 @@
   },
   "TestModule2": {
     "fields": {}
+  },
+  "Users": {
+    "fields": {}
   }
 }
