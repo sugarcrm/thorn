@@ -67,7 +67,11 @@ let cachedRecords;
 let credentials;
 
 /**
- * Maps between passed in user name and real user name
+ * Maps between passed in user name and internal user name.
+ *
+ * @type {Object}
+ *
+ * @private
  */
 let usernameMap;
 
@@ -94,6 +98,28 @@ function _insertCredentials(username, userhash) {
  * @private
  */
 let cachedAgents;
+
+/**
+ * Generates and maps an internal username to the given username
+ *
+ * To protect against username collisions, this function takes
+ * a passed in username and adds a hash to it, generating an
+ * internal username.
+ *
+ * @param {string} username Username of the user.
+ *
+ * @return {string} Internal username
+ *
+ * @private
+ */
+function _generateInternalUsername(username) {
+    if (usernameMap[username]) {
+        throw new Error(`User ${username} already exists`);
+    }
+    let generatedUsername = `${username}${Date.now()}`;
+    usernameMap[username] = generatedUsername;
+    return generatedUsername;
+}
 
 /**
  * Restores `cachedRecords`, `cachedAgents` and `credentials` to their initial
@@ -346,14 +372,7 @@ let Fixtures = {
 
                 // Populate the `credentials` object.
                 if (model.module === 'Users') {
-                    let username = request.data.user_name;
-                    if (!usernameMap[username]) {
-                        request.data.user_name = `${username}${Date.now()}`;
-                        usernameMap[username] = request.data.user_name;
-                    } else {
-                        // Throw an error, we're trying to recreate an existing user
-                        throw new Error(`User ${username} already exists`);
-                    }
+                    request.data.user_name = _generateInternalUsername(request.data.user_name);
                     _insertCredentials(request.data.user_name, request.data.user_hash);
                 }
 
