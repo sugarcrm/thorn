@@ -814,7 +814,7 @@ describe('Thorn', () => {
                     })
                     .post(isTokenReq)
                     .reply(200, function(uri, requestBody) {
-                        // expect the request body to have username of TestUsername plus some extra stuff
+                        expect(requestBody.username).to.match(/^TestUsername\d+/);
                     })
                     .post(isTokenReq)
                     .reply(200, ACCESS)
