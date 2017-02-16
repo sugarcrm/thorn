@@ -226,7 +226,7 @@ You should use this class for all of your Thorn tests except those which test th
 
 ### Creating Agents
 
-An Agent corresponds directly to a user that exists in the SugarCRM instance you are testing. That user *must* exist in the database before you attempt to create a user agent for it. You can use the [Thorn Fixtures API](#thorn::fixtures) to create any needed users.
+An Agent corresponds directly to a user that exists in the SugarCRM instance you are testing. That user *must* be created by `Fixtures.create` before you attempt to create a user agent for it. Please refer to [Thorn Fixtures API](#thorn::fixtures) to create the needed users.
 
 User agents are created with `Agent.as`:
 
