@@ -1,7 +1,7 @@
 {
   "name": "@sugarcrm/thorn",
   "version": "0.4.0-beta.1",
-  "description": "Framework for REST API testing SugarCRM with chakram",
+  "description": "Set of helper abstractions built to ease the process of setting up a SugarCRM instance's REST API testing environment and interacting with it.",
   "main": "dist/index.js",
   "repository": "https://github.com/sugarcrm/thorn",
   "author": "SugarCRM Inc.",
