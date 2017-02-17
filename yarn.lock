@@ -2,6 +2,14 @@
 # yarn lockfile v1
 
 
+"@sugarcrm/eslint-config-sugarcrm@git+https://github.com/sugarcrm/javascript":
+  version "0.1.0"
+  resolved "git+https://github.com/sugarcrm/javascript#2f5aa9c51ab5d8e3b2ea5cb66442d04bf8c454f5"
+  dependencies:
+    eslint "^3.15.0"
+    eslint-config-airbnb-base "^11.1.0"
+    eslint-plugin-import "^2.2.0"
+
 abbrev@1, abbrev@1.0.x:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.0.9.tgz#91b4792588a7738c25f35dd6f63752a2f8776135"
@@ -1123,14 +1131,6 @@ eslint-config-airbnb-base@^11.1.0:
   version "11.1.0"
   resolved "https://registry.yarnpkg.com/eslint-config-airbnb-base/-/eslint-config-airbnb-base-11.1.0.tgz#dc9b3ec70b8c74dcbe6d6257c9da3992c39ca2ca"
 
-"eslint-config-sugarcrm@git+https://gist.github.com/a37975abf1704f2e248f27ed68ed9da6.git":
-  version "0.1.0"
-  resolved "git+https://gist.github.com/a37975abf1704f2e248f27ed68ed9da6.git#0782edd6325940a5b95bfff749f114c5ed7ae588"
-  dependencies:
-    eslint "^3.15.0"
-    eslint-config-airbnb-base "^11.1.0"
-    eslint-plugin-import "^2.2.0"
-
 eslint-import-resolver-node@^0.2.0:
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/eslint-import-resolver-node/-/eslint-import-resolver-node-0.2.3.tgz#5add8106e8c928db2cba232bcd9efa846e3da16c"
@@ -1416,7 +1416,7 @@ formatio@1.1.1:
 
 fs-exists-sync@^0.1.0:
   version "0.1.0"
-  resolved "http://registry.npmjs.org/fs-exists-sync/-/fs-exists-sync-0.1.0.tgz#982d6893af918e72d08dec9e8673ff2b5a8d6add"
+  resolved "https://registry.yarnpkg.com/fs-exists-sync/-/fs-exists-sync-0.1.0.tgz#982d6893af918e72d08dec9e8673ff2b5a8d6add"
 
 fs.realpath@^1.0.0:
   version "1.0.0"

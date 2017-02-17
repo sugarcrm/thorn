@@ -2,7 +2,7 @@
   "env": {
     "mocha": true
   },
-  "extends": "eslint-config-sugarcrm",
+  "extends": "@sugarcrm/eslint-config-sugarcrm",
   "parser": "babel-eslint",
   "parserOptions": {
     "sourceType": "module"
