@@ -800,7 +800,7 @@ describe('Thorn', () => {
                 expect(server.isDone()).to.be.true;
             });
 
-            it('should use the internal username for server interactions', function*() {
+            it('should use internal usernames for server interactions', function*() {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)

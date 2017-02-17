@@ -73,7 +73,7 @@ let credentials;
  *
  * @private
  */
-let usernameMap;
+let cachedUsernames;
 
 /**
  * Inserts username and userhash into `credentials`.
@@ -100,7 +100,7 @@ function _insertCredentials(username, userhash) {
 let cachedAgents;
 
 /**
- * Generates and maps an internal username to the given username
+ * Generates and maps an internal username to the given username.
  *
  * To protect against username collisions, this function takes
  * a passed in username and adds a hash to it, generating an
@@ -113,11 +113,12 @@ let cachedAgents;
  * @private
  */
 function _generateInternalUsername(username) {
-    if (usernameMap[username]) {
+    if (cachedUsernames[username]) {
         throw new Error(`User ${username} already exists`);
     }
+
     let generatedUsername = `${username}${Date.now()}`;
-    usernameMap[username] = generatedUsername;
+    cachedUsernames[username] = generatedUsername;
     return generatedUsername;
 }
 
@@ -133,7 +134,7 @@ function _restore() {
     credentials = {
         [process.env.THORN_ADMIN_USERNAME]: process.env.THORN_ADMIN_PASSWORD,
     };
-    usernameMap = {
+    cachedUsernames = {
         [process.env.THORN_ADMIN_USERNAME]: process.env.THORN_ADMIN_USERNAME,
     };
 }
@@ -548,7 +549,7 @@ let Agent = {
         if (cachedAgent) {
             return cachedAgent[VERSION];
         }
-        let internalUsername = usernameMap[username];
+        let internalUsername = cachedUsernames[username];
 
         let password = credentials[internalUsername];
         if (!password) {
