@@ -3,7 +3,14 @@
  */
 
 describe('Metadata Fetcher', () => {
-    let _, expect, nock, MetadataHandler, MetadataFetcher, metadata, expected;
+    let _;
+    let expect;
+    let nock;
+    let MetadataHandler;
+    let MetadataFetcher;
+    let metadata;
+    let expected;
+
     before(() => {
         _ = require('lodash');
         expect = require('chakram').expect;
@@ -33,9 +40,9 @@ describe('Metadata Fetcher', () => {
         };
 
         nock.disableNetConnect();
-        nock.emitter.on('no match', function(req, fullReq, reqData) {
+        nock.emitter.on('no match', (req, fullReq, reqData) => {
             if (fullReq) {
-                throw new Error('No handler remaining for ' + fullReq.method + ' to ' + fullReq.href);
+                throw new Error(`No handler remaining for ${fullReq.method} to ${fullReq.href}`);
             }
             throw new Error('No handler remaining.');
         });
@@ -55,17 +62,12 @@ describe('Metadata Fetcher', () => {
     describe('metadata retrieval', () => {
         beforeEach(() => {
             nock(process.env.THORN_SERVER_URL)
-                .post((url) => {
-                    return url.indexOf('oauth2/token') >= 0;
-                })
+                .post(url => url.indexOf('oauth2/token') >= 0)
                 .reply(200, {
                     access_token: 'Test-Access-Token',
                 })
-                .get((url) => {
-                    return url.indexOf('metadata') >= 0;
-                })
+                .get(url => url.indexOf('metadata') >= 0)
                 .reply(200, metadata);
-
         });
 
         it('should return formatted metadata retrieved from the server', function*() {
@@ -77,15 +79,11 @@ describe('Metadata Fetcher', () => {
     describe('when two fetches are in progress', () => {
         it('should only trigger a single server request', function*() {
             let server = nock(process.env.THORN_SERVER_URL)
-                .post((url) => {
-                    return url.indexOf('oauth2/token') >= 0;
-                })
+                .post(url => url.indexOf('oauth2/token') >= 0)
                 .reply(200, {
                     access_token: 'Test-Access-Token',
                 })
-                .get((url) => {
-                    return url.indexOf('metadata') >= 0;
-                })
+                .get(url => url.indexOf('metadata') >= 0)
                 .delay(0)
                 .reply(200, metadata);
 
@@ -97,17 +95,12 @@ describe('Metadata Fetcher', () => {
     describe('integration with metadata-helper', () => {
         beforeEach(() => {
             nock(process.env.THORN_SERVER_URL)
-                .post((url) => {
-                    return url.indexOf('oauth2/token') >= 0;
-                })
+                .post(url => url.indexOf('oauth2/token') >= 0)
                 .reply(200, {
                     access_token: 'Test-Access-Token',
                 })
-                .get((url) => {
-                    return url.indexOf('metadata') >= 0;
-                })
+                .get(url => url.indexOf('metadata') >= 0)
                 .reply(200, metadata);
-
         });
 
         it('should retrieve metadata from the server', function*() {

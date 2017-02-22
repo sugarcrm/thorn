@@ -19,7 +19,7 @@ let chakram = require('chakram');
  * Thorn-private utility functions.
  * @namespace
  */
-var utils = {
+let utils = {
     /**
      * Construct a URL relative to the base URL.
      * Each argument is joined with a `/`.
