@@ -1,8 +1,24 @@
 {
   "TestModule1": {
-    "fields": []
+    "fields": {
+      "testField3": {
+        "name": "testField3",
+        "type": "bool",
+        "required": true
+      },
+      "testField4": {
+        "name": "testField4",
+        "type": "int",
+        "required": true
+      },
+      "testField5": {
+        "name": "testField5",
+        "type": "varchar",
+        "required": true
+      }
+    }
   },
   "TestModule2": {
-    "fields": []
+    "fields": {}
   }
 }
