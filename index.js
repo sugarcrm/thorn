@@ -545,11 +545,11 @@ let Agent = {
             throw new Error('Tried to create a user agent with no username!');
         }
 
-        let cachedAgent = cachedAgents[username];
+        let internalUsername = cachedUsernames[username];
+        let cachedAgent = cachedAgents[internalUsername];
         if (cachedAgent) {
             return cachedAgent[VERSION];
         }
-        let internalUsername = cachedUsernames[username];
 
         let password = credentials[internalUsername];
         if (!password) {
