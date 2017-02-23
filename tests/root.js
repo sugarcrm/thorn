@@ -14,4 +14,3 @@ before(() => {
     require('babel-polyfill');
     require('co-mocha');
 });
-

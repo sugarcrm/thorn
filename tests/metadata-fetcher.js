@@ -109,4 +109,3 @@ describe('Metadata Fetcher', () => {
         });
     });
 });
-
