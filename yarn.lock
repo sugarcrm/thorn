@@ -2,13 +2,11 @@
 # yarn lockfile v1
 
 
-"@sugarcrm/eslint-config-sugarcrm@git+https://github.com/sugarcrm/javascript":
-  version "0.1.0"
-  resolved "git+https://github.com/sugarcrm/javascript#2f5aa9c51ab5d8e3b2ea5cb66442d04bf8c454f5"
+"@sugarcrm/eslint-config-sugarcrm@~1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@sugarcrm/eslint-config-sugarcrm/-/eslint-config-sugarcrm-1.0.0.tgz#e252514e41dcb03a417c3a9bb4567edafe41f40d"
   dependencies:
-    eslint "^3.15.0"
     eslint-config-airbnb-base "^11.1.0"
-    eslint-plugin-import "^2.2.0"
 
 abbrev@1, abbrev@1.0.x:
   version "1.0.9"
@@ -1161,7 +1159,7 @@ eslint-plugin-import@^2.2.0:
     minimatch "^3.0.3"
     pkg-up "^1.0.0"
 
-eslint@^3.0.0, eslint@^3.15.0:
+eslint@^3.0.0:
   version "3.15.0"
   resolved "https://registry.yarnpkg.com/eslint/-/eslint-3.15.0.tgz#bdcc6a6c5ffe08160e7b93c066695362a91e30f2"
   dependencies:
