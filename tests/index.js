@@ -805,7 +805,7 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
-                    .reply(200, function(uri, requestBody) {
+                    .reply(200, (uri, requestBody) => {
                         let testUsername = requestBody.requests[0].data.user_name;
                         return constructBulkResponse({
                             _module: 'Users',
@@ -813,7 +813,7 @@ describe('Thorn', () => {
                         });
                     })
                     .post(isTokenReq)
-                    .reply(200, function(uri, requestBody) {
+                    .reply(200, (uri, requestBody) => {
                         expect(requestBody.username).to.match(/^TestUsername\d+/);
                     })
                     .post(isTokenReq)
@@ -822,8 +822,8 @@ describe('Thorn', () => {
                     .reply(200);
 
                 yield Fixtures.create({
-                    module: 'Users', 
-                    attributes: {user_name: 'TestUsername'},
+                    module: 'Users',
+                    attributes: { user_name: 'TestUsername' },
                 });
 
                 yield Agent.as('TestUsername').get('not/real/endpoint');
