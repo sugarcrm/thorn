@@ -195,7 +195,7 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
-                    .reply(200, function(uri, requestBody) {
+                    .reply(200, (uri, requestBody) => {
                         let request = requestBody.requests[0];
 
                         expect(request.url).to.contain(cmpFixture.module);
@@ -298,7 +298,7 @@ describe('Thorn', () => {
                         expect(requestBody).to.eql(originalRequestBody);
                         return true;
                     })
-                    .reply(200, function(uri, requestBody) {
+                    .reply(200, (uri, requestBody) => {
                         let request = requestBody.requests[0];
 
                         return constructBulkResponse({
