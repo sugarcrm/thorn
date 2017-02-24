@@ -318,7 +318,7 @@ let Fixtures = {
             let request = {
                 url: `/${VERSION}/${model.module}`,
                 method: 'POST',
-                data: model.attributes || {},
+                data: _.cloneDeep(model.attributes) || {},
             };
 
             if (!model.module) {
@@ -331,7 +331,7 @@ let Fixtures = {
             let getRequiredFieldPromise = MetadataHandler.getRequiredFields(model.module)
             .then((requiredFields) => {
                 _.each(requiredFields, (field) => {
-                    if (!request.data[field.name]) {
+                    if (_.isUndefined(request.data[field.name])) {
                         request.data[field.name] = MetadataHandler.generateFieldValue(field);
                     }
                 });
