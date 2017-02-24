@@ -108,7 +108,7 @@ let cachedAgents;
  *
  * @param {string} username Username of the user.
  *
- * @return {string} Internal username
+ * @return {string} Internal username.
  *
  * @private
  */
