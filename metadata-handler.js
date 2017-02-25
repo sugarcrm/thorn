@@ -23,74 +23,82 @@ let MetadataHandler = {
     generateFieldValue(field) {
         let val;
         let maxLength;
-        let afterDecimal;
-        let beforeDecimal;
 
         switch (field.type) {
-            case 'bool':
+            case 'bool': {
                 val = faker.random.boolean();
                 break;
+            }
             case 'char':
             case 'password':
-            case 'varchar':
-            // this is char in the SQL sense, not the C sense
+            case 'varchar': {
+                // this is char in the SQL sense, not the C sense
                 maxLength = field.len || 30;
                 maxLength = maxLength > 30 ? 30 : maxLength;
                 val = faker.random.alphaNumeric(maxLength);
                 break;
+            }
             case 'currency':
-            case 'decimal':
-            // faker.js has no support for decimal numbers
+            case 'decimal': {
+                // faker.js has no support for decimal numbers
                 maxLength = field.len || '5,2';
-                [beforeDecimal, afterDecimal] = this._parsePrecision(maxLength);
+                let [beforeDecimal, afterDecimal] = this._parsePrecision(maxLength);
 
-            // For sanity, set the max before decimal to 3 and after to 2
+                // For sanity, set the max before decimal to 3 and after to 2
                 beforeDecimal = beforeDecimal > 3 ? 3 : beforeDecimal;
                 afterDecimal = afterDecimal > 2 ? 2 : afterDecimal;
 
-            // To avoid JS floating point issues, build string and cast as float
+                // To avoid JS floating point issues, build string and cast as float
                 val = parseFloat(
-                `${faker.random.number({ max: Math.pow(10, beforeDecimal) })
-                 }.${
-                faker.random.number({ max: Math.pow(10, afterDecimal) })}`
-            );
+                    `${faker.random.number({ max: Math.pow(10, beforeDecimal) })
+                     }.${
+                    faker.random.number({ max: Math.pow(10, afterDecimal) })}`
+                );
 
                 break;
+            }
             case 'date':
             case 'datetime':
-            case 'datetimecombo':
+            case 'datetimecombo': {
                 val = faker.date.recent(5);
                 break;
-            case 'email':
+            }
+            case 'email': {
                 val = faker.internet.exampleEmail('Jack', 'Jackson');
-            // FIXME: support maximum lengths!
+                // FIXME: support maximum lengths!
                 break;
-            case 'enum':
-            // for now, we just return an arbitrary random string
+            }
+            case 'enum': {
+                // for now, we just return an arbitrary random string
                 val = faker.lorem.word();
                 break;
-            case 'int':
+            }
+            case 'int': {
                 maxLength = field.len || 5;
 
-            // For sanity, set the max number of digits to 5
+                // For sanity, set the max number of digits to 5
                 maxLength = maxLength > 5 ? 5 : maxLength;
                 val = faker.random.number({ max: Math.pow(10, maxLength) });
                 break;
-            case 'name':
+            }
+            case 'name': {
                 val = faker.name.firstName();
                 break;
-            case 'phone':
-            // these are used with callto: URLs
+            }
+            case 'phone': {
+                // these are used with callto: URLs
                 val = faker.phone.phoneNumber().replace(/\D/g, '');
                 if (field.len) {
                     val = val.substring(0, field.len);
                 }
                 break;
+            }
             case 'text':
-            case 'longtext':
+            case 'longtext': {
                 val = faker.lorem.paragraph();
                 break;
-            case 'url':
+            }
+            case 'url': {
                 val = faker.internet.url();
                 if (field.len) {
                 /* the minimum length of an HTTPS URL is 9 ("https://a").
@@ -103,6 +111,7 @@ let MetadataHandler = {
                     val = val.substring(0, field.len);
                 }
                 break;
+            }
             case 'assigned_user_name':
             case 'file':
             case 'id':
