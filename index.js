@@ -67,6 +67,15 @@ let cachedRecords;
 let credentials;
 
 /**
+ * Maps between passed in user name and internal user name.
+ *
+ * @type {Object}
+ *
+ * @private
+ */
+let cachedUsernames;
+
+/**
  * Inserts username and userhash into `credentials`.
  *
  * @param {string} username Username of the user.
@@ -91,6 +100,29 @@ function _insertCredentials(username, userhash) {
 let cachedAgents;
 
 /**
+ * Generates and maps an internal username to the given username.
+ *
+ * To protect against username collisions, this function takes
+ * a passed in username and adds a hash to it, generating an
+ * internal username.
+ *
+ * @param {string} username Username of the user.
+ *
+ * @return {string} Internal username.
+ *
+ * @private
+ */
+function _generateInternalUsername(username) {
+    if (cachedUsernames[username]) {
+        throw new Error(`User ${username} already exists`);
+    }
+
+    let generatedUsername = `${username}${Date.now()}`;
+    cachedUsernames[username] = generatedUsername;
+    return generatedUsername;
+}
+
+/**
  * Restores `cachedRecords`, `cachedAgents` and `credentials` to their initial
  * states.
  *
@@ -101,6 +133,9 @@ function _restore() {
     cachedAgents = {};
     credentials = {
         [process.env.THORN_ADMIN_USERNAME]: process.env.THORN_ADMIN_PASSWORD,
+    };
+    cachedUsernames = {
+        [process.env.THORN_ADMIN_USERNAME]: process.env.THORN_ADMIN_USERNAME,
     };
 }
 
@@ -338,6 +373,7 @@ let Fixtures = {
 
                 // Populate the `credentials` object.
                 if (model.module === 'Users') {
+                    request.data.user_name = _generateInternalUsername(request.data.user_name);
                     _insertCredentials(request.data.user_name, request.data.user_hash);
                 }
 
@@ -509,17 +545,18 @@ let Agent = {
             throw new Error('Tried to create a user agent with no username!');
         }
 
-        let cachedAgent = cachedAgents[username];
+        let internalUsername = cachedUsernames[username];
+        let cachedAgent = cachedAgents[internalUsername];
         if (cachedAgent) {
             return cachedAgent[VERSION];
         }
 
-        let password = credentials[username];
+        let password = credentials[internalUsername];
         if (!password) {
             throw new Error(`No credentials available for user: ${username}`);
         }
 
-        let agent = new UserAgent(username, password, VERSION);
+        let agent = new UserAgent(internalUsername, password, VERSION);
         agent._login();
         return agent;
     },
