@@ -635,7 +635,7 @@ class UserAgent {
             username: this.username,
             password: this.password,
             version: this.version,
-            xthorn: 'Agent',
+            xthorn: this._xthorn(),
         }).then((response) => {
             this._updateAuthState(response);
             this._setState('sessionAttempt', 0);
@@ -672,7 +672,7 @@ class UserAgent {
             return utils.wrapRequest(chakramMethod, args, {
                 refreshToken: this._getState('refreshToken'),
                 afterRefresh: _.bind(this._updateAuthState, this),
-                xthorn: 'Agent',
+                xthorn: this._xthorn(),
                 retryVersion: this.version,
             });
         });
@@ -704,7 +704,7 @@ class UserAgent {
                 _state: {
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-Thorn': 'Agent',
+                        'X-Thorn': this._xthorn(),
                     },
                 },
             };
@@ -736,6 +736,15 @@ class UserAgent {
     _setState = (key, value) => {
         cachedAgents[this.username]._state[key] = value;
     };
+
+    /**
+     * Return the desired value for the X-Thorn header.
+     *
+     * @return {string} The value of the X-Thorn header.
+     *
+     * @private
+     */
+    _xthorn = () => `Agent-${this.username}`;
 
     /**
      * Perform a GET request as this user.

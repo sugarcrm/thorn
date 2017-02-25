@@ -879,7 +879,7 @@ describe('Thorn', () => {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .get(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
-                        expect(this.req.headers['x-thorn']).to.equal('Agent');
+                        expect(this.req.headers['x-thorn']).to.equal('Agent-foo');
                         return [];
                     });
                 let getRequest = myAgent.get(endpoint);
@@ -897,7 +897,7 @@ describe('Thorn', () => {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .post(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
-                        expect(this.req.headers['x-thorn']).to.equal('Agent');
+                        expect(this.req.headers['x-thorn']).to.equal('Agent-foo');
                         expect(requestBody).to.eql(data);
 
                         return [];
@@ -917,7 +917,7 @@ describe('Thorn', () => {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .put(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
-                        expect(this.req.headers['x-thorn']).to.equal('Agent');
+                        expect(this.req.headers['x-thorn']).to.equal('Agent-foo');
                         expect(requestBody).to.eql(data);
 
                         return [];
@@ -937,7 +937,7 @@ describe('Thorn', () => {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .delete(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
-                        expect(this.req.headers['x-thorn']).to.equal('Agent');
+                        expect(this.req.headers['x-thorn']).to.equal('Agent-foo');
                         expect(requestBody).to.eql(data);
 
                         return [];
