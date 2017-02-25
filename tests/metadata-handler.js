@@ -160,6 +160,15 @@ describe('Metadata Handler', () => {
                 let value = Meta.generateFieldValue(field);
                 expect(value.length).to.be.at.most(field.len);
             });
+
+            it('should not support a maximum length less than 9', () => {
+                let field = {
+                    type: 'url',
+                    len: 8,
+                };
+                let msg = 'URLs with fewer than 9 characters are not supported.';
+                expect(() => Meta.generateFieldValue(field)).to.throw(msg);
+            });
         });
 
         describe('emails', () => {
