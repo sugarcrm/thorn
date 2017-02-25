@@ -49,12 +49,11 @@ let MetadataHandler = {
                 afterDecimal = afterDecimal > 2 ? 2 : afterDecimal;
 
                 // To avoid JS floating point issues, build string and cast as float
-                val = Number.parseFloat(
-                    `${faker.random.number({max: Math.pow(10, beforeDecimal)})
-                     }.${
-                    faker.random.number({max: Math.pow(10, afterDecimal)})}`
-                );
-
+                val = `${faker.random.number({max: Math.pow(10, beforeDecimal)})}`;
+                if (afterDecimal > 0) {
+                    val += `.${faker.random.number({max: Math.pow(10, afterDecimal)})}`;
+                }
+                val = Number.parseFloat(val);
                 break;
             }
             case 'date':
@@ -142,14 +141,10 @@ let MetadataHandler = {
      */
     _parsePrecision(prec) {
         let [precision, scale] = prec.split(',');
-        if (scale) {
-            let afterDecimal = Number.parseInt(scale, 10);
-            let beforeDecimal = Number.parseInt(precision, 10) - afterDecimal;
-            return [beforeDecimal, afterDecimal];
-        }
-
-        // FIXME!!!
-        throw new Error('Single-digit precision specifications are not currently supported!');
+        scale = scale || 0;
+        let afterDecimal = Number.parseInt(scale, 10);
+        let beforeDecimal = Number.parseInt(precision, 10) - afterDecimal;
+        return [beforeDecimal, afterDecimal];
     },
 
     /**

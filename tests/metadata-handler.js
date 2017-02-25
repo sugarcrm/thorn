@@ -136,6 +136,12 @@ describe('Metadata Handler', () => {
                 expect(intPart.length).to.be.at.most(3);
                 expect(decimalPart.length).to.be.at.most(2);
             });
+
+            it('should default to no digits after the decimal', () => {
+                let value = Meta.generateFieldValue({type: 'decimal', len: '3'});
+                expect(value).to.be.a.number;
+                expect(Number.isInteger(value)).to.be.true;
+            });
         });
 
         describe('datetimes', () => {
