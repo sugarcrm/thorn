@@ -140,11 +140,13 @@ describe('Thorn', () => {
                             testField5: request.data.testField5,
                         });
                     });
+
                 let createPromise = Fixtures.create(fixture);
 
                 expect(isPromise(createPromise)).to.be.true;
 
                 yield createPromise;
+
                 expect(server.isDone()).to.be.true;
             });
 
