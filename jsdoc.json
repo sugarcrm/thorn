@@ -1,6 +1,7 @@
 {
   "opts": {
-    "destination": "./docs"
+    "destination": "./docs",
+    "template": "node_modules/@sugarcrm/jsdoc-baseline"
   },
   "plugins": [
     "plugins/markdown",
@@ -9,5 +10,8 @@
   "babel": {
     "plugins": ["transform-class-properties"],
     "babelrc": false
+  },
+  "templates": {
+    "baseline": "baseline-config.json"
   }
 }
