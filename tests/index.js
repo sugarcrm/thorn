@@ -140,11 +140,13 @@ describe('Thorn', () => {
                             testField5: request.data.testField5,
                         });
                     });
+
                 let createPromise = Fixtures.create(fixture);
 
                 expect(isPromise(createPromise)).to.be.true;
 
                 yield createPromise;
+
                 expect(server.isDone()).to.be.true;
             });
 
@@ -572,7 +574,7 @@ describe('Thorn', () => {
         });
 
         describe('cleanup', () => {
-            it('should retry clean up until maximum login attempts are reached', function*() {
+            it('should retry cleanup until maximum login attempts are reached', function*() {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(401)
@@ -683,7 +685,7 @@ describe('Thorn', () => {
                     // 4) Do a request with this user and make sure you get a 200.
                 });
 
-                it('should retry clean up on 401\'s', function*() {
+                it('should retry cleanup on 401\'s', function*() {
                     let originalRequestBody;
 
                     let server = nock(process.env.THORN_SERVER_URL)
