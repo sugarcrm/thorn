@@ -504,6 +504,13 @@ let Fixtures = {
         this._refreshToken = response.body.refresh_token;
     },
 
+    /**
+     * Determine if we need to log the admin in or not.
+     *
+     * @return {bool} `true` if we need to log in the admin; `false` otherwise.
+     *
+     * @private
+     */
     _needsLogin() {
         return _.isUndefined(this._headers['OAuth-Token']);
     },
