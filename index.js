@@ -686,6 +686,9 @@ class UserAgent {
      * @private
      */
     _updateAuthState = (response) => {
+        if (!response || !response.body) {
+            throw new Error('Login response was undefined or invalid! Response: ' + response);
+        }
         let headers = this._getState('headers');
         headers['OAuth-Token'] = response.body.access_token;
         this._setState('headers', headers);
