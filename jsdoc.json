@@ -7,6 +7,7 @@
     "node_modules/jsdoc-babel"
   ],
   "babel": {
-    "plugins": ["transform-class-properties"]
+    "plugins": ["transform-class-properties"],
+    "babelrc": false
   }
 }
