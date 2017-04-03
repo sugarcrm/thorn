@@ -49,7 +49,7 @@ let MetadataHandler = {
                 afterDecimal = afterDecimal > 2 ? 2 : afterDecimal;
 
                 // To avoid JS floating point issues, build string and cast as float
-                val = parseFloat(
+                val = Number.parseFloat(
                     `${faker.random.number({ max: Math.pow(10, beforeDecimal) })
                      }.${
                     faker.random.number({ max: Math.pow(10, afterDecimal) })}`
