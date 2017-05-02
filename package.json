@@ -16,6 +16,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@sugarcrm/eslint-config-sugarcrm": "~1.0.0",
+    "@sugarcrm/jsdoc-baseline": "^0.0.3",
     "babel-core": "^6.24.0",
     "babel-eslint": "^7.2.1",
     "babel-plugin-transform-class-properties": "^6.22.0",

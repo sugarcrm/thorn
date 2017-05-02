@@ -51,11 +51,15 @@ gulp.task('doc', (cb) => {
         .option('-p, --private', 'Include private API documentation')
         .parse(process.argv);
 
+    // only document the public API by default
+    let filesToDocument = ['index.js'];
+
     if (commander.private) {
         jsdocConfig.opts.private = true;
+        filesToDocument = sourceFiles;
     }
 
-    gulp.src(_.union(['Docs.md'], sourceFiles), { read: false })
+    gulp.src(_.union(['Docs.md'], filesToDocument), { read: false })
         .pipe(jsdoc(jsdocConfig, cb));
 });
 
