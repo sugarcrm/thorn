@@ -10,7 +10,7 @@ $ yarn add --dev '@sugarcrm/thorn'
 
 ## Documentation
 
-See [Thorn website](http://sugarcrm.github.io/thorn).
+See [the Thorn website](http://sugarcrm.github.io/thorn).
 
 ## Contributing
 
