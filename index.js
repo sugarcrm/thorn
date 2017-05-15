@@ -211,7 +211,7 @@ let Fixtures = {
         this._sessionAttempt = 0;
 
         let url = utils.constructUrl(VERSION, 'bulk');
-        let params = { headers: this._headers };
+        let params = {headers: this._headers};
 
         return this._processModels(models, options).then((bulkRecordCreateDef) => {
             let bulkRecordLinkDef;
@@ -298,7 +298,7 @@ let Fixtures = {
      * @private
      */
     _processLinks(response, models) {
-        let bulkRecordLinkDef = { requests: [] };
+        let bulkRecordLinkDef = {requests: []};
 
         // Loop models to handle links
         _.each(models, (model) => {
@@ -345,7 +345,7 @@ let Fixtures = {
      */
     _processModels(models, options = {}) {
         let getRequiredFieldsPromises = [];
-        let bulkRecordCreateDef = { requests: [] };
+        let bulkRecordCreateDef = {requests: []};
         // Loop models to check if any model has been cached already
         // Fetch module's required fields and pre-fill them
         _.each(models, (model) => {
@@ -406,9 +406,9 @@ let Fixtures = {
         // Create promise for record deletion
         // Clear the cache
         // Return promise
-        let bulkRecordDeleteDef = { requests: [] };
+        let bulkRecordDeleteDef = {requests: []};
         let url = utils.constructUrl(VERSION, 'bulk');
-        let params = { headers: this._headers };
+        let params = {headers: this._headers};
 
         _.each(cachedRecords, (moduleRecords, module) => {
             _.each(moduleRecords, (record) => {
@@ -463,7 +463,7 @@ let Fixtures = {
      */
     link(left, linkName, right) {
         let url = utils.constructUrl(VERSION, left._module, left.id, 'link');
-        let params = { headers: this._headers };
+        let params = {headers: this._headers};
         let linkDef = {
             link_name: linkName,
             ids: [right.id],
@@ -796,4 +796,4 @@ class UserAgent {
 
 // ********************************************************************************************************************
 
-export { Fixtures, Agent };
+export {Fixtures, Agent};
