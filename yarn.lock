@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@sugarcrm/eslint-config-sugarcrm@~1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@sugarcrm/eslint-config-sugarcrm/-/eslint-config-sugarcrm-1.0.0.tgz#e252514e41dcb03a417c3a9bb4567edafe41f40d"
+"@sugarcrm/eslint-config-sugarcrm@~1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@sugarcrm/eslint-config-sugarcrm/-/eslint-config-sugarcrm-1.1.0.tgz#e4212c61d8af294f6873385f7923980f740ae4ba"
   dependencies:
     eslint-config-airbnb-base "^11.1.0"
 
@@ -851,7 +851,7 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
 
-concat-stream@^1.4.6, concat-stream@^1.5.2:
+concat-stream@^1.5.2:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/concat-stream/-/concat-stream-1.6.0.tgz#0aac662fd52be78964d5532f694784e70110acf7"
   dependencies:
@@ -999,7 +999,7 @@ diff@^3.1.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.2.0.tgz#c9ce393a4b7cbd0b058a725c93df299027868ff9"
 
-doctrine@1.5.0, doctrine@^1.2.2:
+doctrine@1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/doctrine/-/doctrine-1.5.0.tgz#379dce730f6166f76cefa4e6707a159b02c5a6fa"
   dependencies:
@@ -1173,46 +1173,7 @@ eslint-plugin-import@^2.2.0:
     minimatch "^3.0.3"
     pkg-up "^1.0.0"
 
-eslint@^3.0.0:
-  version "3.15.0"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-3.15.0.tgz#bdcc6a6c5ffe08160e7b93c066695362a91e30f2"
-  dependencies:
-    babel-code-frame "^6.16.0"
-    chalk "^1.1.3"
-    concat-stream "^1.4.6"
-    debug "^2.1.1"
-    doctrine "^1.2.2"
-    escope "^3.6.0"
-    espree "^3.4.0"
-    estraverse "^4.2.0"
-    esutils "^2.0.2"
-    file-entry-cache "^2.0.0"
-    glob "^7.0.3"
-    globals "^9.14.0"
-    ignore "^3.2.0"
-    imurmurhash "^0.1.4"
-    inquirer "^0.12.0"
-    is-my-json-valid "^2.10.0"
-    is-resolvable "^1.0.0"
-    js-yaml "^3.5.1"
-    json-stable-stringify "^1.0.0"
-    levn "^0.3.0"
-    lodash "^4.0.0"
-    mkdirp "^0.5.0"
-    natural-compare "^1.4.0"
-    optionator "^0.8.2"
-    path-is-inside "^1.0.1"
-    pluralize "^1.2.1"
-    progress "^1.1.8"
-    require-uncached "^1.0.2"
-    shelljs "^0.7.5"
-    strip-bom "^3.0.0"
-    strip-json-comments "~2.0.1"
-    table "^3.7.8"
-    text-table "~0.2.0"
-    user-home "^2.0.0"
-
-eslint@^3.18.0:
+eslint@^3.0.0, eslint@^3.18.0:
   version "3.18.0"
   resolved "https://registry.yarnpkg.com/eslint/-/eslint-3.18.0.tgz#647e985c4ae71502d20ac62c109f66d5104c8a4b"
   dependencies:
