@@ -136,10 +136,10 @@ describe('Utils', () => {
         });
 
         it('should return responses from successful requests', function*() {
-            let wrappedResponse = { response: { statusCode: 200 } };
+            let wrappedResponse = {response: {statusCode: 200}};
             let wrappedMethod = sandbox.stub().returns(Promise.resolve(wrappedResponse));
             let wrappedArgs = ['a'];
-            let wrappedOptions = { k: 'v' };
+            let wrappedOptions = {k: 'v'};
 
             let response = yield utils.wrapRequest(wrappedMethod, wrappedArgs, wrappedOptions);
 
@@ -151,7 +151,7 @@ describe('Utils', () => {
         it('should throw an error when invalid response is received', function*() {
             let wrappedMethod = sandbox.stub().returns(Promise.resolve());
             let wrappedArgs = ['a'];
-            let wrappedOptions = { k: 'v' };
+            let wrappedOptions = {k: 'v'};
             let errorMsg;
 
             try {
@@ -174,7 +174,7 @@ describe('Utils', () => {
             };
             let wrappedMethod = sandbox.stub().returns(Promise.resolve(wrappedResponse));
             let wrappedArgs = ['a'];
-            let wrappedOptions = { k: 'v' };
+            let wrappedOptions = {k: 'v'};
             let error;
 
             try {
@@ -190,14 +190,14 @@ describe('Utils', () => {
 
         it('should perform token refresh on 401\'s and re-execute given method', function*() {
             let wrappedResponses = [
-                { response: { statusCode: 401 } },
-                { response: { statusCode: 200 } },
+                {response: {statusCode: 401}},
+                {response: {statusCode: 200}},
             ];
 
             let wrappedMethod = sandbox.stub();
             wrappedMethod.onCall(0).returns(Promise.resolve(wrappedResponses[0]));
             wrappedMethod.onCall(1).returns(Promise.resolve(wrappedResponses[1]));
-            let wrappedArgs = ['', {}, { headers: { 'OAuth-Token': 'Token-1' } }];
+            let wrappedArgs = ['', {}, {headers: {'OAuth-Token': 'Token-1'}}];
             let wrappedOptions = {
                 retryVersion: 'a',
                 refreshToken: 'b',
@@ -205,7 +205,7 @@ describe('Utils', () => {
                 afterRefresh: sandbox.stub(),
             };
 
-            sandbox.stub(utils, 'refresh').returns(Promise.resolve({ body: { access_token: 'Token-2' } }));
+            sandbox.stub(utils, 'refresh').returns(Promise.resolve({body: {access_token: 'Token-2'}}));
 
             let expectedRefreshOptions = {
                 version: wrappedOptions.retryVersion,
@@ -219,8 +219,8 @@ describe('Utils', () => {
             let response = yield utils.wrapRequest(wrappedMethod, wrappedArgs, wrappedOptions);
 
             expect(wrappedMethod.calledTwice).to.be.true;
-            expect(wrappedMethod.firstCall).to.be.calledWithExactly('', {}, { headers: { 'OAuth-Token': 'Token-1' } });
-            expect(wrappedMethod.secondCall).to.be.calledWithExactly('', {}, { headers: { 'OAuth-Token': 'Token-2' } });
+            expect(wrappedMethod.firstCall).to.be.calledWithExactly('', {}, {headers: {'OAuth-Token': 'Token-1'}});
+            expect(wrappedMethod.secondCall).to.be.calledWithExactly('', {}, {headers: {'OAuth-Token': 'Token-2'}});
 
             expect(utils.refresh).to.be.calledOnce;
             expect(utils.refresh).to.be.calledWithExactly(expectedRefreshOptions);

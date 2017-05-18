@@ -38,7 +38,7 @@ const VERBOSE_FUNCTIONS = [
                     bulkDataCache[data.debugId] = [];
                     requests = JSON.parse(data.body).requests;
                     _.each(requests, (req, index) => {
-                        bulkDataCache[data.debugId].push({ method: req.method, url: req.url });
+                        bulkDataCache[data.debugId].push({method: req.method, url: req.url});
                         console.info(`\tBulk Request ${index + 1}: ${req.method} ${req.url}`);
                     });
                     break;
@@ -69,4 +69,4 @@ const VERBOSE_FUNCTIONS = [
     },
 ];
 
-export { VERBOSE_FUNCTIONS };
+export {VERBOSE_FUNCTIONS};

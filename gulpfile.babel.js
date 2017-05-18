@@ -38,7 +38,7 @@ gulp.task('test', ['build'], () => {
         };
     }
 
-    return gulp.src(['tests/**/*.js'], { read: false })
+    return gulp.src(['tests/**/*.js'], {read: false})
         .pipe(mocha(options));
 });
 
@@ -55,7 +55,7 @@ gulp.task('doc', (cb) => {
         jsdocConfig.opts.private = true;
     }
 
-    gulp.src(_.union(['Docs.md'], sourceFiles), { read: false })
+    gulp.src(_.union(['Docs.md'], sourceFiles), {read: false})
         .pipe(jsdoc(jsdocConfig, cb));
 });
 

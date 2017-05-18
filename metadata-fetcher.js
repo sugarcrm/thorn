@@ -78,7 +78,7 @@ let MetadataFetcher = {
      * @private
      */
     _filterByRequiredFields(fields) {
-        let filteredFields = { fields: {} };
+        let filteredFields = {fields: {}};
         _.each(fields, (field, fieldName) => {
             if (
                 !_.isUndefined(field.required) &&

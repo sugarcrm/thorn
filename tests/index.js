@@ -174,7 +174,7 @@ describe('Thorn', () => {
                             testField2: request.data.testField2,
                         });
                     });
-                let createPromise = Fixtures.create(fixtureWithoutModule, { module });
+                let createPromise = Fixtures.create(fixtureWithoutModule, {module});
 
                 expect(isPromise(createPromise)).to.be.true;
 
@@ -277,7 +277,7 @@ describe('Thorn', () => {
                         }]);
                     });
 
-                yield Fixtures.create([fixture1, fixture2], { module });
+                yield Fixtures.create([fixture1, fixture2], {module});
                 expect(server.isDone()).to.be.true;
             });
 
@@ -349,7 +349,7 @@ describe('Thorn', () => {
 
             it('should throw an error if no records have been created', () => {
                 let msg = 'No cached records are currently available!';
-                expect(() => Fixtures.lookup(fixture.module, { name: fixture.attributes.name })).to.throw(msg);
+                expect(() => Fixtures.lookup(fixture.module, {name: fixture.attributes.name})).to.throw(msg);
             });
 
             describe('with pre-existing records', () => {
@@ -370,13 +370,13 @@ describe('Thorn', () => {
                 });
 
                 it('should be able to find previously created records', () => {
-                    let lookup1 = Fixtures.lookup(fixture.module, { name: fixture.attributes.name });
+                    let lookup1 = Fixtures.lookup(fixture.module, {name: fixture.attributes.name});
                     expect(lookup1.name).to.equal(fixture.attributes.name);
                     expect(lookup1.testField1).to.equal(fixture.attributes.testField1);
                     expect(lookup1.testField2).to.equal(fixture.attributes.testField2);
 
-                    let lookup2 = Fixtures.lookup(fixture.module, { testField1: fixture.attributes.testField1 });
-                    let lookup3 = Fixtures.lookup(fixture.module, { testField2: fixture.attributes.testField2 });
+                    let lookup2 = Fixtures.lookup(fixture.module, {testField1: fixture.attributes.testField1});
+                    let lookup3 = Fixtures.lookup(fixture.module, {testField2: fixture.attributes.testField2});
                     expect(lookup1).to.equal(lookup2);
                     expect(lookup1).to.equal(lookup3);
                 });
@@ -384,7 +384,7 @@ describe('Thorn', () => {
                 it('should throw an error if no records have been created for given module', () => {
                     let module = 'TestModule2';
                     let msg = `No cached records found for module: ${module}`;
-                    expect(() => Fixtures.lookup(module, { name: 'TestRecord2' })).to.throw(msg);
+                    expect(() => Fixtures.lookup(module, {name: 'TestRecord2'})).to.throw(msg);
                 });
             });
         });
@@ -665,9 +665,9 @@ describe('Thorn', () => {
                             return requestBody;
                         })
                         .reply(200, constructBulkResponse([
-                            { id: contents1.id },
-                            { id: contents2.id },
-                            { id: contents3.id },
+                            {id: contents1.id},
+                            {id: contents2.id},
+                            {id: contents3.id},
                         ]));
 
                     yield Fixtures.cleanup();
@@ -699,9 +699,9 @@ describe('Thorn', () => {
                             return true;
                         })
                         .reply(200, constructBulkResponse([
-                            { id: contents1.id },
-                            { id: contents2.id },
-                            { id: contents3.id },
+                            {id: contents1.id},
+                            {id: contents2.id},
+                            {id: contents3.id},
                         ]));
 
                     yield Fixtures.cleanup();
@@ -752,7 +752,7 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .get(/not\/real\/endpoint/)
-                    .reply(200, { fake: 'data' });
+                    .reply(200, {fake: 'data'});
 
                 let myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
 
@@ -790,7 +790,7 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .get(/not\/real\/endpoint/)
-                    .reply(200, { fake: 'data' });
+                    .reply(200, {fake: 'data'});
 
                 let myAgent = Agent.as(process.env.THORN_ADMIN_USERNAME);
 
@@ -823,7 +823,7 @@ describe('Thorn', () => {
 
                 yield Fixtures.create({
                     module: 'Users',
-                    attributes: { user_name: 'TestUsername' },
+                    attributes: {user_name: 'TestUsername'},
                 });
 
                 yield Agent.as('TestUsername').get('not/real/endpoint');

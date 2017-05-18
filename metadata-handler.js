@@ -50,9 +50,9 @@ let MetadataHandler = {
 
                 // To avoid JS floating point issues, build string and cast as float
                 val = Number.parseFloat(
-                    `${faker.random.number({ max: Math.pow(10, beforeDecimal) })
+                    `${faker.random.number({max: Math.pow(10, beforeDecimal)})
                      }.${
-                    faker.random.number({ max: Math.pow(10, afterDecimal) })}`
+                    faker.random.number({max: Math.pow(10, afterDecimal)})}`
                 );
 
                 break;
@@ -78,7 +78,7 @@ let MetadataHandler = {
 
                 // For sanity, set the max number of digits to 5
                 maxLength = maxLength > 5 ? 5 : maxLength;
-                val = faker.random.number({ max: Math.pow(10, maxLength) });
+                val = faker.random.number({max: Math.pow(10, maxLength)});
                 break;
             }
             case 'name': {
