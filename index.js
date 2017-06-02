@@ -719,7 +719,7 @@ class UserAgent {
      * Retrieve shared state for this UserAgent.
      *
      * @param {string} key State parameter to receive.
-     * @return {Mixed} The value of the specified shared state parameter.
+     * @return {*} The value of the specified shared state parameter.
      *
      * @private
      */
@@ -729,7 +729,7 @@ class UserAgent {
      * Set shared state for this UserAgent.
      *
      * @param {string} key State parameter to update.
-     * @param {Mixed} value The value to assign to the provided `key`.
+     * @param {*} value The value to assign to the provided `key`.
      *
      * @private
      */
