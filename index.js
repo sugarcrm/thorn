@@ -165,14 +165,6 @@ let Fixtures = {
     _sessionAttempt: 0,
 
     /**
-     * Maximum number of login attempts allowed.
-     *
-     * @type {number}
-     * @private
-     */
-    _maxSessionAttempts: 3,
-
-    /**
      * Default HTTP headers.
      *
      * @type {Object}
@@ -195,20 +187,15 @@ let Fixtures = {
      * @return {Promise} The ChakramResponse from the creation of the records and/or links
      */
     create(models, options = {}) {
-        if (_.isUndefined(this._headers['OAuth-Token'])) {
-            if (++this._sessionAttempt > this._maxSessionAttempts) {
-                throw new Error('Max number of login attempts exceeded!');
-            }
-
-            return this._adminLogin().then(() => this.create(models, options));
+        if (this._needsLogin()) {
+            return this._adminLogin().then(() => this.create(models, options)).catch((response) => {
+                throw response;
+            });
         }
 
         if (!_.isArray(models)) {
             models = [models];
         }
-
-        // reset `_sessionAttempt`
-        this._sessionAttempt = 0;
 
         let url = utils.constructUrl(VERSION, 'bulk');
         let params = {headers: this._headers};
@@ -392,16 +379,11 @@ let Fixtures = {
      * @return {Promise} The ChakramResponse for the delete request to the server.
      */
     cleanup() {
-        if (_.isUndefined(this._headers['OAuth-Token'])) {
-            if (++this._sessionAttempt > this._maxSessionAttempts) {
-                throw new Error('Max number of login attempts exceeded!');
-            }
-
-            return this._adminLogin().then(() => this.cleanup());
+        if (this._needsLogin()) {
+            return this._adminLogin().then(() => this.cleanup()).catch((response) => {
+                throw response;
+            });
         }
-
-        // reset `_sessionAttempt`
-        this._sessionAttempt = 0;
 
         // Create promise for record deletion
         // Clear the cache
@@ -506,11 +488,8 @@ let Fixtures = {
             password: process.env.THORN_ADMIN_PASSWORD,
             version: VERSION,
             xthorn: 'Fixtures',
-        }).then((response) => {
-            if (response.response.statusCode === 200) {
-                this._storeAuth(response);
-            }
-        });
+            retries: 2,
+        }).then(response => this._storeAuth(response));
     },
 
     /**
@@ -523,6 +502,17 @@ let Fixtures = {
     _afterRefresh(response) {
         this._headers['OAuth-Token'] = response.body.access_token;
         this._refreshToken = response.body.refresh_token;
+    },
+
+    /**
+     * Determine if we need to log the admin in or not.
+     *
+     * @return {bool} `true` if we need to log in the admin; `false` otherwise.
+     *
+     * @private
+     */
+    _needsLogin() {
+        return _.isUndefined(this._headers['OAuth-Token']);
     },
 };
 
