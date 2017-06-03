@@ -861,6 +861,7 @@ describe('Thorn', () => {
         describe('request methods', () => {
             let myAgent;
             let endpoint;
+            const XTHORN = 'Agent-foo';
 
             function isNotRealEndpoint(uri) {
                 return uri.indexOf(endpoint) >= 0;
@@ -879,7 +880,7 @@ describe('Thorn', () => {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .get(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
-                        expect(this.req.headers['x-thorn']).to.equal('Agent-foo');
+                        expect(this.req.headers['x-thorn']).to.equal(XTHORN);
                         return [];
                     });
                 let getRequest = myAgent.get(endpoint);
@@ -897,7 +898,7 @@ describe('Thorn', () => {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .post(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
-                        expect(this.req.headers['x-thorn']).to.equal('Agent-foo');
+                        expect(this.req.headers['x-thorn']).to.equal(XTHORN);
                         expect(requestBody).to.eql(data);
 
                         return [];
@@ -917,7 +918,7 @@ describe('Thorn', () => {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .put(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
-                        expect(this.req.headers['x-thorn']).to.equal('Agent-foo');
+                        expect(this.req.headers['x-thorn']).to.equal(XTHORN);
                         expect(requestBody).to.eql(data);
 
                         return [];
@@ -937,7 +938,7 @@ describe('Thorn', () => {
                 let server = nock(process.env.THORN_SERVER_URL)
                     .delete(isNotRealEndpoint)
                     .reply(200, function(uri, requestBody) {
-                        expect(this.req.headers['x-thorn']).to.equal('Agent-foo');
+                        expect(this.req.headers['x-thorn']).to.equal(XTHORN);
                         expect(requestBody).to.eql(data);
 
                         return [];
