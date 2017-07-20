@@ -53,7 +53,7 @@
     "prepublish": "gulp"
   },
   "engines": {
-    "node": ">=6.0.0",
+    "node": ">=6.10.3",
     "npm": ">=3.0.0"
   },
   "keywords": [
