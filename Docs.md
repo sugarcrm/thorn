@@ -222,7 +222,7 @@ record creations such that dependencies are met before `Fixtures` tries to make 
 ## Thorn.Agent
 
 Thorn provides an Agent class that simulates a REST API user agent.
-You should use this class for all of your Thorn tests except those which test the Users API directly (in which case you should use the [chakram API](chakram) directly).
+You should use this class for all of your Thorn tests except those which test the Users API directly (in which case you should use the [chakram API] directly).
 
 ### Creating Agents
 
