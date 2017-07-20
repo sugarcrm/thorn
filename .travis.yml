@@ -10,6 +10,3 @@ script:
 
 after_script: "cat /tmp/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
 
-matrix:
-  allow_failures:
-  - node_js: "8"
