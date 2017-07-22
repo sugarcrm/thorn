@@ -651,7 +651,7 @@ class UserAgent {
      * Skeleton method for making a chakram request.
      *
      * @param {function} chakramMethod Chakram request method to call.
-     * @param {array} args Arguments to call the chakram request method with.
+     * @param {Array} args Arguments to call the chakram request method with.
      *   The first member of the array must be the desired endpoint;
      *   the last must be a `params`-like object.
      * @return {ChakramPromise} A promise resolving to the result of the request.
