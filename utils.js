@@ -86,7 +86,7 @@ let utils = {
      * try again. If it fails because of some other HTTP status code, throw an exception.
      *
      * @param {function} chakramMethod Chakram request method to call.
-     * @param {array} args Arguments to call the chakram request method with.
+     * @param {Array} args Arguments to call the chakram request method with.
      *   The last member of the array must be a `params`-like object.
      * @param {Object} options Additional configuration options.
      * @param {string} options.refreshToken Refresh token to use if you have to do a refresh.
