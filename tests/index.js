@@ -18,7 +18,7 @@ describe('Thorn', () => {
         _ = require('lodash');
         expect = require('chakram').expect;
         nock = require('nock');
-        thornFile = '../dist/index.js';
+        thornFile = '../index.js';
 
         process.env.THORN_METADATA_FILE = '../metadata.json';
 

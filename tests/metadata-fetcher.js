@@ -16,8 +16,8 @@ describe('Metadata Fetcher', () => {
         expect = require('chakram').expect;
         nock = require('nock');
 
-        MetadataHandler = require('../dist/metadata-handler.js');
-        MetadataFetcher = require('../dist/metadata-fetcher.js');
+        MetadataHandler = require('../metadata-handler.js');
+        MetadataFetcher = require('../metadata-fetcher.js');
         metadata = require('./fixtures/metadata-fetcher-fixture.json');
 
         expected = {

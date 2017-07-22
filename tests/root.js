@@ -11,6 +11,5 @@ before(() => {
     process.env.THORN_ADMIN_PASSWORD = 'bar';
     process.env.THORN_SERVER_URL = 'http://thisisnotarealserver.localdev';
 
-    require('babel-polyfill');
     require('co-mocha');
 });

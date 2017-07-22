@@ -25,19 +25,6 @@ $ git clone https://github.com/sugarcrm/thorn
 $ yarn
 ```
 
-You should also add `dist` to your .git/info/exclude file.
-It is not included in `.gitignore` because [this interferes with properly publishing Thorn as an npm module](https://docs.npmjs.com/misc/developers#keeping-files-out-of-your-package).
-
-```bash
-$ echo "dist" >> .git/info/exclude
-```
-
-## Compiling
-
-```bash
-$ gulp
-```
-
 ## Linting
 
 ```bash

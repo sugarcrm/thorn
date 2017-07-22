@@ -3,7 +3,6 @@
     "mocha": true
   },
   "extends": "@sugarcrm/eslint-config-sugarcrm",
-  "parser": "babel-eslint",
   "parserOptions": {
     "sourceType": "module"
   },

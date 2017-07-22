@@ -11,7 +11,7 @@ describe('Metadata Handler', () => {
     before(() => {
         _ = require('lodash');
         expect = require('chakram').expect;
-        Meta = require('../dist/metadata-handler.js');
+        Meta = require('../metadata-handler.js');
         path = require('path');
     });
 
