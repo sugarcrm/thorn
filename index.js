@@ -18,7 +18,7 @@ let utils = require('./utils.js');
 // Verbose mode support for debugging tests
 let verbosity = Number.parseInt(process.env.THORN_VERBOSE, 10);
 if (verbosity) {
-    const VERBOSE_FUNCTIONS = require('./debug.js').VERBOSE_FUNCTIONS;
+    const VERBOSE_FUNCTIONS = require('./debug.js');
     chakram.startDebug((type, data, r) => {
         for (let i = 0; i < verbosity; i++) {
             VERBOSE_FUNCTIONS[i](type, data, r);
@@ -500,7 +500,7 @@ class UserAgent {
      *
      * @private
      */
-    _login = () => {
+    _login() {
         let loginPromise = this._getState('loginPromise');
         if (loginPromise) {
             return loginPromise;
@@ -526,7 +526,7 @@ class UserAgent {
         });
         this._setState('loginPromise', loginPromise);
         return loginPromise;
-    };
+    }
 
     /**
      * Skeleton method for making a chakram request.
@@ -539,10 +539,10 @@ class UserAgent {
      *
      * @private
      */
-    _requestSkeleton = (chakramMethod, args) => {
+    _requestSkeleton(chakramMethod, args) {
         let paramIndex = args.length - 1;
         args[paramIndex] = args[paramIndex] || {};
-        this._validateParams(args[paramIndex]);
+        this.constructor._validateParams(args[paramIndex]);
 
         args[0] = utils.constructUrl(this.version, args[0]);
 
@@ -552,6 +552,7 @@ class UserAgent {
 
             args[paramIndex].headers = {};
             _.extend(args[paramIndex].headers, this._getState('headers'));
+
             return utils.wrapRequest(chakramMethod, args, {
                 refreshToken: this._getState('refreshToken'),
                 afterRefresh: _.bind(this._updateAuthState, this),
@@ -559,7 +560,7 @@ class UserAgent {
                 retryVersion: this.version,
             });
         });
-    };
+    }
 
     /**
      * Validate request parameters.
@@ -570,7 +571,7 @@ class UserAgent {
      * @see https://github.com/request/request#requestoptions-callback
      * @private
      */
-    _validateParams = (params) => {
+    static _validateParams(params) {
         if (params && !_.isObject(params)) {
             throw new Error('Please only use Objects for request parameters.');
         }
@@ -588,7 +589,7 @@ class UserAgent {
                 'Instead, please use the appropriate top-level Thorn API method.'
             );
         }
-    };
+    }
 
     /**
      * Callback to be performed after a login or refresh.
@@ -597,19 +598,19 @@ class UserAgent {
      *
      * @private
      */
-    _updateAuthState = (response) => {
+    _updateAuthState(response) {
         let headers = this._getState('headers');
         headers['OAuth-Token'] = response.body.access_token;
         this._setState('headers', headers);
         this._setState('refreshToken', response.body.refresh_token);
-    };
+    }
 
     /**
      * Add this UserAgent to the cache.
      *
      * @private
      */
-    _cacheMe = () => {
+    _cacheMe() {
         if (!cachedAgents[this.username]) {
             cachedAgents[this.username] = {
                 [this.version]: this,
@@ -625,7 +626,7 @@ class UserAgent {
         if (!cachedAgents[this.username][this.version]) {
             cachedAgents[this.username][this.version] = this;
         }
-    };
+    }
 
     /**
      * Retrieve shared state for this UserAgent.
@@ -635,7 +636,9 @@ class UserAgent {
      *
      * @private
      */
-    _getState = key => cachedAgents[this.username]._state[key];
+    _getState(key) {
+        return cachedAgents[this.username]._state[key];
+    }
 
     /**
      * Set shared state for this UserAgent.
@@ -645,9 +648,9 @@ class UserAgent {
      *
      * @private
      */
-    _setState = (key, value) => {
+    _setState(key, value) {
         cachedAgents[this.username]._state[key] = value;
-    };
+    }
 
     /**
      * Return the desired value for the X-Thorn header.
@@ -656,7 +659,9 @@ class UserAgent {
      *
      * @private
      */
-    _xthorn = () => `Agent-${this.username}`;
+    _xthorn() {
+        return `Agent-${this.username}`;
+    }
 
     /**
      * Perform a GET request as this user.
@@ -708,4 +713,4 @@ class UserAgent {
 
 // ********************************************************************************************************************
 
-export {Fixtures, Agent};
+module.exports = {Fixtures, Agent};

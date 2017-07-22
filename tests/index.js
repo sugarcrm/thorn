@@ -20,7 +20,7 @@ describe('Thorn', () => {
         nock = require('nock');
         thornFile = '../index.js';
 
-        process.env.THORN_METADATA_FILE = '../metadata.json';
+        process.env.THORN_METADATA_FILE = `${__dirname}/../metadata.json`;
 
         nock.disableNetConnect();
         nock.emitter.on('no match', (req, fullReq, reqData) => {
