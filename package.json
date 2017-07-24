@@ -51,7 +51,7 @@
     "doc": "gulp doc",
     "test": "gulp test",
     "lint": "gulp lint",
-    "prepublish": "gulp"
+    "prepare": "gulp"
   },
   "engines": {
     "node": ">=6.10.3",
