@@ -10,7 +10,7 @@ You should be familiar with [mocha][mocha] and [JavaScript Promises][google-js-p
 ## Setup
 
 ```javascript
-const { Agent, Fixtures } = require('@sugarcrm/thorn');
+const {Agent, Fixtures} = require('@sugarcrm/thorn');
 ```
 
 ## Thorn.Fixtures
@@ -276,7 +276,7 @@ console.log(response.response.body);
 #### post
 
 ```javascript
-let response = yield john.post('Accounts', { name: 'Accounts.Smith' });
+let response = yield john.post('Accounts', {name: 'Accounts.Smith'});
 console.log(response.response.body);
 /*
 {
@@ -293,7 +293,7 @@ console.log(response.response.body);
 
 ```javascript
 // assuming "id" is the the ID of Accounts.Smith
-let response = yield john.put('Accounts/' + id, { industry: 'Not For Profit' });
+let response = yield john.put('Accounts/' + id, {industry: 'Not For Profit'});
 console.log(response.response.body);
 /*
 {
@@ -313,7 +313,7 @@ console.log(response.response.body);
 let response = yield john.delete('Accounts' + id);
 console.log(response.response.body);
 /*
-{ id: '10e42218-bb41-11e6-82c7-a0999b020fc9' }
+{id: '10e42218-bb41-11e6-82c7-a0999b020fc9'}
 */
 ```
 
