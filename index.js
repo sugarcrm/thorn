@@ -262,7 +262,7 @@ let Fixtures = {
                 _.each(moduleLinks, (link) => {
                     let cachedRecord = fixturesMap.get(link);
                     if (!cachedRecord) {
-                        throw new Error(`Missing link! link: ${link.toString()}`);
+                        throw new Error(`Missing link! link: ${JSON.stringify(link)}`);
                     }
                     let request = {
                         url: `/${VERSION}/${model.module}/${leftID}/link`,
@@ -308,10 +308,10 @@ let Fixtures = {
             };
 
             if (!model.module) {
-                throw new Error(`Missing module name! model: ${model.toString()}`);
+                throw new Error(`Missing module name! model: ${JSON.stringify(model)}`);
             }
             if (fixturesMap.has(model)) {
-                throw new Error(`Record already exists! model: ${model.toString()}`);
+                throw new Error(`Record already exists! model: ${JSON.stringify(model)}`);
             }
 
             let getRequiredFieldPromise = MetadataHandler.getRequiredFields(model.module)
