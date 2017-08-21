@@ -83,7 +83,7 @@ console.log(response); // Map containing one account, and one contact
 }
 */
 
-response = yield Fixtures.create(DashboardsOnly, {module: 'Dashboard'});
+response = yield Fixtures.create(DashboardsOnly, {module: 'Dashboards'});
 console.log(response);
 /*
 {
