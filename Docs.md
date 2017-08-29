@@ -7,6 +7,18 @@ setting up a SugarCRM's REST API testing environment and interacting with it.
 
 You should be familiar with [mocha][mocha] and [JavaScript Promises][google-js-promises].
 
+## Installation and Running
+
+Thorn tests are run using the Mocha test runner. To add Thorn as a dependency, run
+
+```bash
+$ yarn add --dev '@sugarcrm/thorn'
+```
+
+You will need to invoke Mocha in order to run Thorn. Check out
+[Mocha's usage information][mocha-usage], [grunt-mocha], and
+[gulp-spawn-mocha] for information about instantiating Mocha.
+
 ## Setup
 
 ```javascript
@@ -382,3 +394,6 @@ HTTP requests and getting the responses back that you expect.
 [requests-parameters]: https://github.com/request/request#requestoptions-callback
 [google-js-promises]: https://developers.google.com/web/fundamentals/getting-started/primers/promises
 [mocha]: https://mochajs.org/
+[mocha-usage]: https://mochajs.org/#usage
+[grunt-mocha]: https://github.com/disqus/grunt-mocha
+[gulp-spawn-mocha]: https://github.com/knpwrs/gulp-spawn-mocha
