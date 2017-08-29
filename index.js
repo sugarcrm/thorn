@@ -539,16 +539,18 @@ class UserAgent {
      * @private
      */
     _requestSkeleton = (chakramMethod, args) => {
+        let paramIndex = args.length - 1;
+        args[paramIndex] = args[paramIndex] || {};
+        this._validateParams(args[paramIndex]);
+
         args[0] = utils.constructUrl(this.version, args[0]);
 
         return this._login().then(() => {
             // must wait for login promise to resolve or else OAuth-Token may not be available
-            let paramIndex = args.length - 1;
             // FIXME: eventually will want to support multiple types of headers
-            args[paramIndex] = args[paramIndex] || {};
+
             args[paramIndex].headers = {};
             _.extend(args[paramIndex].headers, this._getState('headers'));
-
             return utils.wrapRequest(chakramMethod, args, {
                 refreshToken: this._getState('refreshToken'),
                 afterRefresh: _.bind(this._updateAuthState, this),
@@ -556,6 +558,35 @@ class UserAgent {
                 retryVersion: this.version,
             });
         });
+    };
+
+    /**
+     * Validate request parameters.
+     * Throws an error if any of the parameters are invalid.
+     *
+     * @param {Object} params Request parameters.
+     *
+     * @see https://github.com/request/request#requestoptions-callback
+     * @private
+     */
+    _validateParams = (params) => {
+        if (params && !_.isObject(params)) {
+            throw new Error('Please only use Objects for request parameters.');
+        }
+
+        if (params.headers && params.headers['OAuth-Token']) {
+            throw new Error(
+                'Please do not explicitly provide OAuth tokens. ' +
+                'Thorn handles authentication and refreshing automatically.'
+            );
+        }
+
+        if (params.method) {
+            throw new Error(
+                'Please do not explicitly set an HTTP method. ' +
+                'Instead, please use the appropriate top-level Thorn API method.'
+            );
+        }
     };
 
     /**

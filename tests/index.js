@@ -963,6 +963,25 @@ describe('Thorn', () => {
                 yield deleteRequest;
                 expect(server.isDone()).to.be.true;
             });
+
+            it('should not allow non-Object request parameters', () => {
+                let msg = 'Please only use Objects for request parameters.';
+                expect(() => myAgent.get(endpoint, 'NotAnObject')).to.throw(msg);
+            });
+
+            it('should not allow explicit use of OAuth-Token headers', () => {
+                expect(() => myAgent.get(endpoint, {
+                    headers: {
+                        'OAuth-Token': 'An-OAuth-Token',
+                    },
+                })).to.throw(/Please do not explicitly provide OAuth tokens./);
+            });
+
+            it('should not allow explicit HTTP methods', () => {
+                expect(() => myAgent.get(endpoint, {
+                    method: 'POST',
+                })).to.throw(/Please do not explicitly set an HTTP method./);
+            });
         });
     });
 });
