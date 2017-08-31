@@ -61,7 +61,7 @@ gulp.task('doc', (cb) => {
 
 gulp.task('lint', () => {
     const eslint = require('gulp-eslint');
-    return gulp.src(_.union(sourceFiles, ['tests/**/*.js', 'gulpfile.babel.js']))
+    return gulp.src(_.union(sourceFiles, ['tests/**/*.js', 'gulpfile.js']))
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
