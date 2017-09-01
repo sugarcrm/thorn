@@ -249,6 +249,19 @@ let john = Agent.as('John');
 
 **This also logs the user in if they have not been logged in already.**
 
+#### Default admin user
+
+You can retrieve the user agent corresponding to the default admin user with `Agent.as(Agent.ADMIN)`.
+
+The default admin user should **not** be accessed by name, nor be created with `Fixtures.create`.
+
+```javascript
+let badAdmin = Agent.as('admin'); // Don't do this
+let goodAdmin = Agent.as(Agent.ADMIN);
+```
+
+This ensures that the admin user can be used even on Sugar instances where the admin username is not "admin".
+
 ### Making requests
 
 Agents can make HTTP GET, POST, PUT, and DELETE requests against any SugarCRM REST API endpoint. Each request method has a corresponding function, which makes the desired request and returns a JavaScript Promise which resolves to a [Chakram response object][chakram response] corresponding to the server's response to the request:
