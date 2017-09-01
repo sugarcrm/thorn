@@ -231,8 +231,8 @@ An Agent corresponds directly to a user that exists in the SugarCRM instance you
 User agents are created with `Agent.as`:
 
 ```javascript
-// assuming a user called "Dashboards.John" already exists
-let john = Agent.as('Dashboards.John');
+// assuming a user named "John" already exists
+let john = Agent.as('John');
 ```
 
 **This also logs the user in if they have not been logged in already.**
@@ -276,12 +276,12 @@ console.log(response.response.body);
 #### post
 
 ```javascript
-let response = yield john.post('Accounts', {name: 'Accounts.Smith'});
+let response = yield john.post('Accounts', {name: 'Smith'});
 console.log(response.response.body);
 /*
 {
     id: '10e42218-bb41-11e6-82c7-a0999b020fc9',
-    name: 'Accounts.Smith',
+    name: 'Smith',
     date_entered: '2016-12-05T15:18:00-08:00',
     date_modified: '2016-12-05T15:18:00-08:00',
     ...
@@ -292,13 +292,13 @@ console.log(response.response.body);
 #### put
 
 ```javascript
-// assuming "id" is the the ID of Accounts.Smith
+// assuming "id" is the the ID of Smith
 let response = yield john.put('Accounts/' + id, {industry: 'Not For Profit'});
 console.log(response.response.body);
 /*
 {
     id: '10e42218-bb41-11e6-82c7-a0999b020fc9',
-    name: 'Accounts.Smith',
+    name: 'Smith',
     date_entered: '2016-12-05T15:54:26-08:00',
     date_modified: '2016-12-05T15:54:27-08:00',
     industry: 'Not For Profit',
