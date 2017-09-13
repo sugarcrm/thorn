@@ -25,6 +25,8 @@ describe('Utils', () => {
 
     describe('login', () => {
         let nock;
+        let oauthUrl;
+        let options;
 
         before(() => {
             nock = require('nock');
@@ -36,6 +38,15 @@ describe('Utils', () => {
 
                 throw new Error('No handler remaining.');
             });
+
+            options = {
+                username: 'TestUser',
+                password: 'TestPass',
+                version: 'TestVersion',
+                xthorn: 'TestHeader',
+            };
+
+            oauthUrl = `/rest/${options.version}/oauth2/token`;
         });
 
         afterEach(() => {
@@ -43,15 +54,8 @@ describe('Utils', () => {
         });
 
         it('should post to the login endpoint with the right params', function*() {
-            let options = {
-                username: 'TestUser',
-                password: 'TestPass',
-                version: 'TestVersion',
-                xthorn: 'TestHeader',
-            };
-
             let server = nock(process.env.THORN_SERVER_URL)
-                .post(`/rest/${options.version}/oauth2/token`)
+                .post(oauthUrl)
                 .reply(200, function(uri, requestBody) {
                     expect(requestBody.username).to.equal(options.username);
                     expect(requestBody.password).to.equal(options.password);
@@ -62,6 +66,22 @@ describe('Utils', () => {
                 });
 
             yield utils.login(options);
+            expect(server.isDone()).to.be.true;
+        });
+
+        it('should retry the requested number of times', function*() {
+            let server = nock(process.env.THORN_SERVER_URL)
+                .post(oauthUrl)
+                .reply(401)
+                .post(oauthUrl)
+                .reply(401)
+                .post(oauthUrl)
+                .reply(401);
+
+            yield utils.login(_.extend(options, { retries: 2})).catch(e => {
+                expect(e.message).to.equal('Max number of login attempts exceeded!');
+            });
+
             expect(server.isDone()).to.be.true;
         });
     });
@@ -226,6 +246,24 @@ describe('Utils', () => {
             expect(utils.refresh).to.be.calledWithExactly(expectedRefreshOptions);
 
             expect(response).to.eql(wrappedResponses[1]);
+        });
+    });
+
+    describe('isSuccessfulResponse', () => {
+        it('should throw on non-numeric inputs', () => {
+            expect(() => utils.isSuccessfulResponse('Not a number')).to.throw('Invalid status code received');
+        });
+
+        it('should throw on inputs outside the range of HTTP response codes', () => {
+            expect(() => utils.isSuccessfulResponse(50)).to.throw('Invalid status code received');
+            expect(() => utils.isSuccessfulResponse(623)).to.throw('Invalid status code received');
+        });
+
+        it('should correctly classify HTTP response codes', () => {
+            expect(utils.isSuccessfulResponse(200)).to.be.true;
+            expect(utils.isSuccessfulResponse(304)).to.be.true;
+            expect(utils.isSuccessfulResponse(401)).to.be.false;
+            expect(utils.isSuccessfulResponse(500)).to.be.false;
         });
     });
 });

@@ -36,6 +36,21 @@ let utils = {
     },
 
     /**
+     * Determine if the given HTTP status code represents success.
+     *
+     * @param {number} statusCode HTTP status code.
+     * @return {boolean} `true` if the status code represents a successful
+     *    request; `false` otherwise.
+     */
+    isSuccessfulResponse: function successfulResponse(statusCode) {
+        if (!Number.isInteger(statusCode) || statusCode < 100 || statusCode >= 600) {
+            throw new Error('Invalid status code received!');
+        }
+
+        return statusCode < 400;
+    },
+
+    /**
      * Log in as any user.
      *
      * @param {Object} options Login options.
@@ -43,6 +58,7 @@ let utils = {
      * @param {string} options.password Password of the user to log in as.
      * @param {string} options.version API version to use to log in.
      * @param {string} options.xthorn Value of the X-Thorn header.
+     * @param {number} options.retries Number of times to retry.
      * @return {ChakramPromise} Promise that resolves to the result of the login request.
      */
     login: function login(options) {
@@ -56,6 +72,7 @@ let utils = {
             },
             version: options.version,
             xthorn: options.xthorn,
+            retries: options.retries,
         });
     },
 
@@ -140,17 +157,41 @@ let utils = {
      * @param {Object} options.credentials Request credentials.
      * @param {string} options.version API version to make the request against.
      * @param {string} options.xthorn Value of the X-Thorn header.
+     * @param {number} [options.retries=0] Number of times to retry.
      * @return {ChakramPromise} Promise resolving to the result of the request.
      *
      * @private
      */
     _oauthRequest: function _oauthRequest(options) {
+        let attempts = 1;
         let url = utils.constructUrl(options.version, 'oauth2/token');
-        return chakram.post(url, options.credentials, {
-            headers: {
-                'X-Thorn': options.xthorn,
-            },
-        });
+        options.retries = options.retries || 0;
+        console.log("retries: " + options.retries);
+
+        function doOauthRequest() {
+            return chakram.post(url, options.credentials, {
+                headers: {
+                    'X-Thorn': options.xthorn,
+                },
+            }).then((response) => {
+                // FIXME: use utils.assertSaneResponse
+                if (!response || !response.response) {
+                    throw new Error('Invalid response received!');
+                }
+
+                if (utils.isSuccessfulResponse(response.response.statusCode)) {
+                    return response;
+                }
+
+                if (attempts++ > options.retries) {
+                    throw new Error('Max number of login attempts exceeded!');
+                }
+
+                return doOauthRequest();
+            });
+        }
+
+        return doOauthRequest();
     },
 };
 
