@@ -147,6 +147,10 @@ let utils = {
                 token: options.refreshToken,
                 xthorn: options.xthorn,
             }).then((response) => {
+                if (!utils.isSuccessfulResponse(response.response.statusCode)) {
+                    throw new Error(`Unsuccessful refresh! Status code is ${response.response.statusCode}`);
+                }
+
                 options.afterRefresh(response);
 
                 // FIXME Currently, we have to update the HTTP parameters after the refresh

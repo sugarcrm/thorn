@@ -219,7 +219,12 @@ describe('Utils', () => {
                 afterRefresh: sandbox.stub(),
             };
 
-            sandbox.stub(utils, 'refresh').returns(Promise.resolve({body: {access_token: 'Token-2'}}));
+            sandbox.stub(utils, 'refresh').returns(Promise.resolve({
+                body: {access_token: 'Token-2'},
+                response: {
+                    statusCode: 200,
+                },
+            }));
 
             let expectedRefreshOptions = {
                 version: wrappedOptions.retryVersion,

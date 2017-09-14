@@ -829,6 +829,41 @@ describe('Thorn', () => {
                 yield Agent.as('TestUsername').get('not/real/endpoint');
                 expect(server.isDone()).to.be.true;
             });
+
+            it('should reset Fixtures tokens when using the Admin', function*() {
+                let server = nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .post(isBulk)
+                    .reply(200, (uri, requestBody) => {
+                        return constructBulkResponse({
+                            _module: 'TestModule1',
+                            name: 'DummyRecord1',
+                        })
+                    })
+                    .post(isTokenReq)
+                    .reply(200, {
+                        access_token: 'New-Access-Token',
+                        refresh_token: 'New-Refresh-Token',
+                    })
+                    .get(/not\/real\/endpoint/)
+                    .reply(200);
+
+                yield Fixtures.create({
+                    attributes: {name: 'DummyRecord1'},
+                    module: 'TestModule1',
+                }); // force Fixtures login
+
+                expect(Fixtures._headers['OAuth-Token']).to.equal('Test-Access-Token');
+                expect(Fixtures._refreshToken).to.equal('Test-Refresh-Token');
+
+                yield Agent.as(Agent.ADMIN).get('not/real/endpoint');
+
+                expect(Fixtures._headers['OAuth-Token']).to.equal('New-Access-Token');
+                expect(Fixtures._refreshToken).to.equal('New-Refresh-Token');
+
+                expect(server.isDone()).to.be.true;
+            });
         });
 
         describe('on', () => {

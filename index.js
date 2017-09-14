@@ -639,6 +639,7 @@ class UserAgent {
         }).then((response) => {
             this._updateAuthState(response);
             this._setState('sessionAttempt', 0);
+
         }).catch(() => {
             this._setState('loginPromise', null);
             return this._login();
@@ -690,6 +691,10 @@ class UserAgent {
         headers['OAuth-Token'] = response.body.access_token;
         this._setState('headers', headers);
         this._setState('refreshToken', response.body.refresh_token);
+
+        if (this.username === Agent.ADMIN) {
+            Fixtures._storeAuth(response);
+        }
     };
 
     /**
