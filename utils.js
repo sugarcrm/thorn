@@ -134,7 +134,7 @@ let utils = {
         return chakramMethod.apply(chakram, args).then((response) => {
             utils.assertSaneResponse(response);
 
-            if (response.response.statusCode === 200) {
+            if (utils.isSuccessfulResponse(response.response.statusCode)) {
                 return response;
             }
 
