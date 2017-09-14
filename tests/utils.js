@@ -242,4 +242,23 @@ describe('Utils', () => {
             expect(response).to.eql(wrappedResponses[1]);
         });
     });
+
+    describe('isSuccessfulResponse', () => {
+        it('should throw on non-numeric inputs', () => {
+            let status = 'Not a number';
+            expect(() => utils.isSuccessfulResponse(status)).to.throw(`Invalid status code received: ${status}`);
+        });
+
+        it('should throw on inputs outside the range of HTTP response codes', () => {
+            expect(() => utils.isSuccessfulResponse(50)).to.throw('Invalid status code received: 50');
+            expect(() => utils.isSuccessfulResponse(623)).to.throw('Invalid status code received: 623');
+        });
+
+        it('should correctly classify HTTP response codes', () => {
+            expect(utils.isSuccessfulResponse(200)).to.be.true;
+            expect(utils.isSuccessfulResponse(304)).to.be.true;
+            expect(utils.isSuccessfulResponse(401)).to.be.false;
+            expect(utils.isSuccessfulResponse(500)).to.be.false;
+        });
+    });
 });
