@@ -709,6 +709,45 @@ describe('Thorn', () => {
                 });
             });
         });
+
+        describe('Interaction with Agent', () => {
+            it('should clear the Admin\'s credentials after logging in', function*() {
+                let server = nock(process.env.THORN_SERVER_URL)
+                    .post(isTokenReq)
+                    .reply(200, ACCESS)
+                    .get(/not\/real\/endpoint/)
+                    .reply(200)
+                    .post(isBulk)
+                    .reply(401)
+                    .post(isTokenReq)
+                    .reply(200, {
+                        access_token: 'New-Access-Token',
+                        refresh_token: 'New-Refresh-Token',
+                    })
+                    .post(isBulk)
+                    .reply(200, () => constructBulkResponse({
+                        _module: 'TestModule1',
+                        name: 'DummyRecord1',
+                    }));
+
+                // force admin login
+                let admin = Agent.as(Agent.ADMIN);
+                yield admin.get('not/real/endpoint');
+
+                expect(admin._getState('headers')['OAuth-Token']).to.equal('Test-Access-Token');
+                expect(admin._getState('refreshToken')).to.equal('Test-Refresh-Token');
+
+                yield Fixtures.create({
+                    attributes: {name: 'DummyRecord1'},
+                    module: 'TestModule1',
+                });
+
+                expect(admin._getState('headers')['OAuth-Token']).to.equal('New-Access-Token');
+                expect(admin._getState('refreshToken')).to.equal('New-Refresh-Token');
+
+                expect(server.isDone()).to.be.true;
+            });
+        });
     });
 
     describe('Agent', () => {
@@ -835,12 +874,10 @@ describe('Thorn', () => {
                     .post(isTokenReq)
                     .reply(200, ACCESS)
                     .post(isBulk)
-                    .reply(200, (uri, requestBody) => {
-                        return constructBulkResponse({
-                            _module: 'TestModule1',
-                            name: 'DummyRecord1',
-                        })
-                    })
+                    .reply(200, () => constructBulkResponse({
+                        _module: 'TestModule1',
+                        name: 'DummyRecord1',
+                    }))
                     .post(isTokenReq)
                     .reply(200, {
                         access_token: 'New-Access-Token',

@@ -219,7 +219,7 @@ let Fixtures = {
 
             return utils.wrapRequest(chakram.post, [url, bulkRecordCreateDef, params], {
                 refreshToken: this._refreshToken,
-                afterRefresh: _.bind(this._afterRefresh, this),
+                afterRefresh: _.bind(this._storeAuth, this),
                 xthorn: 'Fixtures',
                 retryVersion: VERSION,
             }).then((response) => {
@@ -232,7 +232,7 @@ let Fixtures = {
 
                 return utils.wrapRequest(chakram.post, [url, bulkRecordLinkDef, params], {
                     refreshToken: this._refreshToken,
-                    afterRefresh: _.bind(this._afterRefresh, this),
+                    afterRefresh: _.bind(this._storeAuth, this),
                     xthorn: 'Fixtures',
                     retryVersion: VERSION,
                 });
@@ -422,7 +422,7 @@ let Fixtures = {
         // Create promise for record deletion
         return utils.wrapRequest(chakram.post, [url, bulkRecordDeleteDef, params], {
             refreshToken: this._refreshToken,
-            afterRefresh: _.bind(this._afterRefresh, this),
+            afterRefresh: _.bind(this._storeAuth, this),
             xthorn: 'Fixtures',
             retryVersion: VERSION,
         }).then((response) => {
@@ -473,7 +473,7 @@ let Fixtures = {
             chakram.post,
             [url, linkDef, params],
             {
-                afterRefresh: _.bind(this._afterRefresh, this),
+                afterRefresh: _.bind(this._storeAuth, this),
                 refreshToken: this._refreshToken,
                 retryVersion: VERSION,
                 xthorn: 'Fixtures',
@@ -485,12 +485,21 @@ let Fixtures = {
      * Stores the login response.
      *
      * @param {Object} auth The login response.
+     * @param {boolean} [cleanAgent=true] If `true`, also update `Agent.ADMIN`.
      *
      * @private
      */
-    _storeAuth(auth) {
-        this._headers['OAuth-Token'] = auth.body.access_token;
-        this._refreshToken = auth.body.refresh_token;
+    _storeAuth(auth, cleanAgent = true) {
+        let body = auth.body;
+        this._headers['OAuth-Token'] = body.access_token;
+        this._refreshToken = body.refresh_token;
+
+        if (cleanAgent) {
+            let admin = cachedAgents[process.env.THORN_ADMIN_USERNAME];
+            if (admin) {
+                admin[VERSION]._updateAuthState(auth);
+            }
+        }
     },
 
     /**
@@ -511,18 +520,6 @@ let Fixtures = {
                 this._storeAuth(response);
             }
         });
-    },
-
-    /**
-     * Callback to be performed after a refresh.
-     *
-     * @param {Object} response Chakram refresh response.
-     *
-     * @private
-     */
-    _afterRefresh(response) {
-        this._headers['OAuth-Token'] = response.body.access_token;
-        this._refreshToken = response.body.refresh_token;
     },
 };
 
@@ -639,7 +636,6 @@ class UserAgent {
         }).then((response) => {
             this._updateAuthState(response);
             this._setState('sessionAttempt', 0);
-
         }).catch(() => {
             this._setState('loginPromise', null);
             return this._login();
@@ -693,7 +689,7 @@ class UserAgent {
         this._setState('refreshToken', response.body.refresh_token);
 
         if (this.username === Agent.ADMIN) {
-            Fixtures._storeAuth(response);
+            Fixtures._storeAuth(response, false);
         }
     };
 
