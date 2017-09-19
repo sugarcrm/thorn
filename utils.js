@@ -36,6 +36,21 @@ let utils = {
     },
 
     /**
+     * Determine if the given HTTP status code represents success.
+     *
+     * @param {number} statusCode HTTP status code.
+     * @return {boolean} `true` if the status code represents a successful
+     *   request; `false` otherwise.
+     */
+    isSuccessfulResponse: function successfulResponse(statusCode) {
+        if (!Number.isInteger(statusCode) || statusCode < 100 || statusCode >= 600) {
+            throw new Error(`Invalid status code received: ${statusCode}`);
+        }
+
+        return statusCode < 400;
+    },
+
+    /**
      * Construct a URL relative to the base URL.
      * Each argument is joined with a `/`.
      *
@@ -119,7 +134,7 @@ let utils = {
         return chakramMethod.apply(chakram, args).then((response) => {
             utils.assertSaneResponse(response);
 
-            if (response.response.statusCode === 200) {
+            if (utils.isSuccessfulResponse(response.response.statusCode)) {
                 return response;
             }
 
@@ -132,6 +147,10 @@ let utils = {
                 token: options.refreshToken,
                 xthorn: options.xthorn,
             }).then((response) => {
+                if (!utils.isSuccessfulResponse(response.response.statusCode)) {
+                    throw new Error(`Unsuccessful refresh! Status code is ${response.response.statusCode}`);
+                }
+
                 options.afterRefresh(response);
 
                 // FIXME Currently, we have to update the HTTP parameters after the refresh
