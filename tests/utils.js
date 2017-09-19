@@ -108,11 +108,11 @@ describe('Utils', () => {
     });
 
     describe('assertSaneResponse', () => {
-        it('should throw on falsy response', () => {
+        it('should throw an error on falsy responses', () => {
             expect(() => { utils.assertSaneResponse(undefined); }).to.throw('Falsy response received!');
         });
 
-        it('should throw if response.response does not exist', () => {
+        it('should throw an error if response.response does not exist', () => {
             expect(() => {
                 utils.assertSaneResponse({
                     notResponse: {},

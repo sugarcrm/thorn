@@ -22,7 +22,7 @@ let chakram = require('chakram');
 let utils = {
     /**
      * Ensure that a Chakram response object is sane before using it.
-     * Throws if the response is unreasonable.
+     * Throws an error if the response is unreasonable.
      *
      * @param {ChakramResponse} response Object to check.
      */
