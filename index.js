@@ -157,33 +157,6 @@ let fixturesMap = new WeakMap();
  */
 let Fixtures = {
     /**
-     * Number of attempts made to login as admin.
-     *
-     * @type {number}
-     * @private
-     */
-    _sessionAttempt: 0,
-
-    /**
-     * Maximum number of login attempts allowed.
-     *
-     * @type {number}
-     * @private
-     */
-    _maxSessionAttempts: 3,
-
-    /**
-     * Default HTTP headers.
-     *
-     * @type {Object}
-     * @private
-     */
-    _headers: {
-        'Content-Type': 'application/json',
-        'X-Thorn': 'Fixtures',
-    },
-
-    /**
      * Using the supplied models, create records and links on the server
      * and cache those records locally.
      *
@@ -195,34 +168,17 @@ let Fixtures = {
      * @return {Promise} The ChakramResponse from the creation of the records and/or links
      */
     create(models, options = {}) {
-        if (_.isUndefined(this._headers['OAuth-Token'])) {
-            if (++this._sessionAttempt > this._maxSessionAttempts) {
-                throw new Error('Max number of login attempts exceeded!');
-            }
-
-            return this._adminLogin().then(() => this.create(models, options));
-        }
-
         if (!_.isArray(models)) {
             models = [models];
         }
 
-        // reset `_sessionAttempt`
-        this._sessionAttempt = 0;
-
-        let url = utils.constructUrl(VERSION, 'bulk');
-        let params = {headers: this._headers};
+        let url = 'bulk';
 
         return this._processModels(models, options).then((bulkRecordCreateDef) => {
             let bulkRecordLinkDef;
             let createdRecords;
 
-            return utils.wrapRequest(chakram.post, [url, bulkRecordCreateDef, params], {
-                refreshToken: this._refreshToken,
-                afterRefresh: _.bind(this._afterRefresh, this),
-                xthorn: 'Fixtures',
-                retryVersion: VERSION,
-            }).then((response) => {
+            return Agent.as(Agent.ADMIN).post(url, bulkRecordCreateDef).then((response) => {
                 createdRecords = this._cacheResponse(response, models);
 
                 bulkRecordLinkDef = this._processLinks(response, models);
@@ -230,12 +186,7 @@ let Fixtures = {
                     return createdRecords;
                 }
 
-                return utils.wrapRequest(chakram.post, [url, bulkRecordLinkDef, params], {
-                    refreshToken: this._refreshToken,
-                    afterRefresh: _.bind(this._afterRefresh, this),
-                    xthorn: 'Fixtures',
-                    retryVersion: VERSION,
-                });
+                return Agent.as(Agent.ADMIN).post(url, bulkRecordLinkDef);
             }).then(() => createdRecords);
         });
     },
@@ -364,22 +315,22 @@ let Fixtures = {
             }
 
             let getRequiredFieldPromise = MetadataHandler.getRequiredFields(model.module)
-            .then((requiredFields) => {
-                _.each(requiredFields, (field) => {
-                    if (_.isUndefined(request.data[field.name])) {
-                        request.data[field.name] = MetadataHandler.generateFieldValue(field);
+                .then((requiredFields) => {
+                    _.each(requiredFields, (field) => {
+                        if (_.isUndefined(request.data[field.name])) {
+                            request.data[field.name] = MetadataHandler.generateFieldValue(field);
+                        }
+                    });
+
+                    // Populate the `credentials` object.
+                    if (model.module === 'Users') {
+                        request.data.user_name = _generateInternalUsername(request.data.user_name);
+                        _insertCredentials(request.data.user_name, request.data.user_hash);
                     }
+
+                    // Use chakram.post to bulk create the record(s).
+                    bulkRecordCreateDef.requests.push(request);
                 });
-
-                // Populate the `credentials` object.
-                if (model.module === 'Users') {
-                    request.data.user_name = _generateInternalUsername(request.data.user_name);
-                    _insertCredentials(request.data.user_name, request.data.user_hash);
-                }
-
-                // Use chakram.post to bulk create the record(s).
-                bulkRecordCreateDef.requests.push(request);
-            });
             getRequiredFieldsPromises.push(getRequiredFieldPromise);
         });
 
@@ -392,23 +343,11 @@ let Fixtures = {
      * @return {Promise} The ChakramResponse for the delete request to the server.
      */
     cleanup() {
-        if (_.isUndefined(this._headers['OAuth-Token'])) {
-            if (++this._sessionAttempt > this._maxSessionAttempts) {
-                throw new Error('Max number of login attempts exceeded!');
-            }
-
-            return this._adminLogin().then(() => this.cleanup());
-        }
-
-        // reset `_sessionAttempt`
-        this._sessionAttempt = 0;
-
         // Create promise for record deletion
         // Clear the cache
         // Return promise
         let bulkRecordDeleteDef = {requests: []};
-        let url = utils.constructUrl(VERSION, 'bulk');
-        let params = {headers: this._headers};
+        let url = 'bulk';
 
         _.each(cachedRecords, (moduleRecords, module) => {
             _.each(moduleRecords, (record) => {
@@ -420,12 +359,7 @@ let Fixtures = {
         });
 
         // Create promise for record deletion
-        return utils.wrapRequest(chakram.post, [url, bulkRecordDeleteDef, params], {
-            refreshToken: this._refreshToken,
-            afterRefresh: _.bind(this._afterRefresh, this),
-            xthorn: 'Fixtures',
-            retryVersion: VERSION,
-        }).then((response) => {
+        return Agent.as(Agent.ADMIN).post(url, bulkRecordDeleteDef).then((response) => {
             _restore();
             return response;
         });
@@ -462,67 +396,13 @@ let Fixtures = {
      * @return {ChakramPromise} The result of the request to link the records.
      */
     link(left, linkName, right) {
-        let url = utils.constructUrl(VERSION, left._module, left.id, 'link');
-        let params = {headers: this._headers};
+        let url = [left._module, left.id, 'link'].join('/');
         let linkDef = {
             link_name: linkName,
             ids: [right.id],
         };
 
-        return utils.wrapRequest(
-            chakram.post,
-            [url, linkDef, params],
-            {
-                afterRefresh: _.bind(this._afterRefresh, this),
-                refreshToken: this._refreshToken,
-                retryVersion: VERSION,
-                xthorn: 'Fixtures',
-            }
-        ).then(response => response.response.body);
-    },
-
-    /**
-     * Stores the login response.
-     *
-     * @param {Object} auth The login response.
-     *
-     * @private
-     */
-    _storeAuth(auth) {
-        this._headers['OAuth-Token'] = auth.body.access_token;
-        this._refreshToken = auth.body.refresh_token;
-    },
-
-    /**
-     * Logs in as the admin user.
-     *
-     * @return {ChakramPromise} The result of the login request.
-     *
-     * @private
-     */
-    _adminLogin() {
-        return utils.login({
-            username: process.env.THORN_ADMIN_USERNAME,
-            password: process.env.THORN_ADMIN_PASSWORD,
-            version: VERSION,
-            xthorn: 'Fixtures',
-        }).then((response) => {
-            if (response.response.statusCode === 200) {
-                this._storeAuth(response);
-            }
-        });
-    },
-
-    /**
-     * Callback to be performed after a refresh.
-     *
-     * @param {Object} response Chakram refresh response.
-     *
-     * @private
-     */
-    _afterRefresh(response) {
-        this._headers['OAuth-Token'] = response.body.access_token;
-        this._refreshToken = response.body.refresh_token;
+        return Agent.as(Agent.ADMIN).post(url, linkDef).then(response => response.response.body);
     },
 };
 
