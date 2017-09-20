@@ -127,7 +127,9 @@ describe('Thorn', () => {
                         expect(request.method).to.equal('POST');
                         expect(request.data).to.contain(fixture.attributes);
 
-                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                        // FIXME: either introduce support to have x-thorn including additional
+                        // information about Fixtures, or just expect it to match Fixtures like it did before
+                        expect(this.req.headers['x-thorn']).to.equal(`Agent-${process.env.THORN_ADMIN_USERNAME}`);
 
                         return constructBulkResponse({
                             _module: fixture.module,
@@ -164,7 +166,9 @@ describe('Thorn', () => {
                         expect(request.method).to.equal('POST');
                         expect(request.data).to.contain(fixtureWithoutModule.attributes);
 
-                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                        // FIXME: either introduce support to have x-thorn including additional
+                        // information about Fixtures, or just expect it to match Fixtures like it did before
+                        expect(this.req.headers['x-thorn']).to.equal(`Agent-${process.env.THORN_ADMIN_USERNAME}`);
 
                         return constructBulkResponse({
                             _module: module,
@@ -256,7 +260,9 @@ describe('Thorn', () => {
                         expect(request2.method).to.equal('POST');
                         expect(request2.data).to.contain(fixture2.attributes);
 
-                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                        // FIXME: either introduce support to have x-thorn including additional
+                        // information about Fixtures, or just expect it to match Fixtures like it did before
+                        expect(this.req.headers['x-thorn']).to.equal(`Agent-${process.env.THORN_ADMIN_USERNAME}`);
 
                         return constructBulkResponse([{
                             _module: module,
@@ -327,7 +333,8 @@ describe('Thorn', () => {
                     .reply(401);
 
                 yield Fixtures.create(fixture).catch((e) => {
-                    expect(e.message).to.equal('Max number of login attempts exceeded!');
+                    let message = `Max number of login attempts exceeded for user: ${process.env.THORN_ADMIN_USERNAME}`;
+                    expect(e.message).to.equal(message);
                 });
                 expect(server.isDone()).to.be.true;
             });
@@ -449,7 +456,9 @@ describe('Thorn', () => {
                         expect(request.data.link_name).to.equal(link);
                         expect(request.data.ids).to.eql([contents2.id]);
 
-                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                        // FIXME: either introduce support to have x-thorn including additional
+                        // information about Fixtures, or just expect it to match Fixtures like it did before
+                        expect(this.req.headers['x-thorn']).to.equal(`Agent-${process.env.THORN_ADMIN_USERNAME}`);
 
                         return constructBulkResponse({
                             record: contents1,
@@ -492,7 +501,9 @@ describe('Thorn', () => {
                         expect(request.data.link_name).to.equal(link);
                         expect(request.data.ids).to.eql([contents2.id]);
 
-                        expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                        // FIXME: either introduce support to have x-thorn including additional
+                        // information about Fixtures, or just expect it to match Fixtures like it did before
+                        expect(this.req.headers['x-thorn']).to.equal(`Agent-${process.env.THORN_ADMIN_USERNAME}`);
 
                         return constructBulkResponse({
                             record: contents1,
@@ -533,7 +544,9 @@ describe('Thorn', () => {
                             expect(requestBody.link_name).to.equal(link);
                             expect(requestBody.ids).to.eql([contents2.id]);
 
-                            expect(this.req.headers['x-thorn']).to.equal('Fixtures');
+                            // FIXME: either introduce support to have x-thorn including additional
+                            // information about Fixtures, or just expect it to match Fixtures like it did before
+                            expect(this.req.headers['x-thorn']).to.equal(`Agent-${process.env.THORN_ADMIN_USERNAME}`);
 
                             return {
                                 record: contents1,
@@ -582,7 +595,8 @@ describe('Thorn', () => {
                     .reply(401);
 
                 yield Fixtures.cleanup().catch((e) => {
-                    expect(e.message).to.equal('Max number of login attempts exceeded!');
+                    let message = `Max number of login attempts exceeded for user: ${process.env.THORN_ADMIN_USERNAME}`;
+                    expect(e.message).to.equal(message);
                 });
                 expect(server.isDone()).to.be.true;
             });
