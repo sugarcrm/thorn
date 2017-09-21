@@ -50,3 +50,6 @@ jspm_packages
 
 # npm lockfile. We're using yarn, so just ignore this file
 package-lock.json
+
+# PHPStorm configuration
+.idea
