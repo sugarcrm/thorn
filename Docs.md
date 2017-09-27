@@ -149,7 +149,7 @@ let Contact = {
 let cachedRecords = yield Fixtures.create([Account, Contact]);
 console.log(cachedRecords); // Map containing one Account and one Contact
 
-let response = yield Fixtures.link(cachedRecords.Accounts[0], 'accounts_contacts', cachedRecords.Contacts[0]);
+let response = yield Fixtures.link(cachedRecords.Accounts[0], 'contacts', cachedRecords.Contacts[0]);
 // Server response containing the Accounts record and a `related_records` property,
 // which contains the Contacts record.
 console.log(response);
