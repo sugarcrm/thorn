@@ -815,6 +815,14 @@ describe('Thorn', () => {
             });
 
             it('should use internal usernames for server interactions', function*() {
+                let uuidv4Format = [
+                    '[a-fA-F0-9]{8}',
+                    '[a-fA-F0-9]{4}',
+                    '4{1}[a-fA-F0-9]{3}',
+                    '[89abAB]{1}[a-fA-F0-9]{3}',
+                    '[a-fA-F0-9]{12}'
+                ].join('-');
+                let testUsernameRegExp = new RegExp(`^TestUsername${uuidv4Format}`);
                 let server = nock(process.env.THORN_SERVER_URL)
                     .post(isTokenReq)
                     .reply(200, ACCESS)
@@ -828,7 +836,7 @@ describe('Thorn', () => {
                     })
                     .post(isTokenReq)
                     .reply(200, (uri, requestBody) => {
-                        expect(requestBody.username).to.match(/^TestUsername\d+/);
+                        expect(requestBody.username).to.match(testUsernameRegExp);
                     })
                     .post(isTokenReq)
                     .reply(200, ACCESS)

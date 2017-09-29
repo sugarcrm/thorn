@@ -11,6 +11,7 @@
 let chakram = require('chakram');
 let MetadataHandler = require('./metadata-handler.js');
 let _ = require('lodash');
+let uuidv4 = require('uuid/v4');
 
 let utils = require('./utils.js');
 
@@ -117,7 +118,7 @@ function _generateInternalUsername(username) {
         throw new Error(`User ${username} already exists`);
     }
 
-    let generatedUsername = `${username}${Date.now()}`;
+    let generatedUsername = `${username}${uuidv4()}`;
     cachedUsernames[username] = generatedUsername;
     return generatedUsername;
 }
