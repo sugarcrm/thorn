@@ -818,9 +818,9 @@ describe('Thorn', () => {
                 let uuidv4Format = [
                     '[a-fA-F0-9]{8}',
                     '[a-fA-F0-9]{4}',
-                    '4{1}[a-fA-F0-9]{3}',
-                    '[89abAB]{1}[a-fA-F0-9]{3}',
-                    '[a-fA-F0-9]{12}'
+                    '4[a-fA-F0-9]{3}',
+                    '[89abAB][a-fA-F0-9]{3}',
+                    '[a-fA-F0-9]{12}',
                 ].join('-');
                 let testUsernameRegExp = new RegExp(`^TestUsername${uuidv4Format}`);
                 let server = nock(process.env.THORN_SERVER_URL)
