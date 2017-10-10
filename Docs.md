@@ -231,6 +231,8 @@ e.g. using `_.clone`).
 * Linking records requires that the records have already been created in the database. To avoid exceptions, structure the
 record creations such that dependencies are met before `Fixtures` tries to make links.
 
+* When creating `Fixtures` for the `Users` module, please limit the `user_name` attribute to 24 characters, for a unique username with UUID suffix.
+
 ## Thorn.Agent
 
 Thorn provides an Agent class that simulates a REST API user agent.
