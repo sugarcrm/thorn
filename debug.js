@@ -3,8 +3,13 @@
  */
 
 let _ = require('lodash');
+let chalk = require('chalk');
 
 let bulkDataCache = {};
+
+function thornMessage(msg) {
+    return chalk.yellow(`        ${msg}`);
+}
 
 const VERBOSE_FUNCTIONS = [
     (type, data, r) => {
@@ -25,7 +30,7 @@ const VERBOSE_FUNCTIONS = [
                 msg = `Unidentified event ${type}`;
                 break;
         }
-        console.info(msg);
+        console.info(thornMessage(msg));
     },
     (type, data, r) => {
         let requests;
@@ -39,12 +44,12 @@ const VERBOSE_FUNCTIONS = [
                     requests = JSON.parse(data.body).requests;
                     _.each(requests, (req, index) => {
                         bulkDataCache[data.debugId].push({method: req.method, url: req.url});
-                        console.info(`\tBulk Request ${index + 1}: ${req.method} ${req.url}`);
+                        console.info(thornMessage(`\tBulk Request ${index + 1}: ${req.method} ${req.url}`));
                     });
                     break;
                 case 'response':
                     if (!data.body) {
-                        console.warn('\tBulk Response: no body');
+                        console.warn(thornMessage('\tBulk Response: no body'));
                         break;
                     }
                     responses = data.body;
@@ -58,7 +63,7 @@ const VERBOSE_FUNCTIONS = [
                         let req = bulkDataCache[data.debugId][index];
                         let msg = `\tBulk Response ${index + 1}: ${req.method} ${req.url} ${
                             resp.status}`;
-                        console.info(msg);
+                        console.info(thornMessage(msg));
                     });
                     delete bulkDataCache[data.debugId];
                     break;
