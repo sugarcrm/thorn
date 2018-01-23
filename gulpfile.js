@@ -17,7 +17,6 @@ gulp.task('test', ['build'], () => {
 
     commander
         .option('--coverage', 'Enable code coverage')
-        .option('--ci', 'Enable CI specific options')
         .option('--path <path>', 'Set base output path')
         .parse(process.argv);
 
@@ -26,12 +25,7 @@ gulp.task('test', ['build'], () => {
     let options = {
         timeout: '5000',
     };
-    if (commander.ci) {
-        let testResultPath = `${path}/test-results.xml`;
-        options.reporter = 'mocha-junit-reporter';
-        options.reporterOptions = `mochaFile=${testResultPath}`;
-        process.stdout.write(`Test reports will be generated to: ${testResultPath}\n`);
-    }
+
     if (commander.coverage) {
         options.istanbul = {
             dir: `${path}/coverage`,
