@@ -25,7 +25,7 @@
     "chai": "^3.5.0",
     "chai-sinon": "^2.8.1",
     "co-mocha": "^1.2.0",
-    "commander": "^2.11.0",
+    "commander": "^2.13.0",
     "coveralls": "^2.13.1",
     "eslint": "^3.19.0",
     "eslint-plugin-import": "^2.7.0",
