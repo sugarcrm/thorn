@@ -129,6 +129,14 @@ describe('Metadata Handler', () => {
                 expect(decimalPart.length).to.be.at.most(2);
             });
 
+            it('should default to a precision of 5,2', () => {
+                let value = Meta.generateFieldValue({type: 'decimal'});
+                // Number.toString() always uses a ".", even in European locales
+                let [intPart, decimalPart] = value.toString().split('.');
+                expect(intPart.length).to.be.at.most(3);
+                expect(decimalPart.length).to.be.at.most(2);
+            });
+
             it('should only return a number with at most 3 digits before and 2 after the decimal', () => {
                 let value = Meta.generateFieldValue({type: 'decimal', len: '10,5'});
                 // Number.toString() always uses a ".", even in European locales
@@ -142,11 +150,29 @@ describe('Metadata Handler', () => {
                 expect(value).to.be.a.number;
                 expect(Number.isInteger(value)).to.be.true;
             });
+
+            it('should accept currency', () => {
+                let value = Meta.generateFieldValue({type: 'currency', len: '5,2'});
+                expect(value).to.be.a.number;
+                let [intPart, decimalPart] = value.toString().split('.');
+                expect(intPart.length).to.be.at.most(3);
+                expect(decimalPart.length).to.be.at.most(2);
+            });
         });
 
         describe('datetimes', () => {
             it('should return a Date', () => {
                 let value = Meta.generateFieldValue({type: 'datetime'});
+                expect(value instanceof Date).to.be.true;
+            });
+
+            it('should accept date', () => {
+                let value = Meta.generateFieldValue({type: 'date'});
+                expect(value instanceof Date).to.be.true;
+            });
+
+            it('should accept datetimecombo', () => {
+                let value = Meta.generateFieldValue({type: 'datetimecombo'});
                 expect(value instanceof Date).to.be.true;
             });
         });
