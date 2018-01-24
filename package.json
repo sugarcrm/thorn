@@ -28,7 +28,7 @@
     "commander": "^2.13.0",
     "coveralls": "^2.13.1",
     "eslint": "^3.19.0",
-    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-import": "^2.8.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-eslint": "^3.0.1",
