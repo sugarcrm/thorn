@@ -53,8 +53,8 @@
     "prepare": "gulp"
   },
   "engines": {
-    "node": ">=6.10.3",
-    "npm": ">=3.0.0"
+    "node": ">=6.12.3",
+    "npm": ">=5.6.0"
   },
   "keywords": [
     "sugarcrm"
