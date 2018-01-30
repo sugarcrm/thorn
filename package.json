@@ -38,7 +38,7 @@
     "istanbul": "^0.4.5",
     "jsdoc-babel": "^0.3.0",
     "mocha": "^3.5.3",
-    "nock": "^9.0.21",
+    "nock": "^9.0.22",
     "sinon": "^2.4.1"
   },
   "dependencies": {
