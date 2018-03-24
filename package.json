@@ -32,7 +32,7 @@
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-eslint": "^3.0.1",
-    "gulp-jsdoc3": "^1.0.1",
+    "gulp-jsdoc3": "^2.0.0",
     "gulp-spawn-mocha": "^3.3.1",
     "gulp-watch": "^4.3.11",
     "istanbul": "^0.4.5",
@@ -60,4 +60,3 @@
     "sugarcrm"
   ]
 }
-
