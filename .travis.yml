@@ -7,7 +7,6 @@ node_js:
 
 script:
   - "yarn run lint"
-  - "yarn test -- --coverage"
+  - "yarn test --coverage"
 
 after_script: "cat /tmp/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
-
