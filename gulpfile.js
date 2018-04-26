@@ -10,7 +10,7 @@ gulp.task('build', () => {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('test', ['build'], () => {
+gulp.task('test', gulp.series('build', () => {
     const commander = require('commander');
     const os = require('os');
     const mocha = require('gulp-spawn-mocha');
@@ -34,7 +34,7 @@ gulp.task('test', ['build'], () => {
 
     return gulp.src(['tests/**/*.js'], {read: false})
         .pipe(mocha(options));
-});
+}));
 
 gulp.task('doc', (cb) => {
     const commander = require('commander');
@@ -68,4 +68,4 @@ gulp.task('watch', () => {
     });
 });
 
-gulp.task('default', ['lint', 'build']);
+gulp.task('default', gulp.series('lint', 'build'));
