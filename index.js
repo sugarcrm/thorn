@@ -32,7 +32,7 @@ if (verbosity) {
  *
  * @private
  */
-const VERSION = 'v10';
+const VERSION = 'v11_1';
 
 /**
  * Record map indexed by module names.

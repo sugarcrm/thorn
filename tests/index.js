@@ -865,9 +865,9 @@ describe('Thorn', () => {
             });
 
             it('should return the original agent if version is unchanged', () => {
-                let myAgentV10 = myAgent.on('v10');
+                let myAgentOriginalVersion = myAgent.on('v11_1');
 
-                expect(myAgentV10).to.equal(myAgent);
+                expect(myAgentOriginalVersion).to.equal(myAgent);
             });
 
             it('should return a clone of the original agent with updated version', () => {

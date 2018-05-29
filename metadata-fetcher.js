@@ -6,7 +6,7 @@ let _ = require('lodash');
 let utils = require('./utils');
 let chakram = require('chakram');
 
-const VERSION = 'v10';
+const VERSION = 'v11_1';
 
 let MetadataFetcher = {
 

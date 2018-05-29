@@ -364,16 +364,16 @@ It is *NOT* necessary to explicitly include OAuth tokens or other authentication
 
 #### API versioning
 
-Agents make requests against the default API version (currently, `v10`) by default. To make requests against a different API version, use `Agent.on`:
+Agents make requests against the default API version (currently, `v11_1`) by default. To make requests against a different API version, use `Agent.on`:
 
 ```javascript
-let johnV11 = john.on('v11');
+let johnV10 = john.on('v10');
 
-// all requests made against API version 11
-let response = yield johnV11.get('Dashboards');
+// all requests made against API version 10
+let response = yield johnV10.get('Dashboards');
 ...
 
-let response = yield johnV11.get('KBContents');
+let response = yield johnV10.get('KBContents');
 ...
 ```
 
