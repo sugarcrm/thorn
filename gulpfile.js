@@ -3,14 +3,7 @@ const gulp = require('gulp');
 
 const sourceFiles = ['debug.js', 'index.js', 'metadata-handler.js', 'utils.js', 'metadata-fetcher.js'];
 
-gulp.task('build', () => {
-    const babel = require('gulp-babel');
-    return gulp.src(sourceFiles)
-        .pipe(babel())
-        .pipe(gulp.dest('dist'));
-});
-
-gulp.task('test', ['build'], () => {
+gulp.task('test', () => {
     const commander = require('commander');
     const os = require('os');
     const mocha = require('gulp-spawn-mocha');
@@ -61,11 +54,3 @@ gulp.task('lint', () => {
         .pipe(eslint.failAfterError());
 });
 
-gulp.task('watch', () => {
-    const watch = require('gulp-watch');
-    watch(sourceFiles, () => {
-        gulp.start('default');
-    });
-});
-
-gulp.task('default', ['lint', 'build']);

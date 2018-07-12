@@ -2,7 +2,7 @@
   "name": "@sugarcrm/thorn",
   "version": "0.6.0",
   "description": "Set of helper abstractions built to ease the process of setting up a SugarCRM instance's REST API testing environment and interacting with it.",
-  "main": "dist/index.js",
+  "main": "index.js",
   "repository": "https://github.com/sugarcrm/thorn",
   "author": "SugarCRM Inc.",
   "contributors": [
@@ -17,12 +17,6 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@sugarcrm/eslint-config-sugarcrm": "~1.1.0",
-    "babel-core": "^6.26.0",
-    "babel-eslint": "^7.2.2",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-es2017": "^6.24.1",
     "chai": "^3.5.0",
     "chai-sinon": "^2.8.1",
     "co-mocha": "^1.2.0",
@@ -31,13 +25,11 @@
     "eslint": "^3.19.0",
     "eslint-plugin-import": "^2.8.0",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
     "gulp-eslint": "^3.0.1",
     "gulp-jsdoc3": "^2.0.0",
     "gulp-spawn-mocha": "^3.3.1",
     "gulp-watch": "^4.3.11",
     "istanbul": "^0.4.5",
-    "jsdoc-babel": "^0.3.0",
     "mocha": "^3.5.3",
     "nock": "^9.0.22",
     "sinon": "^4.4.6"
@@ -52,8 +44,7 @@
   "scripts": {
     "doc": "gulp doc",
     "test": "gulp test",
-    "lint": "gulp lint",
-    "prepare": "gulp"
+    "lint": "gulp lint"
   },
   "engines": {
     "node": ">=6.14.1",

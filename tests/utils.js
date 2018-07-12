@@ -14,7 +14,7 @@ describe('Utils', () => {
         let chai = require('chai');
         chai.use(require('chai-sinon'));
         expect = require('chai').expect;
-        utils = require('../dist/utils.js');
+        utils = require('../utils.js');
     });
 
     after(() => {

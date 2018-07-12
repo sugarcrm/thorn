@@ -74,4 +74,4 @@ const VERBOSE_FUNCTIONS = [
     },
 ];
 
-export {VERBOSE_FUNCTIONS};
+module.exports = VERBOSE_FUNCTIONS;
