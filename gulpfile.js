@@ -68,4 +68,4 @@ gulp.task('watch', () => {
     });
 });
 
-gulp.task('default', gulp.series('lint', 'build'));
+gulp.task('default', gulp.series('build', 'lint'));
